@@ -99,13 +99,16 @@ export function FilterPanel({
         })}
       </div>
 
-      <p className="mt-6 flex h-11 items-center justify-center rounded-card bg-ink px-5 text-[13px] font-medium text-white">
-        Показать результаты ({resultCount})
+      {/* Фильтрация мгновенная, поэтому здесь счётчик, а не кнопка «Показать»:
+          кнопка выглядела бы кликабельной и ничего не делала. */}
+      <p aria-live="polite" className="mt-6 flex h-11 items-center justify-center rounded-card bg-muted px-5 text-[13px] text-text-2">
+        Найдено категорий:&nbsp;<span className="font-semibold text-ink">{resultCount}</span>
       </p>
       <button
         type="button"
         onClick={onReset}
-        className="mt-3 h-11 w-full rounded-card border border-line text-[13px] font-medium transition-colors hover:border-ink hover:bg-muted"
+        disabled={activeCount === 0}
+        className="mt-3 h-11 w-full rounded-card border border-line text-[13px] font-medium transition-colors hover:border-ink hover:bg-muted disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:border-line disabled:hover:bg-transparent"
       >
         Сбросить фильтры
       </button>

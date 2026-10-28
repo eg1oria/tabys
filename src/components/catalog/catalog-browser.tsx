@@ -6,11 +6,12 @@ import { Container } from "@/components/ui/container";
 import { SectionLabel } from "@/components/ui/section-label";
 import { Button } from "@/components/ui/button";
 import { ImageSlot } from "@/components/ui/image-slot";
-import { ArrowLeft, Check, Search } from "@/components/ui/icons";
+import { ArrowLeft, Check, ChevronDown, Search } from "@/components/ui/icons";
 import { CategorySidebar } from "./category-sidebar";
 import { CategoryCard } from "./category-card";
 import { FilterPanel, emptyFilters, type Filters } from "./filter-panel";
 import { categories, type Category, type FilterGroup } from "@/lib/content/categories";
+import { cn } from "@/lib/utils";
 
 type Sort = "popular" | "name" | "count";
 
@@ -40,6 +41,7 @@ export function CatalogBrowser() {
 
   const [filters, setFilters] = useState<Filters>(emptyFilters);
   const [sort, setSort] = useState<Sort>("popular");
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const activeCategory = categories.find((c) => c.slug === activeSlug) ?? null;
 
@@ -83,20 +85,57 @@ export function CatalogBrowser() {
     <section className="bg-white py-12 lg:py-16">
       <Container>
         <div className="grid gap-8 lg:grid-cols-12 lg:gap-10">
-          <aside className="lg:col-span-3">
-            <CategorySidebar
-              active={activeSlug}
-              onSelect={(slug) => updateParams({ cat: slug })}
-            />
-            <FilterPanel
-              filters={filters}
-              onToggle={toggleFilter}
-              onReset={() => setFilters(emptyFilters)}
-              resultCount={visible.length}
-            />
+          <aside className="min-w-0 lg:col-span-3">
+            <div className="-mx-4 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:hidden">
+              <div className="flex w-max gap-2">
+                <CategoryChip
+                  label="Все"
+                  count={categories.length}
+                  active={activeSlug === null}
+                  onClick={() => updateParams({ cat: null })}
+                />
+                {categories.map((category) => (
+                  <CategoryChip
+                    key={category.slug}
+                    label={category.short}
+                    count={category.count}
+                    active={activeSlug === category.slug}
+                    onClick={() => updateParams({ cat: category.slug })}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="hidden lg:block">
+              <CategorySidebar
+                active={activeSlug}
+                onSelect={(slug) => updateParams({ cat: slug })}
+              />
+            </div>
+
+            <button
+              type="button"
+              aria-expanded={mobileFiltersOpen}
+              onClick={() => setMobileFiltersOpen((v) => !v)}
+              className="mt-5 flex h-11 w-full items-center justify-between rounded-card border border-line px-4 text-[13px] font-medium lg:hidden"
+            >
+              Фильтры
+              <ChevronDown
+                className={cn("size-4 text-text-2 transition-transform", mobileFiltersOpen && "rotate-180")}
+              />
+            </button>
+
+            <div className={cn(mobileFiltersOpen ? "block" : "hidden", "lg:block")}>
+              <FilterPanel
+                filters={filters}
+                onToggle={toggleFilter}
+                onReset={() => setFilters(emptyFilters)}
+                resultCount={visible.length}
+              />
+            </div>
           </aside>
 
-          <div className="lg:col-span-9">
+          <div className="min-w-0 lg:col-span-9">
             {activeCategory ? (
               <CategoryDetail
                 category={activeCategory}
@@ -117,19 +156,20 @@ export function CatalogBrowser() {
                       value={query}
                       onSubmit={(value) => updateParams({ q: value || null })}
                     />
-                    <label className="relative">
+                    <label className="relative block">
                       <span className="sr-only">Сортировка</span>
                       <select
                         value={sort}
                         onChange={(e) => setSort(e.target.value as Sort)}
-                        className="h-11 w-full cursor-pointer appearance-none rounded-card border border-line bg-white px-4 pr-9 text-[13px] focus:border-accent focus:outline-none sm:w-[230px]"
+                        className="h-11 w-full cursor-pointer appearance-none rounded-card border border-line bg-white px-4 pr-10 text-[13px] focus:border-accent focus:outline-none sm:w-[220px]"
                       >
                         {(Object.keys(sortLabels) as Sort[]).map((key) => (
                           <option key={key} value={key}>
-                            Сортировка: {sortLabels[key]}
+                            {sortLabels[key]}
                           </option>
                         ))}
                       </select>
+                      <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 size-4 -translate-y-1/2 text-text-2" />
                     </label>
                   </div>
                 </div>
@@ -260,5 +300,36 @@ function CategoryDetail({
         </div>
       </div>
     </div>
+  );
+}
+
+function CategoryChip({
+  label,
+  count,
+  active,
+  onClick,
+}: {
+  label: string;
+  count: number;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-current={active ? "true" : undefined}
+      className={cn(
+        "inline-flex h-9 shrink-0 items-center gap-2 rounded-card border px-3.5 text-[12.5px] transition-colors",
+        active
+          ? "border-ink bg-ink text-white"
+          : "border-line bg-white text-ink hover:border-ink",
+      )}
+    >
+      {label}
+      <span className={cn("text-[11px]", active ? "text-white/55" : "text-text-2")}>
+        {count}
+      </span>
+    </button>
   );
 }

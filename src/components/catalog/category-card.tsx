@@ -24,7 +24,7 @@ export function CategoryCard({
       className="group flex h-full flex-col rounded-card border border-line bg-white p-5 text-left transition-colors hover:border-accent"
     >
       <div className="flex items-start justify-between gap-3">
-        <h3 className="font-display text-[13px] font-bold uppercase leading-[1.35] tracking-[0.02em]">
+        <h3 className="min-h-[2.7em] font-display text-[13px] font-bold uppercase leading-[1.35] tracking-[0.02em]">
           {category.title}
         </h3>
         <span className="shrink-0 rounded-card bg-muted px-2 py-1 text-[11px] text-text-2">

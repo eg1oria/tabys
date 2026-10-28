@@ -73,7 +73,7 @@ export default function LinesPage() {
                   key={line.title}
                   className="rounded-card border border-line p-6 transition-colors hover:border-accent"
                 >
-                  <h3 className="font-display text-[14px] font-bold uppercase tracking-[0.02em]">
+                  <h3 className="min-h-[2.6em] font-display text-[14px] font-bold uppercase leading-[1.3] tracking-[0.02em]">
                     {line.title}
                   </h3>
                   <p className="mt-3 text-[13px] leading-snug text-text-2">

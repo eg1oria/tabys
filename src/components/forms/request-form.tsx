@@ -160,7 +160,7 @@ export function RequestForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="group inline-flex h-[52px] items-center justify-center gap-2.5 rounded-card bg-accent px-7 text-sm font-medium text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-60"
+          className="group inline-flex h-[52px] items-center justify-center gap-2.5 whitespace-nowrap rounded-card bg-accent px-6 text-sm font-medium text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isPending ? "Отправляем…" : "Отправить заявку"}
           {isPending ? null : (

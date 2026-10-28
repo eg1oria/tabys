@@ -25,7 +25,7 @@ export function WhyUs() {
                 className="rounded-card border border-line bg-white p-5 transition-colors hover:border-accent"
               >
                 <Icon className="size-7 text-accent" />
-                <p className="mt-6 font-display text-[13px] font-bold uppercase leading-[1.35] tracking-[0.02em]">
+                <p className="mt-6 min-h-[2.7em] font-display text-[13px] font-bold uppercase leading-[1.35] tracking-[0.02em]">
                   {item.title}
                 </p>
                 <p className="mt-2.5 text-[12.5px] leading-snug text-text-2">

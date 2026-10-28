@@ -80,14 +80,10 @@ export function Header() {
 
   return (
     <header ref={headerRef} className="sticky top-0 z-50 bg-ink text-white">
-      <Container className="flex h-[68px] items-center gap-4 lg:h-[76px] lg:gap-6">
+      <Container className="flex h-[68px] items-center gap-4 xl:h-[76px] xl:gap-6">
         <Logo />
 
-        <span className="hidden max-w-[190px] border-l border-white/15 pl-5 text-[11px] leading-[1.45] text-white/50 2xl:block">
-          Производство оборудования для пищевой промышленности
-        </span>
-
-        <nav aria-label="Основная навигация" className="ml-auto hidden items-center gap-1 lg:flex">
+        <nav aria-label="Основная навигация" className="ml-auto hidden items-center gap-1 xl:flex">
           {nav.map((item) =>
             item.children ? (
               <div key={item.href} className="relative">
@@ -98,7 +94,7 @@ export function Header() {
                     setOpenDropdown((cur) => (cur === item.href ? null : item.href))
                   }
                   className={cn(
-                    "inline-flex items-center gap-1.5 px-3 py-2 text-[13px] transition-colors",
+                    "inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-2 text-[13px] transition-colors",
                     isActive(pathname, item.href)
                       ? "text-accent"
                       : "text-white/80 hover:text-white",
@@ -138,7 +134,7 @@ export function Header() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "px-3 py-2 text-[13px] transition-colors",
+                  "whitespace-nowrap px-3 py-2 text-[13px] transition-colors",
                   isActive(pathname, item.href)
                     ? "text-accent"
                     : "text-white/80 hover:text-white",
@@ -150,7 +146,7 @@ export function Header() {
           )}
         </nav>
 
-        <div className="ml-auto flex items-center gap-1 lg:ml-2 lg:gap-3">
+        <div className="ml-auto flex items-center gap-1 xl:ml-2 xl:gap-3">
           <button
             type="button"
             aria-label="Поиск по оборудованию"
@@ -163,14 +159,14 @@ export function Header() {
 
           <a
             href={primaryPhone.href}
-            className="hidden items-center gap-2 border-l border-white/15 pl-4 text-[13px] text-white/90 transition-colors hover:text-white xl:inline-flex"
+            className="hidden items-center gap-2 whitespace-nowrap border-l border-white/15 pl-4 text-[13px] text-white/90 transition-colors hover:text-white 2xl:inline-flex"
           >
             <Phone className="size-4 text-accent" />
             {primaryPhone.display}
           </a>
 
           <span className="hidden sm:block">
-            <Button href="/kontakty" arrow>
+            <Button href="/kontakty" arrow className="whitespace-nowrap">
               Обсудить проект
             </Button>
           </span>
@@ -180,7 +176,7 @@ export function Header() {
             aria-label={openMenu ? "Закрыть меню" : "Открыть меню"}
             aria-expanded={openMenu}
             onClick={() => setOpenMenu((v) => !v)}
-            className="grid size-10 place-items-center text-white lg:hidden"
+            className="grid size-10 place-items-center text-white xl:hidden"
           >
             {openMenu ? <Close className="size-6" /> : <Menu className="size-6" />}
           </button>
@@ -208,7 +204,7 @@ export function Header() {
       ) : null}
 
       {openMenu ? (
-        <div className="fixed inset-x-0 bottom-0 top-[68px] z-40 overflow-y-auto bg-ink lg:hidden">
+        <div className="fixed inset-x-0 bottom-0 top-[68px] z-40 overflow-y-auto bg-ink xl:hidden">
           <Container className="flex min-h-full flex-col py-6">
             <nav aria-label="Мобильная навигация" className="flex flex-col">
               {nav.map((item) => (

@@ -57,7 +57,7 @@ export function Hero() {
           </div>
 
           {/* Технический бейдж, как в макете */}
-          <div className="mt-12 hidden w-[232px] shrink-0 border border-white/20 p-6 lg:block">
+          <div className="mt-12 hidden w-[232px] shrink-0 border border-white/20 p-6 xl:block">
             <p className="font-display text-[13px] font-bold uppercase leading-[1.7] tracking-[0.12em] text-white/75">
               Нержавеющая
               <br />

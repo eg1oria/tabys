@@ -56,7 +56,7 @@ export default function ContactsPage() {
       <section className="bg-muted py-14 lg:py-20">
         <Container>
           <div className="grid gap-10 lg:grid-cols-12 lg:gap-10">
-            <div className="lg:col-span-5">
+            <div className="lg:col-span-7 xl:col-span-5">
               <SectionLabel number="02">Request</SectionLabel>
               <h2 className="display-title mt-4 text-[clamp(1.5rem,4.5vw,2.25rem)] leading-[1.08]">
                 Оставить заявку
@@ -69,7 +69,7 @@ export default function ContactsPage() {
               </div>
             </div>
 
-            <div className="lg:col-span-3">
+            <div className="lg:col-span-5 xl:col-span-3">
               <SectionLabel number="03">Work schedule</SectionLabel>
               <h2 className="display-title mt-4 text-[clamp(1.5rem,4.5vw,2.25rem)] leading-[1.08]">
                 График работы
@@ -79,34 +79,32 @@ export default function ContactsPage() {
               </div>
             </div>
 
-            <div className="lg:col-span-4">
+            <div className="lg:col-span-12 xl:col-span-4">
               <SectionLabel number="04">How to get</SectionLabel>
               <h2 className="display-title mt-4 text-[clamp(1.5rem,4.5vw,2.25rem)] leading-[1.08]">
                 Как к нам добраться
               </h2>
-              <div className="mt-8 space-y-3">
+              <div className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-2">
                 <ImageSlot
                   src={gallery[0].src}
                   alt={gallery[0].alt}
-                  className="aspect-[16/10] w-full rounded-card"
-                  sizes="(max-width: 1024px) 100vw, 33vw"
+                  className="col-span-2 aspect-[16/10] w-full rounded-card lg:col-span-1 lg:aspect-[4/3] xl:col-span-2 xl:aspect-[16/10]"
+                  sizes="(max-width: 1280px) 50vw, 25vw"
                 />
-                <div className="grid grid-cols-2 gap-3">
-                  {gallery.slice(1).map((photo) => (
-                    <ImageSlot
-                      key={photo.src}
-                      src={photo.src}
-                      alt={photo.alt}
-                      className="aspect-[4/3] w-full rounded-card"
-                      sizes="(max-width: 1024px) 50vw, 16vw"
-                    />
-                  ))}
-                </div>
-                <p className="pt-2 text-[13px] leading-relaxed text-text-2">
-                  Территория производства находится в {company.addressShort}. Въезд для
-                  транспорта со стороны улицы — ориентируйтесь на вывеску Tabys Consulting.
-                </p>
+                {gallery.slice(1).map((photo) => (
+                  <ImageSlot
+                    key={photo.src}
+                    src={photo.src}
+                    alt={photo.alt}
+                    className="aspect-[4/3] w-full rounded-card"
+                    sizes="(max-width: 1280px) 33vw, 12vw"
+                  />
+                ))}
               </div>
+              <p className="mt-5 max-w-xl text-[13px] leading-relaxed text-text-2">
+                Территория производства находится в {company.addressShort}. Въезд для
+                транспорта со стороны улицы — ориентируйтесь на вывеску Tabys Consulting.
+              </p>
             </div>
           </div>
         </Container>

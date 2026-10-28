@@ -8,8 +8,8 @@ export function Seals() {
   return (
     <section className="bg-white py-16 lg:py-24">
       <Container>
-        <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-8">
-          <div className="lg:col-span-4">
+        <div className="grid items-stretch gap-10 lg:grid-cols-12 lg:gap-8">
+          <div className="flex flex-col justify-center lg:col-span-4">
             <SectionLabel number="06">Комплектующие</SectionLabel>
             <h2 className="display-title mt-5 text-[clamp(1.5rem,4.5vw,2.5rem)] leading-[1.08]">
               Торцевые
@@ -38,7 +38,7 @@ export function Seals() {
           />
 
           <div className="grid gap-4 sm:grid-cols-2 lg:col-span-3 lg:grid-cols-1">
-            <div className="rounded-card bg-muted p-5">
+            <div className="flex flex-col justify-center rounded-card bg-muted p-5">
               <p className="font-display text-[13px] font-bold uppercase leading-[1.5] tracking-[0.08em]">
                 Надёжные
                 <br />
@@ -46,7 +46,7 @@ export function Seals() {
               </p>
               <p className="mt-2 text-[12.5px] text-text-2">для вашего оборудования</p>
             </div>
-            <div className="rounded-card bg-ink p-5 text-white">
+            <div className="flex flex-col justify-center rounded-card bg-ink p-5 text-white">
               <p className="font-display text-[13px] font-bold uppercase leading-[1.5] tracking-[0.08em]">
                 20 позиций
               </p>

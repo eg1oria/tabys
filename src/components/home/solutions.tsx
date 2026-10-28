@@ -44,7 +44,7 @@ export function Solutions() {
                       {String(i + 1).padStart(2, "0")}
                     </span>
                   </div>
-                  <h3 className="mt-7 font-display text-[13px] font-bold uppercase leading-[1.35] tracking-[0.02em]">
+                  <h3 className="mt-7 min-h-[2.7em] font-display text-[13px] font-bold uppercase leading-[1.35] tracking-[0.02em]">
                     {solution.title}
                   </h3>
                   <p className="mt-2.5 text-[12.5px] leading-snug text-text-2">

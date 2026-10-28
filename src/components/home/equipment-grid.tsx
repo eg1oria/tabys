@@ -79,7 +79,7 @@ export function EquipmentGrid() {
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
-                  <h3 className="font-display text-[13px] font-bold uppercase leading-[1.35] tracking-[0.02em]">
+                  <h3 className="min-h-[2.7em] font-display text-[13px] font-bold uppercase leading-[1.35] tracking-[0.02em]">
                     {category.title}
                   </h3>
                   <span className="shrink-0 text-[11px] font-semibold text-text-2">
@@ -96,7 +96,7 @@ export function EquipmentGrid() {
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                 />
 
-                <span className="mt-4 grid size-9 place-items-center rounded-card border border-line text-accent transition-colors group-hover:border-accent group-hover:bg-accent group-hover:text-white">
+                <span className="mt-4 grid size-9 place-items-center self-start rounded-card border border-line text-accent transition-colors group-hover:border-accent group-hover:bg-accent group-hover:text-white">
                   <ArrowRight className="size-4" />
                 </span>
               </Link>
