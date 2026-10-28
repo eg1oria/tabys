@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tabys Consulting — сайт
 
-## Getting Started
+Корпоративный сайт ТОО «Табыс Consulting» (Алматы): производство оборудования
+из нержавеющей стали для пищевой промышленности.
 
-First, run the development server:
+Next.js 16.4 (App Router, Turbopack), React 19, Tailwind CSS v4, TypeScript.
+
+## Запуск
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev     # http://localhost:3000
+npm run build   # продакшен-сборка
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Структура
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Путь | Что это |
+| --- | --- |
+| `src/app/` | страницы (главная, каталог, линии, услуги, проекты, о компании, контакты, политика) |
+| `src/components/` | `layout/` — шапка и подвал, `ui/` — общие элементы, `home/` `catalog/` `contacts/` `forms/` — блоки страниц |
+| `src/lib/content/` | **весь текстовый контент сайта**: контакты, категории, услуги, проекты, линии |
+| `src/lib/actions/` | Server Action формы заявки |
+| `public/images/` | фотографии |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Контент намеренно лежит в обычных TypeScript-модулях, без БД и внешних запросов —
+поэтому все страницы собираются статически. Чтобы поправить телефон, адрес или
+список категорий, правьте файлы в `src/lib/content/`.
 
-## Learn More
+## Особенности этой версии Next.js
 
-To learn more about Next.js, take a look at the following resources:
+В `next.config.ts` включён `cacheComponents`. Из-за этого:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **нельзя** вызывать `new Date()`, `Date.now()`, `Math.random()`, `crypto.randomUUID()`
+  при рендере страницы — сборка упадёт. Год в подвале задан константой
+  `COPYRIGHT_YEAR` в `src/lib/content/company.ts`;
+- `useSearchParams` работает только внутри `<Suspense>` (см. `src/app/oborudovanie/page.tsx`);
+- route segment configs `dynamic` / `revalidate` / `fetchCache` не поддерживаются.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Документация под установленную версию лежит в `node_modules/next/dist/docs/`.
 
-## Deploy on Vercel
+## Форма заявки
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+`src/lib/actions/request.ts` проверяет поля и вызывает `deliverRequest()`.
+Сейчас эта функция **пишет заявку в лог сервера** — реальной отправки нет.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Чтобы подключить доставку, замените тело `deliverRequest()` (Telegram Bot API,
+Resend, SMTP — форма и валидация не меняются).
+
+Вложение ограничено 4 МБ: тело Server Action на Vercel не может быть больше ~4.5 МБ.
+Для файлов до 20 МБ, как в макете, понадобится прямая загрузка в Vercel Blob или S3.
+
+## Фотографии
+
+Изображения в `public/images/` сгенерированы нейросетью как временная замена —
+их нужно заменить на реальные фото производства.
+
+Чтобы подставить настоящее фото: положите файл в `public/images/` с тем же именем.
+Если файла нет, компонент `<ImageSlot>` рисует аккуратный плейсхолдер вместо битой
+картинки. Список доступных файлов — в `src/lib/images.ts`, туда же добавляются новые.
+
+Ещё не сгенерированы (сейчас показываются плейсхолдером или переиспользуют другое фото):
+`seals.jpg` (торцевые уплотнения), `cat-pumps.jpg` (насосы), `cat-other.jpg`,
+`facility.jpg` (фасад производства), фото для блока «Решения».

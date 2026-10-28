@@ -1,0 +1,21 @@
+/**
+ * Фотографии, которые уже лежат в /public/images.
+ * Остальные слоты рендерятся аккуратным плейсхолдером — см. <ImageSlot>.
+ * Когда появится новое фото, достаточно положить файл и добавить путь сюда.
+ */
+const available = new Set([
+  "/images/hero-main.jpg",
+  "/images/hero-dark.jpg",
+  "/images/welding.jpg",
+  "/images/cat-tanks.jpg",
+  "/images/cat-pasteurization.jpg",
+  "/images/cat-cheese.jpg",
+  "/images/cat-coolers.jpg",
+  "/images/cat-curd.jpg",
+  "/images/cat-vacuum.jpg",
+  "/images/cat-cip.jpg",
+]);
+
+export function hasImage(src: string | undefined): src is string {
+  return Boolean(src) && available.has(src as string);
+}
