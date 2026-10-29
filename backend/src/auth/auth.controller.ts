@@ -1,4 +1,12 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
@@ -55,12 +63,20 @@ export class AuthController {
 
   @ApiBearerAuth('access-token')
   @Post('change-password')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Смена пароля — завершает остальные сессии' })
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Смена пароля — завершает остальные сессии, выдаёт новую пару',
+  })
   changePassword(
     @CurrentUser() user: AuthUser,
     @Body() dto: ChangePasswordDto,
-  ): Promise<void> {
-    return this.auth.changePassword(user, dto.currentPassword, dto.newPassword);
+    @Req() req: Request,
+  ): Promise<TokenPair> {
+    return this.auth.changePassword(
+      user,
+      dto.currentPassword,
+      dto.newPassword,
+      context(req),
+    );
   }
 }

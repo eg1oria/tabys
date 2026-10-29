@@ -88,6 +88,11 @@ export type Category = Prisma.CategoryModel
  */
 export type Product = Prisma.ProductModel
 /**
+ * Model ProductImage
+ * Дополнительные фото товара. Первое по sortOrder дублируется в Product.imageId.
+ */
+export type ProductImage = Prisma.ProductImageModel
+/**
  * Model Lead
  * 
  */

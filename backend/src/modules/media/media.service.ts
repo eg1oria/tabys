@@ -9,6 +9,7 @@ import { AuditService } from '../../common/audit/audit.service.js';
 import { paginate, type Paginated, type PaginationDto } from '../../common/dto/pagination.dto.js';
 import { datePrefix, ensureDir, resolveWithin, safeFilename } from './storage.js';
 import type { AuthUser } from '../../auth/types.js';
+import { decodeMultipartFilename } from '../../common/http/multipart-filename.js';
 
 /** Что действительно принимаем как изображение — по магическим байтам. */
 const ALLOWED_IMAGE_MIME = new Set([
@@ -84,7 +85,7 @@ export class MediaService {
     const created = await this.prisma.mediaAsset.create({
       data: {
         storageKey,
-        originalName: file.originalname.slice(0, 255),
+        originalName: decodeMultipartFilename(file.originalname).slice(0, 255),
         mimeType: sniffed.mime,
         bytes: file.size,
         width: meta.width ?? null,

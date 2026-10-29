@@ -1,4 +1,4 @@
-import { decodeMultipartFilename } from './filename.js';
+import { decodeMultipartFilename } from './multipart-filename.js';
 
 describe('decodeMultipartFilename', () => {
   it('восстанавливает кириллицу, которую multer отдал как latin1', () => {

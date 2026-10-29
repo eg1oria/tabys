@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import { AppModule } from './app.module.js';
 import { AppConfigService } from './config/app-config.service.js';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter.js';
+import type { Request, Response } from 'express';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -31,6 +32,12 @@ app.enableCors({
   origin: config.corsOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+});
+// Вложения заявок лежат в том же UPLOAD_DIR, но это документы клиентов:
+// отдаёт их только авторизованный /admin/leads/:id/attachments/:aid.
+// Без этой заглушки статика ниже раздала бы их всем по прямой ссылке.
+app.use('/uploads/leads', (_req: Request, res: Response) => {
+  res.status(404).end();
 });
 // Статика /uploads вне globalPrefix: это сырой express-слой.
 app.useStaticAssets(config.uploadDir, {

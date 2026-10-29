@@ -66,16 +66,28 @@ export class AuthService {
     });
   }
 
+  /**
+   * Меняет пароль и возвращает новую пару токенов.
+   *
+   * Отзываем вообще все refresh-токены, включая токен текущей вкладки —
+   * иначе украденная сессия переживёт смену пароля. Чтобы при этом не
+   * выбросить самого администратора, сразу выдаём ему новую пару: вызывающая
+   * сторона записывает её в cookie.
+   */
   async changePassword(
     user: AuthUser,
     currentPassword: string,
     newPassword: string,
-  ): Promise<void> {
+    ctx: { ip?: string; userAgent?: string } = {},
+  ): Promise<TokenPair> {
     const record = await this.prisma.adminUser.findUniqueOrThrow({
       where: { id: user.id },
     });
 
-    const ok = await this.passwords.verify(record.passwordHash, currentPassword);
+    const ok = await this.passwords.verify(
+      record.passwordHash,
+      currentPassword,
+    );
     if (!ok) throw new UnauthorizedException('Текущий пароль неверен');
 
     await this.prisma.adminUser.update({
@@ -83,7 +95,7 @@ export class AuthService {
       data: { passwordHash: await this.passwords.hash(newPassword) },
     });
 
-    // Смена пароля должна выбить все прочие сессии.
     await this.tokens.revokeAllForUser(user.id);
+    return this.tokens.issuePair(record, ctx);
   }
 }

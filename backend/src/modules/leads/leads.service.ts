@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { createReadStream } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
@@ -9,8 +15,13 @@ import { AppConfigService } from '../../config/app-config.service.js';
 import { AuditService } from '../../common/audit/audit.service.js';
 import { buildOrderBy } from '../../common/prisma/order-by.js';
 import { paginate, type Paginated } from '../../common/dto/pagination.dto.js';
-import { datePrefix, ensureDir, resolveWithin, safeFilename } from '../media/storage.js';
-import { decodeMultipartFilename } from './filename.js';
+import {
+  datePrefix,
+  ensureDir,
+  resolveWithin,
+  safeFilename,
+} from '../media/storage.js';
+import { decodeMultipartFilename } from '../../common/http/multipart-filename.js';
 import {
   ALLOWED_EXTENSIONS,
   EXTENSION_MIME,
@@ -92,7 +103,9 @@ export class LeadsService {
     // Ботам отвечаем успехом: 400 только подсказывает, что менять.
     const status = dto.looksAutomated ? LeadStatus.SPAM : LeadStatus.NEW;
     if (status === LeadStatus.SPAM) {
-      this.logger.warn(`Заявка помечена как спам (honeypot/таймер), ip=${ctx.ip}`);
+      this.logger.warn(
+        `Заявка помечена как спам (honeypot/таймер), ip=${ctx.ip}`,
+      );
     }
 
     const lead = await this.prisma.lead.create({
@@ -120,7 +133,10 @@ export class LeadsService {
         data: {
           leadId: lead.id,
           storageKey: key,
-          originalName: decodeMultipartFilename(file.originalname).slice(0, 255),
+          originalName: decodeMultipartFilename(file.originalname).slice(
+            0,
+            255,
+          ),
           mimeType: checked.mimeType,
           bytes: file.size,
         },
@@ -129,7 +145,9 @@ export class LeadsService {
 
     // Уведомление — вне запроса: лежащий Telegram не должен подвешивать форму.
     if (status === LeadStatus.NEW) {
-      this.events.emit(LEAD_CREATED, { leadId: lead.id } satisfies LeadCreatedEvent);
+      this.events.emit(LEAD_CREATED, {
+        leadId: lead.id,
+      } satisfies LeadCreatedEvent);
     }
 
     return lead;
@@ -153,12 +171,19 @@ export class LeadsService {
     const [rows, total] = await Promise.all([
       this.prisma.lead.findMany({
         where,
-        orderBy: buildOrderBy(dto.sortBy, dto.order, SORTABLE, { createdAt: 'desc' }),
+        orderBy: buildOrderBy(dto.sortBy, dto.order, SORTABLE, {
+          createdAt: 'desc',
+        }),
         skip: dto.skip,
         take: dto.perPage,
         include: {
           attachments: {
-            select: { id: true, originalName: true, bytes: true, mimeType: true },
+            select: {
+              id: true,
+              originalName: true,
+              bytes: true,
+              mimeType: true,
+            },
           },
           assignedTo: { select: { id: true, name: true, email: true } },
         },
@@ -193,14 +218,22 @@ export class LeadsService {
       }
     }
 
-    const updated = await this.prisma.lead.update({
-      where: { id },
+    // Условие по исходному статусу прямо в UPDATE: между проверкой перехода
+    // и записью заявку мог перевести другой администратор.
+    const { count } = await this.prisma.lead.updateMany({
+      where: { id, ...(dto.status ? { status: before.status } : {}) },
       data: {
         status: dto.status,
         internalNote: dto.internalNote,
         assignedToId: dto.assignedToId,
       },
     });
+    if (count === 0) {
+      throw new ConflictException(
+        'Статус заявки уже изменили — обновите страницу',
+      );
+    }
+    const updated = await this.prisma.lead.findUniqueOrThrow({ where: { id } });
 
     await this.audit.log({
       actor,
@@ -223,7 +256,10 @@ export class LeadsService {
     });
     if (!attachment) throw new NotFoundException('Вложение не найдено');
 
-    const absolute = resolveWithin(this.config.uploadDir, attachment.storageKey);
+    const absolute = resolveWithin(
+      this.config.uploadDir,
+      attachment.storageKey,
+    );
     return {
       stream: createReadStream(absolute),
       filename: attachment.originalName,

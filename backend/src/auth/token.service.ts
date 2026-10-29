@@ -40,7 +40,9 @@ export class TokenService {
     return Math.floor(parseTtlToMs(this.config.jwtAccessTtl) / 1000);
   }
 
-  private async signAccess(user: Pick<AdminUser, 'id' | 'email' | 'role'>): Promise<string> {
+  private async signAccess(
+    user: Pick<AdminUser, 'id' | 'email' | 'role'>,
+  ): Promise<string> {
     const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
@@ -104,8 +106,18 @@ export class TokenService {
    * отозванный токен, значит он утёк — гасим всё семейство, а не одну строку.
    */
   async rotate(rawToken: string, ctx: IssueContext = {}): Promise<TokenPair> {
+    const tokenHash = hashToken(rawToken);
+
+    // Гасим строку условным UPDATE, а не read-then-write: две параллельные
+    // ротации одного токена иначе обе проходят, семейство раздваивается и
+    // обнаружение утечки перестаёт работать. Выигрывает ровно один запрос.
+    const { count } = await this.prisma.refreshToken.updateMany({
+      where: { tokenHash, revokedAt: null, expiresAt: { gt: new Date() } },
+      data: { revokedAt: new Date() },
+    });
+
     const stored = await this.prisma.refreshToken.findUnique({
-      where: { tokenHash: hashToken(rawToken) },
+      where: { tokenHash },
       include: { user: true },
     });
 
@@ -113,26 +125,21 @@ export class TokenService {
       throw new UnauthorizedException('Недействительный refresh-токен');
     }
 
-    if (stored.revokedAt !== null) {
+    if (count === 0) {
+      if (stored.expiresAt.getTime() <= Date.now()) {
+        throw new UnauthorizedException('Refresh-токен истёк');
+      }
+      // Строка уже была отозвана — токен предъявили повторно.
       await this.revokeFamily(stored.familyId);
       throw new UnauthorizedException(
         'Повторное использование токена — все сессии завершены',
       );
     }
 
-    if (stored.expiresAt.getTime() <= Date.now()) {
-      throw new UnauthorizedException('Refresh-токен истёк');
-    }
-
     if (!stored.user.isActive) {
       await this.revokeFamily(stored.familyId);
       throw new UnauthorizedException('Пользователь отключён');
     }
-
-    await this.prisma.refreshToken.update({
-      where: { id: stored.id },
-      data: { revokedAt: new Date() },
-    });
 
     return this.issueWithFamily(stored.user, stored.familyId, ctx);
   }

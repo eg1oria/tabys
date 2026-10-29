@@ -4,6 +4,7 @@ import {
   ArrayMaxSize,
   IsArray,
   IsBoolean,
+  IsEnum,
   IsInt,
   IsNumber,
   IsObject,
@@ -13,7 +14,12 @@ import {
   MaxLength,
   Min,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
+import { PublishStatus } from '../../../prisma/client.js';
+
+/** Пустое поле формы приходит как null — это «очистить», а не «не передано». */
+const notNull = () => ValidateIf((_: unknown, value: unknown) => value !== null);
 
 export class CreateProductDto {
   @ApiProperty({ description: 'id категории' })
@@ -27,19 +33,31 @@ export class CreateProductDto {
   title!: string;
 
   @ApiPropertyOptional({ description: 'Не передан — транслитерируется из title' })
+  @notNull()
   @IsString()
   @MaxLength(80)
   @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
     message: 'slug: строчные латинские буквы, цифры и дефис',
   })
   @IsOptional()
-  slug?: string;
+  slug?: string | null;
+
+  @ApiPropertyOptional({ description: 'Артикул, например TC-R-500', example: 'TC-R-500' })
+  @notNull()
+  @IsString()
+  @MaxLength(64)
+  @Matches(/^[A-Za-z0-9][A-Za-z0-9 ._/-]*$/, {
+    message: 'sku: латинские буквы, цифры, пробел, точка, дефис, слэш',
+  })
+  @IsOptional()
+  sku?: string | null;
 
   @ApiPropertyOptional()
+  @notNull()
   @IsString()
   @MaxLength(5000)
   @IsOptional()
-  description?: string;
+  description?: string | null;
 
   @ApiPropertyOptional({
     description: 'Характеристики парами',
@@ -61,10 +79,23 @@ export class CreateProductDto {
   @IsOptional()
   priceOnRequest?: boolean;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ description: 'Главное фото' })
+  @notNull()
   @IsString()
   @IsOptional()
   imageId?: string | null;
+
+  @ApiPropertyOptional({ description: 'Галерея: id картинок по порядку, первая — главная' })
+  @IsArray()
+  @IsString({ each: true })
+  @ArrayMaxSize(12)
+  @IsOptional()
+  imageIds?: string[];
+
+  @ApiPropertyOptional({ enum: PublishStatus, description: 'По умолчанию PUBLISHED' })
+  @IsEnum(PublishStatus)
+  @IsOptional()
+  status?: PublishStatus;
 
   @ApiPropertyOptional({ description: 'Значения фасетов' })
   @IsArray()
