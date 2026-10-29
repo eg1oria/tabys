@@ -62,9 +62,29 @@ export const advantages = [
 
 /** Блок «Почему Tabys Consulting». */
 export const whyUs = [
-  { title: "Собственное производство", description: "Полный цикл в Алматы — от раскроя до испытаний" },
-  { title: "Изготовление по ТЗ", description: "Конструкция под ваш технологический процесс" },
-  { title: "Комплексные решения", description: "Линии под ключ, а не разрозненное оборудование" },
-  { title: "Нержавеющая сталь", description: "AISI 304 и 316, пищевые допуски и сертификаты" },
-  { title: "Сервис после запуска", description: "Обслуживание, запчасти, модернизация" },
+  {
+    title: "Собственное производство",
+    description: "Полный цикл в Алматы — от раскроя до испытаний",
+    image: "/images/welding.jpg",
+  },
+  {
+    title: "Изготовление по ТЗ",
+    description: "Конструкция под ваш технологический процесс",
+    image: "/images/cat-cip.jpg",
+  },
+  {
+    title: "Комплексные решения",
+    description: "Линии под ключ, а не разрозненное оборудование",
+    image: "/images/cat-tanks.jpg",
+  },
+  {
+    title: "Нержавеющая сталь",
+    description: "AISI 304 и 316, пищевые допуски и сертификаты",
+    image: "/images/cat-vacuum.jpg",
+  },
+  {
+    title: "Сервис после запуска",
+    description: "Обслуживание, запчасти, модернизация",
+    image: "/images/cat-pasteurization.jpg",
+  },
 ];
