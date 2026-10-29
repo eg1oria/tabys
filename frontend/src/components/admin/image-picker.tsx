@@ -55,10 +55,16 @@ export function ImagePicker({
           </p>
         ) : (
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+            {/* Выбранной картинки нет среди вариантов — держим значение
+                скрытым полем, иначе отправка формы её обнулит. */}
+            {value && !images.some((image) => image.id === value) ? (
+              <input type="hidden" name="imageId" value={value} />
+            ) : null}
             <label
               className={cn(
                 "flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-card border border-line text-[11.5px] text-text-2",
                 "has-checked:border-accent has-checked:text-accent",
+                "has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent",
               )}
             >
               <input
@@ -66,7 +72,7 @@ export function ImagePicker({
                 name="imageId"
                 value=""
                 defaultChecked={!value}
-                className="sr-only"
+                className="peer sr-only"
               />
               <ImageIcon className="size-5" />
               Без картинки
@@ -79,6 +85,7 @@ export function ImagePicker({
                 className={cn(
                   "relative aspect-square cursor-pointer overflow-hidden rounded-card border border-line",
                   "has-checked:border-accent has-checked:ring-2 has-checked:ring-accent/30",
+                  "has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent",
                 )}
               >
                 <input
@@ -86,7 +93,7 @@ export function ImagePicker({
                   name="imageId"
                   value={image.id}
                   defaultChecked={value === image.id}
-                  className="sr-only"
+                  className="peer sr-only"
                 />
                 <Image
                   src={image.thumbUrl}

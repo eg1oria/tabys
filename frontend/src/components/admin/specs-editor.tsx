@@ -5,7 +5,9 @@ import { TextInput } from "@/components/ui/field";
 import { IconButton } from "@/components/ui/icon-button";
 import { Plus, Trash } from "@/components/ui/icons";
 
-type Row = { key: string; value: string };
+type Row = { id: number; key: string; value: string };
+
+let nextRowId = 0;
 
 /**
  * Характеристики товара парами. Специально не текстареа с сырым JSON:
@@ -13,13 +15,19 @@ type Row = { key: string; value: string };
  * расшифровать. Server Action собирает пары обратно в объект.
  */
 export function SpecsEditor({ specs }: { specs: Record<string, string> | null }) {
-  const initial = Object.entries(specs ?? {}).map(([key, value]) => ({ key, value }));
-  const [rows, setRows] = useState<Row[]>(initial.length > 0 ? initial : [{ key: "", value: "" }]);
+  const [rows, setRows] = useState<Row[]>(() => {
+    const initial = Object.entries(specs ?? {}).map(([key, value]) => ({
+      id: nextRowId++,
+      key,
+      value,
+    }));
+    return initial.length > 0 ? initial : [{ id: nextRowId++, key: "", value: "" }];
+  });
 
   return (
     <div className="space-y-2">
       {rows.map((row, index) => (
-        <div key={index} className="flex items-start gap-2">
+        <div key={row.id} className="flex items-start gap-2">
           <span className="min-w-0 flex-1">
             <TextInput
               name="specKey"
@@ -40,7 +48,7 @@ export function SpecsEditor({ specs }: { specs: Record<string, string> | null })
             label={`Удалить характеристику ${index + 1}`}
             tone="danger"
             className="mt-1"
-            onClick={() => setRows((cur) => cur.filter((_, i) => i !== index))}
+            onClick={() => setRows((cur) => cur.filter((item) => item.id !== row.id))}
           >
             <Trash className="size-4" />
           </IconButton>
@@ -49,7 +57,7 @@ export function SpecsEditor({ specs }: { specs: Record<string, string> | null })
 
       <button
         type="button"
-        onClick={() => setRows((cur) => [...cur, { key: "", value: "" }])}
+        onClick={() => setRows((cur) => [...cur, { id: nextRowId++, key: "", value: "" }])}
         className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-accent hover:underline"
       >
         <Plus className="size-4" />

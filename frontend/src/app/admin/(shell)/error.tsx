@@ -21,9 +21,16 @@ export default function AdminError({
         </span>
         <h1 className="display-title mt-5 text-[1.1rem]">Что-то пошло не так</h1>
         <p className="mt-3 text-[13px] leading-relaxed text-text-2">
-          {error.message || "Не удалось загрузить данные."} Проверьте, запущен ли
-          бэкенд на порту 4000.
+          {error.message || "Не удалось загрузить данные."}
+          {/* Совет про порт уместен только когда бэкенд и правда молчит:
+              на 403 или 500 он сбивает с толку. */}
+          {error.message.includes("недоступен")
+            ? " Проверьте, запущен ли бэкенд на порту 4000."
+            : null}
         </p>
+        {error.digest ? (
+          <p className="mt-2 text-[11.5px] text-text-2">Код для логов: {error.digest}</p>
+        ) : null}
         <button
           type="button"
           onClick={reset}

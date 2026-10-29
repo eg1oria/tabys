@@ -10,7 +10,7 @@ import {
   deleteFacetValue,
   updateFacetValue,
 } from "@/lib/admin/facet-actions";
-import { FORM_ERROR, initialFormState } from "@/lib/admin/form-state";
+import { FORM_ERROR, initialFormState, str } from "@/lib/admin/form-state";
 import type { AdminFacetValue } from "@/lib/api/types";
 
 export function FacetValueRow({ value }: { value: AdminFacetValue }) {
@@ -27,13 +27,17 @@ export function FacetValueRow({ value }: { value: AdminFacetValue }) {
           {value.value}
         </code>
 
-        <form action={save} className="flex flex-1 flex-wrap items-start gap-2">
+        <form
+          key={saveState.submissionId ?? 0}
+          action={save}
+          className="flex flex-1 flex-wrap items-start gap-2"
+        >
           <input type="hidden" name="id" value={value.id} />
           {/* Ширину задаёт обёртка: у самого поля в fieldBase стоит w-full. */}
           <span className="min-w-[160px] flex-1">
             <TextInput
               name="label"
-              defaultValue={value.label}
+              defaultValue={str(saveState.values, "label") ?? value.label}
               aria-label={`Подпись значения ${value.value}`}
               error={saveState.errors.label}
               maxLength={200}
@@ -44,16 +48,19 @@ export function FacetValueRow({ value }: { value: AdminFacetValue }) {
               name="sortOrder"
               type="number"
               min={0}
-              defaultValue={value.sortOrder}
+              defaultValue={str(saveState.values, "sortOrder") ?? value.sortOrder}
               aria-label={`Порядок значения ${value.value}`}
+              error={saveState.errors.sortOrder}
             />
           </span>
           <SubmitButton variant="outline" className="h-10 px-3 text-[12px]">
             Сохранить
           </SubmitButton>
-          {saveState.status === "success" ? (
-            <span className="mt-3 text-[12px] text-emerald-600">Готово</span>
-          ) : null}
+          <span role="status" aria-live="polite" className="mt-3 text-[12px] text-emerald-600">
+            {saveState.status === "success" ? "Готово" : null}
+          </span>
+          {/* Ошибки полей раньше только красили рамку — текста не было видно. */}
+          <FieldError message={saveState.errors.label ?? saveState.errors.sortOrder} />
         </form>
 
         <form action={remove} className="flex items-start gap-2">

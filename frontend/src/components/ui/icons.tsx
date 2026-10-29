@@ -306,3 +306,70 @@ export const AlertCircle = (p: IconProps) => (
     <path d="M12 16h.01" />
   </Base>
 );
+
+export const Home = (p: IconProps) => (
+  <Base {...p}>
+    <path d="m4 10.5 8-6.5 8 6.5" />
+    <path d="M6 9.5V20h12V9.5" />
+    <path d="M10 20v-5h4v5" />
+  </Base>
+);
+
+export const Bell = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M18 15V10a6 6 0 1 0-12 0v5l-1.5 2.5h15L18 15Z" />
+    <path d="M10 20a2 2 0 0 0 4 0" />
+  </Base>
+);
+
+export const Dots = (p: IconProps) => (
+  <Base {...p}>
+    <circle cx="5" cy="12" r="1.2" fill="currentColor" />
+    <circle cx="12" cy="12" r="1.2" fill="currentColor" />
+    <circle cx="19" cy="12" r="1.2" fill="currentColor" />
+  </Base>
+);
+
+export const Calendar = (p: IconProps) => (
+  <Base {...p}>
+    <rect x="3.5" y="5" width="17" height="15" rx="1.5" />
+    <path d="M3.5 10h17" />
+    <path d="M8 3.5v3M16 3.5v3" />
+  </Base>
+);
+
+export const Grid = (p: IconProps) => (
+  <Base {...p}>
+    <rect x="4" y="4" width="7" height="7" rx="1" />
+    <rect x="13" y="4" width="7" height="7" rx="1" />
+    <rect x="4" y="13" width="7" height="7" rx="1" />
+    <rect x="13" y="13" width="7" height="7" rx="1" />
+  </Base>
+);
+
+export const Rows = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M4 7h16M4 12h16M4 17h16" />
+  </Base>
+);
+
+export const ChartUp = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M4 19V5" />
+    <path d="M4 19h16" />
+    <path d="m7 15 4-4 3 3 5-6" />
+  </Base>
+);
+
+export const Eye = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+    <circle cx="12" cy="12" r="2.5" />
+  </Base>
+);
+
+export const Menu2 = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M4 7h16M4 12h16M4 17h10" />
+  </Base>
+);

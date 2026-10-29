@@ -32,7 +32,10 @@ export function SubmitButton({
 
   return (
     <button
+      {...rest}
       type="submit"
+      // disabled после ...rest: иначе переданный disable={false} затирал бы
+      // pending и форму можно было отправить дважды.
       disabled={pending || rest.disabled}
       className={cn(
         "inline-flex h-10 items-center justify-center gap-2 rounded-card px-5 text-[13px] font-medium transition-colors",
@@ -41,7 +44,6 @@ export function SubmitButton({
         variants[variant],
         className,
       )}
-      {...rest}
     >
       {pending ? pendingLabel : children}
     </button>

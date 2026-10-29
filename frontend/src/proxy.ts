@@ -20,13 +20,17 @@ const ACCESS_COOKIE = "tabys_at";
 const REFRESH_COOKIE = "tabys_rt";
 
 export const proxy: NextProxy = (request) => {
-  const { pathname, search } = request.nextUrl;
+  const { pathname, search, searchParams } = request.nextUrl;
   const hasAccess = request.cookies.has(ACCESS_COOKIE);
   const hasRefresh = request.cookies.has(REFRESH_COOKIE);
 
   if (pathname === "/admin/login") {
+    // Сессию уже признали недействительной — на форму входа пропускаем
+    // даже с живой cookie, иначе получается петля: страница отвечает
+    // «войдите», а proxy возвращает обратно в админку.
+    if (searchParams.has("expired")) return NextResponse.next();
     // Уже вошли — форма входа ни к чему.
-    return hasAccess
+    return hasAccess && hasRefresh
       ? NextResponse.redirect(new URL("/admin", request.url))
       : NextResponse.next();
   }
@@ -34,7 +38,11 @@ export const proxy: NextProxy = (request) => {
   if (!hasRefresh) {
     const url = new URL("/admin/login", request.url);
     url.searchParams.set("next", `${pathname}${search}`);
-    return NextResponse.redirect(url);
+    const response = NextResponse.redirect(url);
+    // Access-cookie без refresh — обрубок сессии: обновить её нечем.
+    // Оставить её значит снова попасть в ветку «уже вошли» выше.
+    response.cookies.set(ACCESS_COOKIE, "", { path: "/", maxAge: 0 });
+    return response;
   }
 
   if (!hasAccess) {

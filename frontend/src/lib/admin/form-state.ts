@@ -9,15 +9,45 @@ import { ApiError, ApiUnreachableError } from "../api/errors";
 export type FormState = {
   status: "idle" | "success" | "error";
   errors: Record<string, string>;
+  /**
+   * Что человек отправил. React 19 сбрасывает неуправляемые поля после
+   * завершения действия — в том числе неудачного, — поэтому после ошибки
+   * форма пересевается этими значениями, иначе ввод пропадает вместе с
+   * показом ошибки.
+   */
+  values?: Record<string, string | string[]>;
+  /** Меняется с каждой отправкой: по нему перемонтируется форма. */
+  submissionId?: number;
 };
 
 export const initialFormState: FormState = { status: "idle", errors: {} };
+
+/** Одно строковое значение из возвращённых формой. */
+export function str(values: FormState["values"], name: string): string | undefined {
+  const value = values?.[name];
+  return typeof value === "string" ? value : undefined;
+}
+
+/** Список значений (чекбоксы, повторяющиеся поля). */
+export function list(values: FormState["values"], name: string): string[] | undefined {
+  const value = values?.[name];
+  return Array.isArray(value) ? value : undefined;
+}
 
 /** Ключ для ошибки, которая относится к форме целиком, а не к полю. */
 export const FORM_ERROR = "_form";
 
 export function formError(message: string): FormState {
   return { status: "error", errors: { [FORM_ERROR]: message } };
+}
+
+/** Дополняет состояние ошибки тем, что ввёл пользователь. */
+export function withValues(
+  state: FormState,
+  prev: FormState,
+  values: Record<string, string | string[]>,
+): FormState {
+  return { ...state, values, submissionId: (prev.submissionId ?? 0) + 1 };
 }
 
 /**

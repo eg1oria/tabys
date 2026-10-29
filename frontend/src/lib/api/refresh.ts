@@ -36,6 +36,8 @@ async function rotate(refreshToken: string): Promise<TokenPair> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refreshToken }),
       cache: "no-store",
+      // Без таймаута зависший бэкенд держит рендер страницы до воркера.
+      signal: AbortSignal.timeout(10_000),
     });
   } catch (cause) {
     throw new ApiUnreachableError(cause);

@@ -15,24 +15,69 @@ export function optionalText(formData: FormData, name: string): string | undefin
   return value === "" ? undefined : value;
 }
 
+/**
+ * Поле, которое можно и очистить: пусто → null (бэкенд пропускает null
+ * через @ValidateIf). Поле, которого в форме нет, не трогаем вовсе —
+ * иначе частичная форма затирала бы данные, которых не показывала.
+ */
+export function clearableText(formData: FormData, name: string): string | null | undefined {
+  if (!formData.has(name)) return undefined;
+  const value = text(formData, name);
+  return value === "" ? null : value;
+}
+
+/**
+ * Собирает отправленные значения, чтобы вернуть их в форму после ошибки.
+ * Пароли не возвращаем никогда: они осели бы в состоянии формы.
+ */
+export function collectValues(
+  formData: FormData,
+  skip: readonly string[] = [],
+): Record<string, string | string[]> {
+  const values: Record<string, string | string[]> = {};
+  for (const [key, value] of formData.entries()) {
+    if (typeof value !== "string" || skip.includes(key)) continue;
+    const existing = values[key];
+    if (existing === undefined) values[key] = value;
+    else if (Array.isArray(existing)) existing.push(value);
+    else values[key] = [existing, value];
+  }
+  return values;
+}
+
+/** Маркер «ввели не число» — отличает ошибку от «поле не заполнено». */
+export const NOT_A_NUMBER = Symbol("not-a-number");
+
 /** Пусто — null: так бэкенд очищает поле (@IsOptional пропускает null). */
 export function nullableText(formData: FormData, name: string): string | null {
   const value = text(formData, name);
   return value === "" ? null : value;
 }
 
-export function nullableInt(formData: FormData, name: string): number | null | undefined {
-  const value = text(formData, name);
+/**
+ * «1 500 000», «1 500 000,50» и неразрывные пробелы — обычный ввод цены.
+ * Раньше такое значение молча терялось, и форма рапортовала «Сохранено».
+ */
+function toNumber(raw: string): number | typeof NOT_A_NUMBER | null {
+  const value = raw.replace(/[\s\u00a0\u202f]/g, "").replace(",", ".");
   if (value === "") return null;
   const parsed = Number(value);
-  return Number.isFinite(parsed) ? Math.trunc(parsed) : undefined;
+  return Number.isFinite(parsed) ? parsed : NOT_A_NUMBER;
 }
 
-export function nullableAmount(formData: FormData, name: string): number | null | undefined {
-  const value = text(formData, name).replace(",", ".");
-  if (value === "") return null;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : undefined;
+export function nullableInt(
+  formData: FormData,
+  name: string,
+): number | null | typeof NOT_A_NUMBER {
+  const parsed = toNumber(text(formData, name));
+  return typeof parsed === "number" ? Math.trunc(parsed) : parsed;
+}
+
+export function nullableAmount(
+  formData: FormData,
+  name: string,
+): number | null | typeof NOT_A_NUMBER {
+  return toNumber(text(formData, name));
 }
 
 export function checkbox(formData: FormData, name: string): boolean {

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { apiStream } from "@/lib/api/server";
+import { ApiUnreachableError } from "@/lib/api/errors";
 
 /**
  * Скачивание вложения заявки. В них чертежи и ТЗ заказчиков, поэтому
@@ -15,7 +16,18 @@ export async function GET(
 ): Promise<NextResponse> {
   const { id, attachmentId } = await ctx.params;
 
-  const upstream = await apiStream(`/admin/leads/${id}/attachments/${attachmentId}`);
+  let upstream: Response;
+  try {
+    // Идентификаторы из адреса — в путь запроса только закодированными.
+    upstream = await apiStream(
+      `/admin/leads/${encodeURIComponent(id)}/attachments/${encodeURIComponent(attachmentId)}`,
+    );
+  } catch (error) {
+    if (error instanceof ApiUnreachableError) {
+      return new NextResponse("Сервер админки не отвечает", { status: 503 });
+    }
+    throw error;
+  }
 
   if (!upstream.ok || !upstream.body) {
     return new NextResponse("Вложение недоступно", { status: upstream.status });
@@ -27,6 +39,8 @@ export async function GET(
     if (value) headers.set(name, value);
   }
   headers.set("x-content-type-options", "nosniff");
+  // Документы заказчиков не должны оседать в кеше браузера и прокси.
+  headers.set("cache-control", "no-store");
 
   return new NextResponse(upstream.body, { status: 200, headers });
 }

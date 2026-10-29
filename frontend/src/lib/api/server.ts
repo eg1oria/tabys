@@ -58,7 +58,10 @@ export async function apiRead<T>(path: string, init: Init = {}): Promise<T> {
   const { accessToken } = await readTokens();
   const response = await send(path, init, accessToken);
 
-  if (response.status === 401) redirect("/admin/login?expired=1");
+  // Уводим через маршрут выхода, а не прямо на форму входа: cookie из
+  // Server Component не стереть, а живая access-cookie заставила бы
+  // proxy.ts вернуть нас обратно в админку — и так по кругу.
+  if (response.status === 401) redirect("/api/admin/logout");
   if (!response.ok) throw await toApiError(response);
   return parse<T>(response);
 }
@@ -79,7 +82,10 @@ export async function ensureAccessToken(): Promise<string> {
     const pair = await refreshTokens(refreshToken);
     await writeTokens(pair);
     return pair.accessToken;
-  } catch {
+  } catch (error) {
+    // Недоступный или медленный бэкенд — это не «сессия кончилась».
+    // Раньше любой сбой сети чистил cookie и выкидывал на форму входа.
+    if (error instanceof ApiUnreachableError) throw error;
     await clearTokens();
     redirect("/admin/login?expired=1");
   }
@@ -102,4 +108,16 @@ export async function apiStream(path: string, init: Init = {}): Promise<Response
     redirect("/admin/login?expired=1");
   }
   return response;
+}
+
+/**
+ * Для Route Handler, который отвечает на fetch из браузера.
+ *
+ * redirect() здесь обернулся бы 307 на страницу входа; fetch молча прошёл
+ * бы по нему и вернул HTML со статусом 200 — форма загрузки показывала
+ * «готово», хотя файл никуда не делся. Пусть обработчик сам решит.
+ */
+export async function apiStreamRaw(path: string, init: Init = {}): Promise<Response> {
+  const token = await ensureAccessToken();
+  return send(path, init, token);
 }

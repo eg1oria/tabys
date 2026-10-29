@@ -1,27 +1,60 @@
+import Link from "next/link";
 import { cn } from "@/lib/utils";
+
+export type Crumb = { label: string; href?: string };
+
+/**
+ * Крошки приходят пропсом, а не выводятся из pathname: на страницах вида
+ * /catalog/products/[id] путь состоит из идентификатора и соврал бы.
+ */
+function Breadcrumbs({ items }: { items: Crumb[] }) {
+  return (
+    <nav aria-label="Хлебные крошки" className="mb-2">
+      <ol className="flex flex-wrap items-center gap-1.5 text-[12px] text-text-2">
+        {items.map((item, i) => (
+          <li key={item.label} className="flex items-center gap-1.5">
+            {i > 0 ? <span aria-hidden>/</span> : null}
+            {item.href ? (
+              <Link href={item.href} prefetch={false} className="transition-colors hover:text-ink">
+                {item.label}
+              </Link>
+            ) : (
+              <span className="text-ink">{item.label}</span>
+            )}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
 
 export function PageHeader({
   title,
   description,
+  breadcrumbs,
   actions,
   className,
 }: {
   title: string;
   description?: string;
+  breadcrumbs?: Crumb[];
   actions?: React.ReactNode;
   className?: string;
 }) {
   return (
     <div
       className={cn(
-        "flex flex-wrap items-start justify-between gap-4 border-b border-line bg-white px-5 py-5 lg:px-8",
+        "flex flex-wrap items-end justify-between gap-4 bg-white px-5 py-6 lg:px-8",
         className,
       )}
     >
       <div className="min-w-0">
-        <h1 className="display-title text-[1.2rem]">{title}</h1>
+        {breadcrumbs?.length ? <Breadcrumbs items={breadcrumbs} /> : null}
+        <h1 className="font-display text-[1.75rem] leading-tight font-extrabold tracking-[-0.01em]">
+          {title}
+        </h1>
         {description ? (
-          <p className="mt-1.5 text-[12.5px] leading-relaxed text-text-2">{description}</p>
+          <p className="mt-1.5 text-[13px] leading-relaxed text-text-2">{description}</p>
         ) : null}
       </div>
       {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}

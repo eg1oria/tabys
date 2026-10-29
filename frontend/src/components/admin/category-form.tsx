@@ -5,7 +5,7 @@ import { useActionState } from "react";
 import { Field, FormError, TextArea, TextInput } from "@/components/ui/field";
 import { SubmitButton } from "./submit-button";
 import { saveCategory } from "@/lib/admin/catalog-actions";
-import { FORM_ERROR, initialFormState } from "@/lib/admin/form-state";
+import { FORM_ERROR, initialFormState, str } from "@/lib/admin/form-state";
 import type { AdminCategory } from "@/lib/api/types";
 
 /**
@@ -24,9 +24,12 @@ export function CategoryForm({
 }) {
   const [state, formAction] = useActionState(saveCategory, initialFormState);
   const errors = state.errors;
+  /** Что ввели до ошибки: React 19 сбрасывает поля после любой отправки. */
+  const was = (name: string) => str(state.values, name);
 
   return (
-    <form action={formAction} className="space-y-5">
+    // key по номеру отправки: поля перемонтируются с новыми defaultValue.
+    <form key={state.submissionId ?? 0} action={formAction} className="space-y-5">
       {category ? <input type="hidden" name="id" value={category.id} /> : null}
       <FormError message={errors[FORM_ERROR]} />
 
@@ -36,7 +39,7 @@ export function CategoryForm({
             <TextInput
               id="title"
               name="title"
-              defaultValue={category?.title ?? ""}
+              defaultValue={was("title") ?? category?.title ?? ""}
               error={errors.title}
               maxLength={200}
             />
@@ -55,7 +58,7 @@ export function CategoryForm({
             <TextInput
               id="slug"
               name="slug"
-              defaultValue={category?.slug ?? ""}
+              defaultValue={was("slug") ?? category?.slug ?? ""}
               error={errors.slug}
               placeholder="emkosti-i-rezervuary"
               maxLength={80}
@@ -71,7 +74,7 @@ export function CategoryForm({
             <TextInput
               id="short"
               name="short"
-              defaultValue={category?.short ?? ""}
+              defaultValue={was("short") ?? category?.short ?? ""}
               error={errors.short}
               maxLength={200}
             />
@@ -81,7 +84,7 @@ export function CategoryForm({
             <TextArea
               id="description"
               name="description"
-              defaultValue={category?.description ?? ""}
+              defaultValue={was("description") ?? category?.description ?? ""}
               error={errors.description}
               rows={4}
               maxLength={1000}
@@ -96,7 +99,7 @@ export function CategoryForm({
             <TextArea
               id="highlights"
               name="highlights"
-              defaultValue={(category?.highlights ?? []).join("\n")}
+              defaultValue={was("highlights") ?? (category?.highlights ?? []).join("\n")}
               rows={4}
             />
           </Field>
@@ -113,7 +116,7 @@ export function CategoryForm({
                 name="positionCount"
                 type="number"
                 min={0}
-                defaultValue={category?.positionCount ?? ""}
+                defaultValue={was("positionCount") ?? category?.positionCount ?? ""}
                 error={errors.positionCount}
               />
             </span>
@@ -137,7 +140,7 @@ export function CategoryForm({
               <TextInput
                 id="seoTitle"
                 name="seoTitle"
-                defaultValue={category?.seoTitle ?? ""}
+                defaultValue={was("seoTitle") ?? category?.seoTitle ?? ""}
                 error={errors.seoTitle}
                 maxLength={200}
               />
@@ -146,7 +149,7 @@ export function CategoryForm({
               <TextArea
                 id="seoDescription"
                 name="seoDescription"
-                defaultValue={category?.seoDescription ?? ""}
+                defaultValue={was("seoDescription") ?? category?.seoDescription ?? ""}
                 error={errors.seoDescription}
                 rows={3}
                 maxLength={400}
@@ -165,9 +168,9 @@ export function CategoryForm({
         >
           Отмена
         </Link>
-        {state.status === "success" ? (
-          <span className="text-[12.5px] text-emerald-600">Сохранено</span>
-        ) : null}
+        <span role="status" aria-live="polite" className="text-[12.5px] text-emerald-600">
+          {state.status === "success" ? "Сохранено" : null}
+        </span>
       </div>
     </form>
   );

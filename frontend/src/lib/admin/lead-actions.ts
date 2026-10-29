@@ -1,9 +1,10 @@
 "use server";
 
 import { refresh } from "next/cache";
-import { apiMutate, apiRead } from "../api/server";
+import { apiMutate } from "../api/server";
 import { isLeadStatus } from "./lead-status";
-import { formError, toFormState, type FormState } from "./form-state";
+import { formError, toFormState, withValues, type FormState } from "./form-state";
+import { collectValues } from "./form-values";
 import type { CurrentUser, Lead } from "../api/types";
 
 /**
@@ -34,13 +35,21 @@ export async function updateLeadStatus(
 }
 
 export async function saveInternalNote(
-  _prev: FormState,
+  prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
   const id = String(formData.get("id") ?? "");
   const internalNote = String(formData.get("internalNote") ?? "");
+  const values = collectValues(formData);
 
   if (!id) return formError("Не указана заявка");
+  if (internalNote.length > 5000) {
+    return withValues(
+      { status: "error", errors: { internalNote: "Заметка не длиннее 5000 символов" } },
+      prev,
+      values,
+    );
+  }
 
   try {
     await apiMutate<Lead>(`/admin/leads/${id}`, {
@@ -50,7 +59,7 @@ export async function saveInternalNote(
       json: { internalNote },
     });
   } catch (error) {
-    return toFormState(error, ["internalNote"]);
+    return withValues(toFormState(error, ["internalNote"]), prev, values);
   }
 
   refresh();
@@ -66,7 +75,9 @@ export async function assignLead(_prev: FormState, formData: FormData): Promise<
   // "me" — чтобы форма не держала в разметке чужой идентификатор.
   let assignedToId: string | null = null;
   if (raw === "me") {
-    const me = await apiRead<CurrentUser>("/auth/me");
+    // Именно apiMutate: apiRead не умеет обновлять токен из действия и
+    // на истёкшем access-cookie увёл бы редактора на страницу входа.
+    const me = await apiMutate<CurrentUser>("/auth/me");
     assignedToId = me.id;
   } else if (raw !== "") {
     assignedToId = raw;

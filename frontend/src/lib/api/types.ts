@@ -108,10 +108,19 @@ export type AdminCategory = {
   updatedAt: string;
 };
 
+export type AdminProductImage = {
+  mediaId: string;
+  sortOrder: number;
+  media: Pick<AdminImage, "storageKey" | "alt" | "width" | "height"> & {
+    derivatives: Record<string, string> | null;
+  };
+};
+
 export type AdminProduct = {
   id: string;
   categoryId: string;
   slug: string | null;
+  sku: string | null;
   title: string;
   description: string | null;
   specs: Record<string, string> | null;
@@ -120,6 +129,7 @@ export type AdminProduct = {
   priceOnRequest: boolean;
   imageId: string | null;
   image: AdminImage | null;
+  images: AdminProductImage[];
   category: { slug: string; title: string };
   facetValues: AdminFacetLink[];
   status: PublishStatus;
@@ -160,4 +170,23 @@ export type MediaAsset = {
   alt: string;
   url: string;
   createdAt: string;
+};
+
+export type LeadStatusCounts = Record<LeadStatus, number>;
+
+/** Сводка для главной страницы админки — только то, что реально есть в базе. */
+export type AdminStats = {
+  range: { from: string; to: string; previousFrom: string };
+  leads: { total: number; previousTotal: number; byStatus: LeadStatusCounts };
+  series: { date: string; count: number }[];
+  catalog: {
+    products: { total: number; published: number; draft: number };
+    categories: { total: number; published: number };
+    media: { total: number; bytes: number };
+  };
+  topCategories: { id: string; title: string; slug: string; products: number }[];
+  latestLeads: Pick<
+    Lead,
+    "id" | "name" | "email" | "phone" | "message" | "status" | "createdAt"
+  >[];
 };

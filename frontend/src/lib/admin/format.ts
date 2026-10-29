@@ -19,12 +19,18 @@ const dateOnly = new Intl.DateTimeFormat("ru-RU", {
   timeZone: "Asia/Almaty",
 });
 
+/** Intl бросает RangeError на «Invalid Date» и роняет весь экран. */
+function safeFormat(formatter: Intl.DateTimeFormat, iso: string): string {
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? "—" : formatter.format(date);
+}
+
 export function formatDateTime(iso: string): string {
-  return dateTime.format(new Date(iso));
+  return safeFormat(dateTime, iso);
 }
 
 export function formatDate(iso: string): string {
-  return dateOnly.format(new Date(iso));
+  return safeFormat(dateOnly, iso);
 }
 
 export function formatBytes(bytes: number): string {

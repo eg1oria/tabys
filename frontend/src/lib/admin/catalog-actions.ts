@@ -3,15 +3,17 @@
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { apiMutate } from "../api/server";
-import { formError, toFormState, type FormState } from "./form-state";
+import { formError, safeNext, toFormState, withValues, type FormState } from "./form-state";
 import {
+  NOT_A_NUMBER,
   checkbox,
+  clearableText,
+  collectValues,
   lines,
   nullableAmount,
   nullableInt,
   nullableText,
   omitUndefined,
-  optionalText,
   pairs,
   strings,
   text,
@@ -19,31 +21,41 @@ import {
 import type { AdminCategory, AdminProduct } from "../api/types";
 
 const CATEGORY_FIELDS = ["title", "slug", "short", "description", "positionCount"] as const;
-const PRODUCT_FIELDS = ["title", "slug", "description", "priceFrom", "categoryId"] as const;
+const PRODUCT_FIELDS = ["title", "slug", "sku", "description", "priceFrom", "categoryId"] as const;
+
+/** Куда вернуться после сохранения или удаления: список с теми же фильтрами. */
+function returnTo(formData: FormData, fallback: string): string {
+  return safeNext(text(formData, "returnTo") || undefined, fallback);
+}
 
 // ───────────────────────────── категории ─────────────────────────────
 
-export async function saveCategory(_prev: FormState, formData: FormData): Promise<FormState> {
+export async function saveCategory(prev: FormState, formData: FormData): Promise<FormState> {
   const id = text(formData, "id");
   const title = text(formData, "title");
   const description = text(formData, "description");
+  const values = collectValues(formData);
+  const fail = (state: FormState) => withValues(state, prev, values);
+
+  const positionCount = nullableInt(formData, "positionCount");
 
   const errors: Record<string, string> = {};
   if (title.length < 2) errors.title = "Название не короче двух символов";
   if (description === "") errors.description = "Опишите категорию";
-  if (Object.keys(errors).length > 0) return { status: "error", errors };
+  if (positionCount === NOT_A_NUMBER) errors.positionCount = "Количество — целое число";
+  if (Object.keys(errors).length > 0) return fail({ status: "error", errors });
 
   const body = omitUndefined({
     title,
     description,
-    slug: optionalText(formData, "slug"),
-    short: optionalText(formData, "short"),
+    slug: clearableText(formData, "slug"),
+    short: clearableText(formData, "short"),
     highlights: lines(formData, "highlights"),
-    positionCount: nullableInt(formData, "positionCount"),
+    positionCount,
     imageId: nullableText(formData, "imageId"),
     facetValueIds: strings(formData, "facetValueIds"),
-    seoTitle: optionalText(formData, "seoTitle"),
-    seoDescription: optionalText(formData, "seoDescription"),
+    seoTitle: clearableText(formData, "seoTitle"),
+    seoDescription: clearableText(formData, "seoDescription"),
   });
 
   let created: AdminCategory | undefined;
@@ -57,7 +69,7 @@ export async function saveCategory(_prev: FormState, formData: FormData): Promis
       });
     }
   } catch (error) {
-    return toFormState(error, CATEGORY_FIELDS);
+    return fail(toFormState(error, CATEGORY_FIELDS));
   }
 
   // redirect бросает исключение — вызывать его внутри try нельзя,
@@ -123,31 +135,47 @@ export async function reorderCategories(
 
 // ───────────────────────────── товары ─────────────────────────────
 
-export async function saveProduct(_prev: FormState, formData: FormData): Promise<FormState> {
+/** Статус из формы: всё неожиданное считаем «не меняем». */
+function oneOfStatus(value: string): "DRAFT" | "PUBLISHED" | undefined {
+  return value === "DRAFT" || value === "PUBLISHED" ? value : undefined;
+}
+
+export async function saveProduct(prev: FormState, formData: FormData): Promise<FormState> {
   const id = text(formData, "id");
   const title = text(formData, "title");
   const categoryId = text(formData, "categoryId");
+  const values = collectValues(formData);
+  const fail = (state: FormState) => withValues(state, prev, values);
+
+  const priceFrom = nullableAmount(formData, "priceFrom");
 
   const errors: Record<string, string> = {};
   if (title.length < 2) errors.title = "Название не короче двух символов";
   if (categoryId === "") errors.categoryId = "Выберите категорию";
-  if (Object.keys(errors).length > 0) return { status: "error", errors };
+  if (priceFrom === NOT_A_NUMBER) errors.priceFrom = "Цена — число, например 1 200 000";
+  if (Object.keys(errors).length > 0) return fail({ status: "error", errors });
 
   const specs = pairs(formData, "specKey", "specValue");
+  const imageIds = strings(formData, "imageIds");
 
   const body = omitUndefined({
     categoryId,
     title,
-    slug: optionalText(formData, "slug"),
-    description: optionalText(formData, "description"),
+    slug: clearableText(formData, "slug"),
+    sku: clearableText(formData, "sku"),
+    description: clearableText(formData, "description"),
     // Отправляем всегда, в том числе пустым объектом: иначе однажды
     // заполненные характеристики нельзя было бы стереть через форму.
     specs,
-    priceFrom: nullableAmount(formData, "priceFrom"),
+    priceFrom,
     priceOnRequest: checkbox(formData, "priceOnRequest"),
-    imageId: nullableText(formData, "imageId"),
+    // Галерея задаёт и главное фото — отправляем её, только если форма
+    // её показывала, иначе частичная форма стёрла бы картинки.
+    imageIds: formData.has("galleryShown") ? imageIds : undefined,
+    imageId: formData.has("galleryShown") ? undefined : nullableText(formData, "imageId"),
+    status: oneOfStatus(text(formData, "status")),
     facetValueIds: strings(formData, "facetValueIds"),
-    sortOrder: nullableInt(formData, "sortOrder") ?? undefined,
+    sortOrder: nullableInt(formData, "sortOrder") || undefined,
   });
 
   let created: AdminProduct | undefined;
@@ -158,10 +186,14 @@ export async function saveProduct(_prev: FormState, formData: FormData): Promise
       created = await apiMutate<AdminProduct>("/admin/products", { method: "POST", json: body });
     }
   } catch (error) {
-    return toFormState(error, PRODUCT_FIELDS);
+    return fail(toFormState(error, PRODUCT_FIELDS));
   }
 
-  if (created) redirect(`/admin/catalog/products/${created.id}`);
+  // Созданный товар открываем в той же панели — фильтры списка сохраняются.
+  if (created) {
+    const back = returnTo(formData, "/admin/catalog/products");
+    redirect(`${back}${back.includes("?") ? "&" : "?"}edit=${created.id}`);
+  }
 
   refresh();
   return { status: "success", errors: {} };
@@ -195,7 +227,7 @@ export async function deleteProduct(_prev: FormState, formData: FormData): Promi
     return toFormState(error);
   }
 
-  redirect("/admin/catalog/products");
+  redirect(returnTo(formData, "/admin/catalog/products"));
 }
 
 export async function reorderProducts(_prev: FormState, formData: FormData): Promise<FormState> {

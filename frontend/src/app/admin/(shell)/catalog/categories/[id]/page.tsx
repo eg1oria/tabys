@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getCategory } from "@/lib/api/catalog";
-import { currentImage, getFormOptions } from "@/lib/admin/catalog-form-data";
+import { currentImage, getFormOptions, withCurrentImage } from "@/lib/admin/catalog-form-data";
 import { ApiError } from "@/lib/api/errors";
 import { PageHeader } from "@/components/admin/page-header";
 import { CategoryForm } from "@/components/admin/category-form";
@@ -46,9 +46,9 @@ export default async function EditCategoryPage({
           category={category}
           imagePicker={
             <ImagePicker
-              images={images}
+              images={withCurrentImage(images, category.imageId, category.image)}
               value={category.imageId}
-              current={currentImage(assets, category.imageId)}
+              current={currentImage(assets, category.imageId, category.image)}
             />
           }
           facetPicker={<FacetPicker groups={groups} selected={selected} />}

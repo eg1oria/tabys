@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { FormError, Select, TextArea } from "@/components/ui/field";
 import { SubmitButton } from "./submit-button";
 import { assignLead, saveInternalNote, updateLeadStatus } from "@/lib/admin/lead-actions";
-import { FORM_ERROR, initialFormState } from "@/lib/admin/form-state";
+import { FORM_ERROR, initialFormState, str } from "@/lib/admin/form-state";
 import { LEAD_TRANSITIONS, LEAD_TRANSITION_LABEL } from "@/lib/admin/lead-status";
 import type { AdminUserOption, LeadStatus } from "@/lib/api/types";
 
@@ -47,23 +47,28 @@ export function LeadNoteForm({ id, note }: { id: string; note: string | null }) 
   const [state, formAction] = useActionState(saveInternalNote, initialFormState);
 
   return (
-    <form action={formAction} className="space-y-3">
+    <form key={state.submissionId ?? 0} action={formAction} className="space-y-3">
       <input type="hidden" name="id" value={id} />
       <FormError message={state.errors[FORM_ERROR]} />
 
+      <label htmlFor="internalNote" className="sr-only">
+        Внутренняя заметка
+      </label>
       <TextArea
+        id="internalNote"
         name="internalNote"
-        defaultValue={note ?? ""}
+        defaultValue={str(state.values, "internalNote") ?? note ?? ""}
         rows={5}
+        maxLength={5000}
         placeholder="Что сделано, о чём договорились, что уточнить"
         error={state.errors.internalNote}
       />
 
       <div className="flex items-center gap-3">
         <SubmitButton variant="outline">Сохранить заметку</SubmitButton>
-        {state.status === "success" ? (
-          <span className="text-[12.5px] text-emerald-600">Сохранено</span>
-        ) : null}
+        <span role="status" aria-live="polite" className="text-[12.5px] text-emerald-600">
+          {state.status === "success" ? "Сохранено" : null}
+        </span>
       </div>
     </form>
   );

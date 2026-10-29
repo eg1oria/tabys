@@ -26,6 +26,13 @@ export function ReorderList({
 }) {
   const [state, formAction] = useActionState(action, initialFormState);
   const [order, setOrder] = useState(items);
+  // Список приходит с сервера и меняется после удаления или добавления.
+  // Без пересинхронизации форма продолжала бы слать id удалённых записей.
+  const [knownItems, setKnownItems] = useState(items);
+  if (knownItems !== items) {
+    setKnownItems(items);
+    setOrder(items);
+  }
   const dirty = order.some((item, index) => item.id !== items[index]?.id);
 
   function move(index: number, delta: number) {
