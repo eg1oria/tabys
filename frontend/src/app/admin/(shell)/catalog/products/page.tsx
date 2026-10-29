@@ -5,9 +5,19 @@ import { redirect } from "next/navigation";
 import Image from "next/image";
 import { getCategories, getProducts } from "@/lib/api/catalog";
 import { uploadUrl } from "@/lib/api/url";
-import { deleteProduct, reorderProducts, setProductStatus } from "@/lib/admin/catalog-actions";
+import {
+  deleteProduct,
+  reorderProducts,
+  setProductStatus,
+} from "@/lib/admin/catalog-actions";
 import { formatPrice } from "@/lib/admin/format";
-import { oneOf, pageParam, qParam, sortParam, textParam } from "@/lib/admin/search-params";
+import {
+  oneOf,
+  pageParam,
+  qParam,
+  sortParam,
+  textParam,
+} from "@/lib/admin/search-params";
 import { EmptyState, PageHeader, Panel } from "@/components/admin/page-header";
 import { Table, Td, Th, Tr } from "@/components/admin/data-table";
 import { Pagination } from "@/components/admin/pagination";
@@ -15,6 +25,7 @@ import { ListFilters } from "@/components/admin/list-filters";
 import { DeleteButton, PublishToggle } from "@/components/admin/row-actions";
 import { ReorderList } from "@/components/admin/reorder-list";
 import { CategoryRail } from "@/components/admin/catalog/category-rail";
+import { RowMenu } from "@/components/admin/catalog/row-menu";
 import { ProductDrawer } from "@/components/admin/catalog/product-drawer";
 import { Badge } from "@/components/ui/badge";
 import { Download, ImageIcon, Pencil, Plus } from "@/components/ui/icons";
@@ -34,7 +45,9 @@ const SORT_OPTIONS = [
   { value: "priceFrom:desc", label: "Сначала дорогие" },
 ] as const;
 
-export default async function ProductsPage({ searchParams }: PageProps<"/admin/catalog/products">) {
+export default async function ProductsPage({
+  searchParams,
+}: PageProps<"/admin/catalog/products">) {
   const params = await searchParams;
   const category = textParam(params.category, 80);
   const status = oneOf(params.status, ["DRAFT", "PUBLISHED"] as const);
@@ -53,7 +66,9 @@ export default async function ProductsPage({ searchParams }: PageProps<"/admin/c
   ]);
 
   /** Адрес списка с текущими фильтрами — для пагинации, панели и возвратов. */
-  const listHref = (extra: Record<string, string | number | undefined> = {}) => {
+  const listHref = (
+    extra: Record<string, string | number | undefined> = {},
+  ) => {
     const search = new URLSearchParams();
     const all = { category, status, q, sort, page, ...extra };
     for (const [key, value] of Object.entries(all)) {
@@ -65,7 +80,8 @@ export default async function ProductsPage({ searchParams }: PageProps<"/admin/c
 
   // Страница за пределом списка: иначе человек видит «ничего не найдено»
   // там, где товары есть, просто на других страницах.
-  if (page && meta.total > 0 && page > meta.totalPages) redirect(listHref({ page: undefined }));
+  if (page && meta.total > 0 && page > meta.totalPages)
+    redirect(listHref({ page: undefined }));
 
   const closeHref = listHref({ edit: undefined });
 
@@ -73,8 +89,15 @@ export default async function ProductsPage({ searchParams }: PageProps<"/admin/c
   // на отфильтрованном списке стрелки присвоили бы sortOrder 0..n
   // видимым товарам и перемешали бы их со скрытыми.
   const canReorder =
-    Boolean(category) && !q && !status && meta.totalPages === 1 && data.length > 1;
-  const totalProducts = categories.data.reduce((sum, item) => sum + item._count.products, 0);
+    Boolean(category) &&
+    !q &&
+    !status &&
+    meta.totalPages === 1 &&
+    data.length > 1;
+  const totalProducts = categories.data.reduce(
+    (sum, item) => sum + item._count.products,
+    0,
+  );
 
   return (
     <>
@@ -83,7 +106,12 @@ export default async function ProductsPage({ searchParams }: PageProps<"/admin/c
         description="Управление каталогом продукции и оборудованием."
         breadcrumbs={[
           { label: "Каталог" },
-          { label: category ? (categories.data.find((c) => c.slug === category)?.title ?? "Товары") : "Все товары" },
+          {
+            label: category
+              ? (categories.data.find((c) => c.slug === category)?.title ??
+                "Товары")
+              : "Все товары",
+          },
         ]}
         actions={
           <>
@@ -111,7 +139,9 @@ export default async function ProductsPage({ searchParams }: PageProps<"/admin/c
           categories={categories.data}
           active={category}
           total={totalProducts}
-          hrefFor={(slug) => listHref({ category: slug, page: undefined, edit: undefined })}
+          hrefFor={(slug) =>
+            listHref({ category: slug, page: undefined, edit: undefined })
+          }
         />
 
         <Panel className="min-w-0">
@@ -121,41 +151,60 @@ export default async function ProductsPage({ searchParams }: PageProps<"/admin/c
             searchPlaceholder="Название или артикул"
             hidden={{ category, sort }}
           >
-            <select
-              name="status"
-              defaultValue={status ?? ""}
-              aria-label="Статус"
-              className={cn(fieldBase, "h-9 w-auto cursor-pointer pr-8", fieldBorder(false))}
-            >
-              <option value="">Любой статус</option>
-              <option value="PUBLISHED">Опубликован</option>
-              <option value="DRAFT">Черновик</option>
-            </select>
+            <span className="w-[170px]">
+              <select
+                name="status"
+                defaultValue={status ?? ""}
+                aria-label="Статус"
+                className={cn(
+                  fieldBase,
+                  "h-9 w-auto cursor-pointer pr-8",
+                  fieldBorder(false),
+                )}
+              >
+                <option value="">Любой статус</option>
+                <option value="PUBLISHED">Опубликован</option>
+                <option value="DRAFT">Черновик</option>
+              </select>
+            </span>
           </ListFilters>
 
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-2.5">
             <p className="text-[12.5px] text-text-2">
-              Найдено: <span className="font-medium text-ink">{meta.total}</span>
+              Найдено:{" "}
+              <span className="font-medium text-ink">{meta.total}</span>
             </p>
-            <form action="/admin/catalog/products" method="get" className="flex items-center gap-2">
+            <form
+              action="/admin/catalog/products"
+              method="get"
+              className="flex items-center gap-2"
+            >
               {Object.entries({ category, status, q }).map(([name, value]) =>
-                value ? <input key={name} type="hidden" name={name} value={value} /> : null,
+                value ? (
+                  <input key={name} type="hidden" name={name} value={value} />
+                ) : null,
               )}
               <label htmlFor="sort" className="text-[12.5px] text-text-2">
                 Сортировка
               </label>
-              <select
-                id="sort"
-                name="sort"
-                defaultValue={sort ?? "sortOrder:asc"}
-                className={cn(fieldBase, "h-9 w-auto cursor-pointer pr-8", fieldBorder(false))}
-              >
-                {SORT_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              <span className="w-[170px]">
+                <select
+                  id="sort"
+                  name="sort"
+                  defaultValue={sort ?? "sortOrder:asc"}
+                  className={cn(
+                    fieldBase,
+                    "h-9 w-auto cursor-pointer pr-8",
+                    fieldBorder(false),
+                  )}
+                >
+                  {SORT_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </span>
               <button
                 type="submit"
                 className="inline-flex h-9 items-center rounded-card border border-line px-3 text-[12.5px] font-medium transition-colors hover:border-ink hover:bg-muted"
@@ -167,7 +216,11 @@ export default async function ProductsPage({ searchParams }: PageProps<"/admin/c
 
           {data.length === 0 ? (
             <EmptyState
-              message={q || category || status ? "Ничего не найдено" : "Товаров пока нет"}
+              message={
+                q || category || status
+                  ? "Ничего не найдено"
+                  : "Товаров пока нет"
+              }
               hint={
                 q || category || status
                   ? "Измените фильтры или очистите поиск."
@@ -228,8 +281,14 @@ export default async function ProductsPage({ searchParams }: PageProps<"/admin/c
                         {formatPrice(product.priceFrom, product.priceOnRequest)}
                       </Td>
                       <Td>
-                        <Badge tone={product.status === "PUBLISHED" ? "ok" : "neutral"}>
-                          {product.status === "PUBLISHED" ? "Опубликован" : "Черновик"}
+                        <Badge
+                          tone={
+                            product.status === "PUBLISHED" ? "ok" : "neutral"
+                          }
+                        >
+                          {product.status === "PUBLISHED"
+                            ? "Опубликован"
+                            : "Черновик"}
                         </Badge>
                       </Td>
                       <Td>
@@ -242,16 +301,18 @@ export default async function ProductsPage({ searchParams }: PageProps<"/admin/c
                           >
                             <Pencil className="size-4" />
                           </Link>
-                          <PublishToggle
-                            id={product.id}
-                            published={product.status === "PUBLISHED"}
-                            action={setProductStatus}
-                          />
-                          <DeleteButton
-                            id={product.id}
-                            action={deleteProduct}
-                            returnTo={closeHref}
-                          />
+                          <RowMenu label={`Действия: ${product.title}`}>
+                            <PublishToggle
+                              id={product.id}
+                              published={product.status === "PUBLISHED"}
+                              action={setProductStatus}
+                            />
+                            <DeleteButton
+                              id={product.id}
+                              action={deleteProduct}
+                              returnTo={closeHref}
+                            />
+                          </RowMenu>
                         </span>
                       </Td>
                     </Tr>
@@ -273,7 +334,10 @@ export default async function ProductsPage({ searchParams }: PageProps<"/admin/c
         <div className="px-5 pb-5 lg:px-8 lg:pb-8">
           <Panel title="Порядок внутри категории">
             <ReorderList
-              items={data.map((product) => ({ id: product.id, title: product.title }))}
+              items={data.map((product) => ({
+                id: product.id,
+                title: product.title,
+              }))}
               action={reorderProducts}
             />
           </Panel>

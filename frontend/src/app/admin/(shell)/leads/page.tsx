@@ -28,7 +28,9 @@ export const instant = false;
 
 export const metadata: Metadata = { title: "Заявки" };
 
-export default async function LeadsPage({ searchParams }: PageProps<"/admin/leads">) {
+export default async function LeadsPage({
+  searchParams,
+}: PageProps<"/admin/leads">) {
   const params = await searchParams;
   const status = isLeadStatus(params.status) ? params.status : undefined;
   // Параметры приходят из адреса: «?page=1.5» бэкенд отвергает четырёхсотым,
@@ -56,20 +58,30 @@ export default async function LeadsPage({ searchParams }: PageProps<"/admin/lead
 
       <div className="p-5 lg:p-8">
         <Panel>
-          <ListFilters action="/admin/leads" searchValue={q} searchPlaceholder="Имя, телефон, email, текст">
-            <select
-              name="status"
-              defaultValue={status ?? ""}
-              aria-label="Статус"
-              className={cn(fieldBase, "h-9 w-auto cursor-pointer pr-8", fieldBorder(false))}
-            >
-              <option value="">Все статусы</option>
-              {LEAD_STATUSES.map((value) => (
-                <option key={value} value={value}>
-                  {LEAD_STATUS_LABEL[value]}
-                </option>
-              ))}
-            </select>
+          <ListFilters
+            action="/admin/leads"
+            searchValue={q}
+            searchPlaceholder="Имя, телефон, email, текст"
+          >
+            <span className="w-[170px]">
+              <select
+                name="status"
+                defaultValue={status ?? ""}
+                aria-label="Статус"
+                className={cn(
+                  fieldBase,
+                  "h-9 w-auto cursor-pointer pr-8",
+                  fieldBorder(false),
+                )}
+              >
+                <option value="">Все статусы</option>
+                {LEAD_STATUSES.map((value) => (
+                  <option key={value} value={value}>
+                    {LEAD_STATUS_LABEL[value]}
+                  </option>
+                ))}
+              </select>
+            </span>
           </ListFilters>
 
           {data.length === 0 ? (
@@ -108,7 +120,9 @@ export default async function LeadsPage({ searchParams }: PageProps<"/admin/lead
                           {lead.name}
                         </Link>
                         {lead.email ? (
-                          <span className="mt-0.5 block text-[12px] text-text-2">{lead.email}</span>
+                          <span className="mt-0.5 block text-[12px] text-text-2">
+                            {lead.email}
+                          </span>
                         ) : null}
                         {lead.attachments.length > 0 ? (
                           <span className="mt-1 inline-flex items-center gap-1 text-[12px] text-text-2">
@@ -118,7 +132,10 @@ export default async function LeadsPage({ searchParams }: PageProps<"/admin/lead
                         ) : null}
                       </Td>
                       <Td className="whitespace-nowrap">
-                        <a href={`tel:+${lead.phoneDigits}`} className="hover:text-accent">
+                        <a
+                          href={`tel:+${lead.phoneDigits}`}
+                          className="hover:text-accent"
+                        >
                           {lead.phone}
                         </a>
                       </Td>
@@ -127,7 +144,9 @@ export default async function LeadsPage({ searchParams }: PageProps<"/admin/lead
                           {LEAD_STATUS_LABEL[lead.status]}
                         </Badge>
                       </Td>
-                      <Td className="text-text-2">{lead.assignedTo?.name ?? "—"}</Td>
+                      <Td className="text-text-2">
+                        {lead.assignedTo?.name ?? "—"}
+                      </Td>
                     </Tr>
                   ))}
                 </tbody>

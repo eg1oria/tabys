@@ -5,7 +5,7 @@ import { useActionState } from "react";
 import { Field, FormError, Select, TextArea, TextInput } from "@/components/ui/field";
 import { SubmitButton } from "./submit-button";
 import { SpecsEditor } from "./specs-editor";
-import { DeleteButton } from "./row-actions";
+import { DeleteSubmit } from "./catalog/delete-submit";
 import { ProductGallery, type GalleryItem } from "./catalog/product-gallery";
 import { deleteProduct, saveProduct } from "@/lib/admin/catalog-actions";
 import { FORM_ERROR, initialFormState, str } from "@/lib/admin/form-state";
@@ -38,6 +38,9 @@ export function ProductForm({
   facetPicker: React.ReactNode;
 }) {
   const [state, formAction] = useActionState(saveProduct, initialFormState);
+  // Отдельное состояние для удаления: кнопка отправляет ту же форму
+  // другим действием, поэтому её ошибки приходят сюда.
+  const [removeState, removeAction] = useActionState(deleteProduct, initialFormState);
   const errors = state.errors;
   const was = (name: string) => str(state.values, name);
 
@@ -47,7 +50,7 @@ export function ProductForm({
       <input type="hidden" name="returnTo" value={returnTo} />
 
       <div className="flex-1 space-y-4 p-5">
-        <FormError message={errors[FORM_ERROR]} />
+        <FormError message={errors[FORM_ERROR] ?? removeState.errors[FORM_ERROR]} />
 
         <ProductGallery initial={gallery} library={library} />
 
@@ -162,11 +165,7 @@ export function ProductForm({
       </div>
 
       <div className="sticky bottom-0 flex items-center justify-between gap-3 border-t border-line bg-white px-5 py-4">
-        <span>
-          {product ? (
-            <DeleteButton id={product.id} action={deleteProduct} returnTo={returnTo} />
-          ) : null}
-        </span>
+        <span>{product ? <DeleteSubmit action={removeAction} /> : null}</span>
         <span className="flex items-center gap-3">
           <span role="status" aria-live="polite" className="text-[12.5px] text-emerald-600">
             {state.status === "success" ? "Сохранено" : null}
