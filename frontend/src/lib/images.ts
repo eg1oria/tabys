@@ -14,6 +14,12 @@ const available = new Set([
   "/images/cat-curd.jpg",
   "/images/cat-vacuum.jpg",
   "/images/cat-cip.jpg",
+  "/images/sol-milk.jpg",
+  "/images/sol-cheese.jpg",
+  "/images/sol-yogurt.jpg",
+  "/images/sol-curd.jpg",
+  "/images/sol-drinks.jpg",
+  "/images/sol-other.jpg",
 ]);
 
 export function hasImage(src: string | undefined): src is string {
