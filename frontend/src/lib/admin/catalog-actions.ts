@@ -8,6 +8,7 @@ import {
   NOT_A_NUMBER,
   checkbox,
   clearableText,
+  optionalText,
   collectValues,
   lines,
   nullableAmount,
@@ -48,8 +49,8 @@ export async function saveCategory(prev: FormState, formData: FormData): Promise
   const body = omitUndefined({
     title,
     description,
-    slug: clearableText(formData, "slug"),
-    short: clearableText(formData, "short"),
+    slug: optionalText(formData, "slug"),
+    short: optionalText(formData, "short"),
     highlights: lines(formData, "highlights"),
     positionCount,
     imageId: nullableText(formData, "imageId"),

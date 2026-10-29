@@ -77,7 +77,7 @@ export default async function AdminSearchPage({ searchParams }: PageProps<"/admi
               {products.data.map((product) => (
                 <li key={product.id}>
                   <Link
-                    href={`/admin/catalog/products?edit=${product.id}`}
+                    href={`/admin/catalog/products/${product.id}`}
                     prefetch={false}
                     className="flex items-center justify-between gap-4 px-5 py-3 transition-colors hover:bg-muted"
                   >

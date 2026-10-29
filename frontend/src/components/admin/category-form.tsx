@@ -69,7 +69,7 @@ export function CategoryForm({
             label="Короткое имя"
             htmlFor="short"
             error={errors.short}
-            hint="Для боковой панели каталога. Пусто — возьмём название."
+            hint="Для боковой панели каталога. При создании пусто — возьмём название."
           >
             <TextInput
               id="short"

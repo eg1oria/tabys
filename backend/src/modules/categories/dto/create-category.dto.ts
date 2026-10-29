@@ -9,7 +9,11 @@ import {
   MaxLength,
   Min,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
+
+/** Пустое поле формы приходит как null — это «очистить», а не «не передано». */
+const notNull = () => ValidateIf((_: unknown, value: unknown) => value !== null);
 
 export class CreateCategoryDto {
   @ApiProperty({ example: 'Ёмкости и резервуары' })
@@ -58,6 +62,7 @@ export class CreateCategoryDto {
   positionCount?: number | null;
 
   @ApiPropertyOptional({ description: 'id загруженного изображения' })
+  @notNull()
   @IsString()
   @IsOptional()
   imageId?: string | null;
@@ -70,14 +75,16 @@ export class CreateCategoryDto {
   facetValueIds?: string[];
 
   @ApiPropertyOptional()
+  @notNull()
   @IsString()
   @MaxLength(200)
   @IsOptional()
-  seoTitle?: string;
+  seoTitle?: string | null;
 
   @ApiPropertyOptional()
+  @notNull()
   @IsString()
   @MaxLength(400)
   @IsOptional()
-  seoDescription?: string;
+  seoDescription?: string | null;
 }

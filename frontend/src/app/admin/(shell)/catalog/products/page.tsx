@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -26,7 +25,6 @@ import { DeleteButton, PublishToggle } from "@/components/admin/row-actions";
 import { ReorderList } from "@/components/admin/reorder-list";
 import { CategoryRail } from "@/components/admin/catalog/category-rail";
 import { RowMenu } from "@/components/admin/catalog/row-menu";
-import { ProductDrawer } from "@/components/admin/catalog/product-drawer";
 import { Badge } from "@/components/ui/badge";
 import { Download, ImageIcon, Pencil, Plus } from "@/components/ui/icons";
 import { fieldBase, fieldBorder } from "@/components/ui/field";
@@ -58,7 +56,6 @@ export default async function ProductsPage({
     SORT_OPTIONS.map((option) => option.value),
   );
   const { sortBy, order } = sortParam(sort, SORTABLE);
-  const edit = textParam(params.edit, 64);
 
   const [{ data, meta }, categories] = await Promise.all([
     getProducts({ category, status, q, page, sortBy, order }),
@@ -83,7 +80,10 @@ export default async function ProductsPage({
   if (page && meta.total > 0 && page > meta.totalPages)
     redirect(listHref({ page: undefined }));
 
-  const closeHref = listHref({ edit: undefined });
+  // С карточки товара возвращаемся на список с теми же фильтрами.
+  const backParam = `returnTo=${encodeURIComponent(listHref())}`;
+  const productHref = (id: string) =>
+    `/admin/catalog/products/${id}?${backParam}`;
 
   // Порядок правим только когда список — это вся категория целиком:
   // на отфильтрованном списке стрелки присвоили бы sortOrder 0..n
@@ -116,14 +116,14 @@ export default async function ProductsPage({
         actions={
           <>
             <a
-              href={`/api/admin/products/export${listHref({ edit: undefined, page: undefined }).replace("/admin/catalog/products", "")}`}
+              href={`/api/admin/products/export${listHref({ page: undefined }).replace("/admin/catalog/products", "")}`}
               className="inline-flex h-10 items-center gap-2 rounded-card border border-line bg-white px-4 text-[12.5px] font-medium transition-colors hover:border-ink hover:bg-muted"
             >
               <Download className="size-4" />
               Экспорт CSV
             </a>
             <Link
-              href={listHref({ edit: "new" })}
+              href={`/admin/catalog/products/new?${backParam}${category ? `&category=${category}` : ""}`}
               prefetch={false}
               className="inline-flex h-10 items-center gap-2 rounded-card bg-accent px-4 text-[12.5px] font-medium text-white transition-colors hover:bg-accent-strong"
             >
@@ -140,7 +140,7 @@ export default async function ProductsPage({
           active={category}
           total={totalProducts}
           hrefFor={(slug) =>
-            listHref({ category: slug, page: undefined, edit: undefined })
+            listHref({ category: slug, page: undefined })
           }
         />
 
@@ -246,7 +246,7 @@ export default async function ProductsPage({
                     <Tr key={product.id}>
                       <Td>
                         <Link
-                          href={listHref({ edit: product.id })}
+                          href={productHref(product.id)}
                           prefetch={false}
                           className="flex items-center gap-3"
                         >
@@ -294,7 +294,7 @@ export default async function ProductsPage({
                       <Td>
                         <span className="flex items-start justify-end gap-2 whitespace-nowrap">
                           <Link
-                            href={listHref({ edit: product.id })}
+                            href={productHref(product.id)}
                             prefetch={false}
                             aria-label={`Редактировать: ${product.title}`}
                             className="grid size-8 place-items-center rounded-card border border-line text-text-2 transition-colors hover:border-accent hover:text-accent"
@@ -310,7 +310,7 @@ export default async function ProductsPage({
                             <DeleteButton
                               id={product.id}
                               action={deleteProduct}
-                              returnTo={closeHref}
+                              returnTo={listHref()}
                             />
                           </RowMenu>
                         </span>
@@ -342,16 +342,6 @@ export default async function ProductsPage({
             />
           </Panel>
         </div>
-      ) : null}
-
-      {edit ? (
-        <Suspense fallback={null}>
-          <ProductDrawer
-            id={edit === "new" ? null : edit}
-            categorySlug={category}
-            returnTo={closeHref}
-          />
-        </Suspense>
       ) : null}
     </>
   );
