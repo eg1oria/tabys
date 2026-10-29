@@ -47,9 +47,23 @@ const PUBLIC_SELECT = {
   _count: { select: { products: { where: { status: PublishStatus.PUBLISHED } } } },
 } satisfies Prisma.CategorySelect;
 
+/**
+ * Админский select шире публичного: форме правки нужны ровно те поля,
+ * которые она потом отправляет обратно. imageId и facetValueId в
+ * PUBLIC_SELECT не добавляем — наружу идентификаторы не нужны.
+ */
 const ADMIN_SELECT = {
   ...PUBLIC_SELECT,
   id: true,
+  imageId: true,
+  seoTitle: true,
+  seoDescription: true,
+  facetValues: {
+    select: {
+      facetValueId: true,
+      facetValue: { select: { value: true, group: { select: { key: true } } } },
+    },
+  },
   status: true,
   sortOrder: true,
   publishedAt: true,

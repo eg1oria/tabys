@@ -13,6 +13,7 @@ export const ALLOWED_EXTENSIONS = [
 
 export type RequestState = {
   status: "idle" | "success" | "error";
+  /** Ключ "_form" — ошибка доставки целиком, а не конкретного поля. */
   errors: Record<string, string>;
 };
 

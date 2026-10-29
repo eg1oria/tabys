@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   ParseFilePipeBuilder,
+  Patch,
   Post,
   Query,
   UploadedFile,
@@ -16,6 +17,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { MediaService } from './media.service.js';
 import { UploadMediaDto } from './dto/upload-media.dto.js';
+import { UpdateMediaDto } from './dto/update-media.dto.js';
 import { PaginationDto } from '../../common/dto/pagination.dto.js';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import type { AuthUser } from '../../auth/types.js';
@@ -60,6 +62,16 @@ export class AdminMediaController {
     @CurrentUser() user: AuthUser,
   ) {
     return this.media.upload(file, dto.alt ?? '', user);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Изменить подпись (alt) изображения' })
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdateMediaDto,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.media.updateAlt(id, dto.alt, user);
   }
 
   @Delete(':id')

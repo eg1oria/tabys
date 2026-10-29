@@ -109,7 +109,7 @@ export class FacetsService {
     const used = before._count.categories + before._count.products;
     if (used > 0) {
       throw new ConflictException(
-        `Значение используется в  записях — сначала снимите его с них`,
+        `Значение используется в ${used} записях — сначала снимите его с них`,
       );
     }
 

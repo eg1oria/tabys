@@ -1,118 +1,216 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Tabys Admin API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Бэкенд админки для сайта Tabys Consulting. Управляет **каталогом** (категории,
+товары, фильтры) и **заявками с сайта**. Интерфейс админки живёт отдельно —
+в `../frontend/src/app/admin`; здесь только REST API и Swagger.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Зачем он появился
 
-## Description
+Сайт в `../frontend` полностью статичен: контент — хардкод в `src/lib/content/*`.
+Отсюда две проблемы, которые этот сервис и решает:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+1. **Заявки пропадали.** `frontend/src/lib/actions/request.ts` вызывал
+   `deliverRequest()`, которая делала только `console.info`, а байты вложения
+   отбрасывались. Инбокса не существовало.
+2. **Каталог нельзя было править.** Сущности «товар» не было вообще — только
+   категории с полем `count` и списком строк `items`.
 
-## Project setup
+## Запуск
+
+Нужны Node 24+ и PostgreSQL 16+.
 
 ```bash
-$ npm install
+npm install
+cp .env.example .env          # заполнить JWT-секреты: openssl rand -base64 48
+createdb tabys
+npm run db:migrate
+npm run db:seed               # фасеты, 12 категорий, 54 товара, картинки, админ
+npm run start:dev             # http://localhost:4000
 ```
 
-## Compile and run the project
+Порт **4000**, а не 3000: на 3000 сидит Next.js. Swagger — `/api/docs`
+(только когда `NODE_ENV != production`).
 
-```bash
-# development
-$ npm run start
+Пароль первого админа берётся из `SEED_ADMIN_PASSWORD`. Если переменная пуста,
+сид сгенерирует пароль и напечатает его один раз.
 
-# watch mode
-$ npm run start:dev
+### Скрипты
 
-# production mode
-$ npm run start:prod
+| Команда | Что делает |
+|---|---|
+| `npm run start:dev` | dev-сервер с перезапуском |
+| `npm run build` | сборка в `dist/` |
+| `npm run typecheck` | `tsc --noEmit` — **lint его не заменяет** |
+| `npm run lint` | oxlint с проверкой типов |
+| `npm test` | юнит-тесты (vitest) |
+| `npm run test:e2e` | e2e против отдельной базы `tabys_test` |
+| `npm run db:migrate` | `migrate dev` + `generate` |
+| `npm run db:seed` | идемпотентный сид |
+| `npm run db:studio` | Prisma Studio как временная замена UI |
+
+Для e2e нужна база `tabys_test` (`createdb tabys_test`) — миграции к ней
+применяются автоматически. Дев-базу тесты не трогают.
+
+## Структура
+
+```
+prisma/
+  schema.prisma          схема (12 таблиц)
+  seed-data/             перенос контента из frontend (сгенерирован, не перепечатан)
+  seed*.ts               идемпотентный сид
+src/
+  config/                валидация окружения при старте
+  prisma/                PrismaService + барьер импорта сгенерированного клиента
+  common/                пагинация, слаги, аудит, фильтр ошибок
+  auth/                  JWT, ротация refresh, гварды
+  modules/
+    facets/              группы фильтров (заменяют хардкод filterGroups)
+    categories/          категории
+    products/            товары
+    media/               загрузка картинок, sharp-производные
+    leads/               приём заявок и инбокс
+    notifications/       Telegram
 ```
 
-## Run tests
+Каждый ресурс — два контроллера: `public-*` и `admin-*`. Разделение видно в
+дереве файлов и в каждой строке лога.
 
-```bash
-# unit tests
-$ npm run test
+## Эндпоинты
 
-# e2e tests
-$ npm run test:e2e
+Префикс `/api/v1`.
 
-# test coverage
-$ npm run test:cov
+**Публичные** (без токена, только `status: PUBLISHED`):
+
+```
+GET  /public/categories          список
+GET  /public/categories/:slug    одна категория
+GET  /public/facets              группы фильтров
+GET  /public/products            ?category= &facets= &q= &page=
+POST /public/leads               приём заявки (multipart)
+GET  /health
 ```
 
-## Deployment
+**Админские** (Bearer-токен):
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+```
+POST   /auth/login | refresh | logout
+GET    /auth/me
+POST   /auth/change-password
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+GET                   /admin/users
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+GET|POST          /admin/categories
+GET|PATCH|DELETE  /admin/categories/:id
+PATCH             /admin/categories/reorder
+PATCH             /admin/categories/:id/publish | unpublish
+# та же форма у /admin/products
+
+GET|POST|PATCH|DELETE /admin/facets/values
+GET|POST|PATCH|DELETE /admin/media
+GET|PATCH             /admin/leads
+GET                   /admin/leads/:id/attachments/:attachmentId
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+**Лимиты считаются по IP, а фронтенд ходит со своего сервера.** Админка
+обращается к API с сервера Next, поэтому для бэкенда все администраторы — один
+адрес, и общий лимит 120 запросов в минуту они делят на всех. Для двух-трёх
+человек этого хватает, но если админов станет больше или начнёт мешать
+перезагрузка dev-сервера, лимит нужно либо поднять, либо считать по
+`request.user.id` для аутентифицированных маршрутов. То же касается входа:
+10 попыток за 5 минут теперь общие.
 
-## Observability
+## Решения, которые стоит знать при чтении кода
 
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
+**`count` у категории — переопределение, а не вычисляемое поле.** У трёх из
+двенадцати категорий витринное число расходится с реальным списком позиций
+(у торцевых уплотнений 20 против 5), а в `seals.tsx` «20 позиций» прошито в
+вёрстке. Поэтому публично отдаётся `positionCount ?? число товаров`, а сид
+переносит исходные числа дословно. Вычисляемое значение молча поменяло бы
+цифры на сайте.
 
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
+**Фильтры — таблицы `FacetGroup`/`FacetValue`, а не enum.** Раньше значения
+(`tanks`, `aisi304`, `moloko`) дублировались руками в полях категории и в
+`filterGroups`. Теперь это один источник правды, и админ добавляет значение
+без миграции.
 
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
+**Слаги при сиде переносятся дословно.** Они уже в URL (`?cat=...`).
+Автогенерация (`common/slug/transliterate.ts`) включается только для новых
+записей; карта снята с существующих слагов, а не взята из библиотеки —
+отсюда `ц→c` и `х→h`, как в `pasterizacionnoe` и `ohladiteli`. Слаги `ckt` и
+`pou` — человеческие аббревиатуры, машинно они не воспроизводятся.
 
-This project is already instrumented. Create a free account at [observe.nestjs.com](https://observe.nestjs.com), add an application, and paste the generated app key and secret into the `ObserveModule.forRoot()` call in `src/app.module.ts`.
+**Публичные ответы собираются явным `select`, а не фильтрацией готовой строки.**
+Поле, которое не выбрали из базы, утечь не может: ошибка в такой схеме даёт
+отсутствующее поле, а не лишнее. Форма ответа `/public/categories` повторяет
+тип `Category` на фронтенде, включая раскладку фасетов в поля-сиблинги.
 
-The free plan needs no payment details and covers 300,000 events a month. You can also browse the [live demo](https://www.observe-demo.nestjs.com/dashboard) first - the whole dashboard over a busy service's data, with nothing to install.
+**Refresh-токен хешируется SHA-256, а не argon2.** Строку нужно находить *по*
+хешу, а argon2 со случайной солью такой поиск делает невозможным. Медленный KDF
+здесь и не нужен: перебирать 256 бит случайности нечем — в отличие от пароля,
+который argon2id как раз и хеширует.
 
-## Resources
+**Повторное использование refresh-токена гасит всё семейство.** Если предъявлен
+уже отозванный токен, значит он утёк, и пользуются им оба — и владелец, и вор.
 
-Check out a few resources that may come in handy when working with NestJS:
+**Уведомление в Telegram — слушатель события, а не вызов внутри обработчика.**
+Ответ формы уходит сразу; лежащий Bot API не должен подвешивать отправку.
+Недоставленные уведомления находятся по `notifiedAt IS NULL`.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observe](https://observe.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+**Вложения заявок не раздаются статикой.** В них чертежи и ТЗ заказчиков —
+скачивание только через админский маршрут, под авторизацией, с
+`Content-Disposition: attachment` и `nosniff`.
 
-## Support
+**Тип файла проверяется по содержимому, а не по расширению.** PDF,
+переименованный в `.jpg`, отвергается. Исключение — `dwg`/`dxf`: у них нет
+устойчивой сигнатуры, и это осознанная уступка, а не забытая проверка.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Особенности окружения
 
-## Stay in touch
+**Нативный ESM.** Все относительные импорты пишутся с расширением `.js`, даже
+когда указывают на `.ts`. Самая частая причина падений при добавлении файлов —
+забыть его: tsc промолчит, Node упадёт в рантайме.
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+**Prisma 7 устроена не так, как Prisma 6.** URL подключения живёт в
+`prisma.config.ts`, а не в блоке `datasource`; адаптер `@prisma/adapter-pg`
+обязателен; CLI сам `.env` не читает. Версии **запинованы на 7.10.1**: npm-тег
+`latest` у пакета `prisma` — это пре-релиз 8.0.0-rc, а Prisma 8 переименовывает
+`schema.prisma`, так что случайный `npm update` сломает схему.
 
-## License
+**Сид запускается через `tsx`.** Node не резолвит `.js`-спецификатор в
+`.ts`-файл, поэтому «просто `node prisma/seed.ts`» не работает.
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+**`npm run lint` не проверяет типы** — oxlint ловит другое. Перед коммитом нужен
+отдельный `npm run typecheck`.
+
+**`trust proxy` выключен по умолчанию.** Заявку отправляет сервер Next, и без
+`TRUST_PROXY` в `Lead.ip` попадёт его адрес, а лимит «20 в час на IP» станет
+общим для всех посетителей. Включать нужно осознанно: доверять
+`X-Forwarded-For` при напрямую открытом приложении — значит разрешить любому
+подделать свой адрес и обойти лимиты. Локально `TRUST_PROXY=loopback`,
+в проде — число хопов до nginx или его IP.
+
+## Что сюда не входит
+
+- Контент страниц (`projects`, `solutions`, `services`, `lines`) и реквизиты
+  компании (`company.ts`) — остались хардкодом во фронтенде.
+- Публичные страницы каталога: они по-прежнему читают `frontend/src/lib/content/*`,
+  а не API. При переводе на API понадобятся `"use cache"`,
+  `cacheTag`/`revalidateTag` (во фронтенде включён `cacheComponents`) и замена
+  хардкод-списка `src/lib/images.ts`.
+- Управление администраторами: `GET /admin/users` только отдаёт список для
+  назначения заявок. Создать, выключить или сменить роль можно лишь сидом.
+- Чтение журнала действий: таблица `AuditLog` заполняется при каждой правке,
+  но наружу не отдаётся — смотреть через `npm run db:studio`.
+
+Приём заявок с сайта и интерфейс админки уже на месте: форма шлёт
+`POST /public/leads`, админка работает на `/admin`.
+
+## Эксплуатация
+
+- `uploads/` — в `.gitignore` и **не попадает ни в git, ни в `pg_dump`**. Когда
+  появятся реальные вложения заказчиков, эту папку нужно включить в бэкап:
+  восстановить её больше будет неоткуда.
+- В прод `/uploads` должен раздавать nginx, а не Node.
+- За реверс-прокси нужен `TRUST_PROXY` (число хопов до nginx или его IP),
+  иначе все запросы придут с одного IP и лимиты на логин и заявки сработают
+  на всех сразу. Без прокси перед приложением переменную не задавайте.

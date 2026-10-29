@@ -124,6 +124,24 @@ export class MediaService {
     );
   }
 
+  async updateAlt(id: string, alt: string, actor: AuthUser) {
+    const before = await this.prisma.mediaAsset.findUnique({ where: { id } });
+    if (!before) throw new NotFoundException('Файл не найден');
+
+    const updated = await this.prisma.mediaAsset.update({ where: { id }, data: { alt } });
+
+    await this.audit.log({
+      actor,
+      action: 'media.update',
+      entity: 'MediaAsset',
+      entityId: id,
+      before: { alt: before.alt },
+      after: { alt },
+    });
+
+    return { ...updated, url: this.url(updated.storageKey) };
+  }
+
   async remove(id: string, actor: AuthUser): Promise<void> {
     const asset = await this.prisma.mediaAsset.findUnique({
       where: { id },
