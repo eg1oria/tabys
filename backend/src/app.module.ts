@@ -14,6 +14,7 @@ import { CategoriesModule } from './modules/categories/categories.module.js';
 import { ProductsModule } from './modules/products/products.module.js';
 import { MediaModule } from './modules/media/media.module.js';
 import { LeadsModule } from './modules/leads/leads.module.js';
+import { UsersModule } from './modules/users/users.module.js';
 import { NotificationsModule } from './modules/notifications/notifications.module.js';
 
 @Module({
@@ -31,6 +32,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     ProductsModule,
     MediaModule,
     LeadsModule,
+    UsersModule,
     NotificationsModule,
     HealthModule,
   ],

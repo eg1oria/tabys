@@ -18,6 +18,9 @@ const app = await NestFactory.create<NestExpressApplication>(AppModule, {
 const config = app.get(AppConfigService);
 
 app.setGlobalPrefix('api/v1');
+// Без этого req.ip — адрес ближайшего клиента, то есть сервера Next для
+// каждой заявки с сайта: лимиты по IP тогда общие для всех посетителей.
+app.set('trust proxy', config.trustProxy);
 app.use(
   helmet({
     // next/image с другого порта тянет картинки из /uploads — иначе CORP их режет.

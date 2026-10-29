@@ -53,6 +53,14 @@ export class AppConfigService {
     return this.get('JWT_REFRESH_TTL');
   }
 
+  /** Значение для app.set('trust proxy', …). */
+  get trustProxy(): string | number | false {
+    const raw = this.get('TRUST_PROXY').trim();
+    if (!raw) return false;
+    const hops = Number(raw);
+    return Number.isInteger(hops) && hops >= 0 ? hops : raw;
+  }
+
   get uploadDir(): string {
     return this.get('UPLOAD_DIR');
   }

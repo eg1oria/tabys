@@ -28,10 +28,18 @@ const PUBLIC_SELECT = {
   },
 } satisfies Prisma.ProductSelect;
 
+/** Шире публичного: форме правки нужны идентификаторы, а не только значения. */
 const ADMIN_SELECT = {
   ...PUBLIC_SELECT,
   id: true,
   categoryId: true,
+  imageId: true,
+  facetValues: {
+    select: {
+      facetValueId: true,
+      facetValue: { select: { value: true, group: { select: { key: true } } } },
+    },
+  },
   status: true,
   sortOrder: true,
   createdAt: true,
