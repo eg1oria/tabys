@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { ArrowRight, Check, Paperclip } from "@/components/ui/icons";
+import { FormError } from "@/components/ui/field";
 import { submitRequest } from "@/lib/actions/request";
 import { initialRequestState } from "@/lib/actions/request-state";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,15 @@ export function RequestForm() {
   const [state, formAction, isPending] = useActionState(submitRequest, initialRequestState);
   const [fileName, setFileName] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const renderedAtRef = useRef<HTMLInputElement>(null);
+
+  // Момент показа формы: отправка быстрее двух секунд — почти наверняка
+  // скрипт. Ставим в эффекте, а не при рендере: Date.now() во время
+  // рендера роняет сборку при cacheComponents. Значение пишем прямо в
+  // поле, без состояния, чтобы не перерисовывать форму.
+  useEffect(() => {
+    if (renderedAtRef.current) renderedAtRef.current.value = String(Date.now());
+  }, []);
 
   if (state.status === "success") {
     return (
@@ -49,6 +59,22 @@ export function RequestForm() {
 
   return (
     <form ref={formRef} action={formAction} noValidate className="space-y-4">
+      {/* Ловушка для ботов: людям поле не видно и в табуляцию не попадает.
+          Заполненное — верный признак скрипта, бэкенд пометит заявку спамом. */}
+      <div aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
+        <label htmlFor="companyWebsite">Сайт компании</label>
+        <input
+          id="companyWebsite"
+          name="companyWebsite"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+        />
+      </div>
+      <input ref={renderedAtRef} type="hidden" name="renderedAt" defaultValue="" />
+
+      <FormError message={errors._form} />
+
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="name" className="sr-only">
