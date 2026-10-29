@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { Inter, Montserrat } from "next/font/google";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
 import { SITE_URL, company } from "@/lib/content/company";
 import "./globals.css";
 
@@ -55,9 +53,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${montserrat.variable} ${inter.variable} h-full`}
     >
       <body className="flex min-h-full flex-col bg-surface text-ink">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        {children}
       </body>
     </html>
   );

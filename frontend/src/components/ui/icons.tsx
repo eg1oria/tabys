@@ -198,3 +198,111 @@ export const YouTube = (p: IconProps) => (
     <path d="M22.5 7.2a2.7 2.7 0 0 0-1.9-1.9C18.9 4.8 12 4.8 12 4.8s-6.9 0-8.6.5A2.7 2.7 0 0 0 1.5 7.2 28.6 28.6 0 0 0 1 12a28.6 28.6 0 0 0 .5 4.8 2.7 2.7 0 0 0 1.9 1.9c1.7.5 8.6.5 8.6.5s6.9 0 8.6-.5a2.7 2.7 0 0 0 1.9-1.9A28.6 28.6 0 0 0 23 12a28.6 28.6 0 0 0-.5-4.8ZM9.8 15.3V8.7l5.7 3.3-5.7 3.3Z" />
   </svg>
 );
+
+// ───────────────────── иконки админки ─────────────────────
+
+export const ChevronUp = (p: IconProps) => (
+  <Base {...p}>
+    <path d="m6 15 6-6 6 6" />
+  </Base>
+);
+
+export const ChevronRight = (p: IconProps) => (
+  <Base {...p}>
+    <path d="m9 6 6 6-6 6" />
+  </Base>
+);
+
+export const Plus = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M12 5v14" />
+    <path d="M5 12h14" />
+  </Base>
+);
+
+export const Trash = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M4 7h16" />
+    <path d="M10 11v6M14 11v6" />
+    <path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12" />
+    <path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+  </Base>
+);
+
+export const Pencil = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M4 20h4L19.5 8.5a2.1 2.1 0 0 0-3-3L5 17v3Z" />
+    <path d="m15 6 3 3" />
+  </Base>
+);
+
+export const Upload = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M12 16V4" />
+    <path d="m7 9 5-5 5 5" />
+    <path d="M4 17v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2" />
+  </Base>
+);
+
+export const Download = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M12 4v12" />
+    <path d="m7 11 5 5 5-5" />
+    <path d="M4 18v1a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1" />
+  </Base>
+);
+
+export const ImageIcon = (p: IconProps) => (
+  <Base {...p}>
+    <rect x="3.5" y="4.5" width="17" height="15" rx="1.5" />
+    <circle cx="9" cy="10" r="1.6" />
+    <path d="m4.5 17 4.2-4.2a1.5 1.5 0 0 1 2.1 0l2.4 2.4 2-2a1.5 1.5 0 0 1 2.1 0l2.2 2.2" />
+  </Base>
+);
+
+export const LogOut = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M14 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4" />
+    <path d="M10 12H3" />
+    <path d="m6 8-3 4 3 4" />
+  </Base>
+);
+
+export const Inbox = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M3.5 13h4l1.2 2.2h6.6L16.5 13h4" />
+    <path d="M3.5 13 6 5h12l2.5 8v5a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1v-5Z" />
+  </Base>
+);
+
+export const Layers = (p: IconProps) => (
+  <Base {...p}>
+    <path d="m12 3 8 4.5-8 4.5-8-4.5L12 3Z" />
+    <path d="m4 12.5 8 4.5 8-4.5" />
+    <path d="m4 16.8 8 4.5 8-4.5" />
+  </Base>
+);
+
+export const User = (p: IconProps) => (
+  <Base {...p}>
+    <circle cx="12" cy="8.5" r="3.5" />
+    <path d="M5 20c0-3.3 3.1-5.5 7-5.5s7 2.2 7 5.5" />
+  </Base>
+);
+
+export const Sliders = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M4 7h10M18 7h2" />
+    <path d="M4 17h4M12 17h8" />
+    <circle cx="16" cy="7" r="2" />
+    <circle cx="10" cy="17" r="2" />
+  </Base>
+);
+
+export const AlertCircle = (p: IconProps) => (
+  <Base {...p}>
+    <circle cx="12" cy="12" r="8.5" />
+    <path d="M12 8v4.5" />
+    <path d="M12 16h.01" />
+  </Base>
+);
