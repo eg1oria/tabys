@@ -1,0 +1,5 @@
+# Сгенерированный клиент Prisma — его формат задаёт генератор
+src/generated
+dist
+coverage
+uploads
