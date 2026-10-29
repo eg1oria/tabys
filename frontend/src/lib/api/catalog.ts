@@ -25,9 +25,13 @@ export function getProducts(params: {
   status?: PublishStatus;
   q?: string;
   page?: number;
+  perPage?: number;
+  sortBy?: string;
+  order?: "asc" | "desc";
 }) {
+  const { perPage = 20, sortBy = "sortOrder", order = "asc", ...rest } = params;
   return apiRead<Paginated<AdminProduct>>(
-    `/admin/products${searchString({ ...params, perPage: 20, sortBy: "sortOrder", order: "asc" })}`,
+    `/admin/products${searchString({ ...rest, perPage, sortBy, order })}`,
   );
 }
 

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getCategories } from "@/lib/api/catalog";
+import { apiRead } from "@/lib/api/server";
+import type { CurrentUser } from "@/lib/api/types";
 import { deleteCategory, reorderCategories, setCategoryStatus } from "@/lib/admin/catalog-actions";
 import { EmptyState, PageHeader, Panel } from "@/components/admin/page-header";
 import { Table, Td, Th, Tr } from "@/components/admin/data-table";
@@ -19,13 +21,19 @@ export const instant = false;
 export const metadata: Metadata = { title: "Категории" };
 
 export default async function CategoriesPage() {
-  const { data } = await getCategories();
+  // Удалять категории бэкенд разрешает только владельцу: показывать
+  // редактору кнопку, которая всегда отвечает 403, незачем.
+  const [{ data }, me] = await Promise.all([
+    getCategories(),
+    apiRead<CurrentUser>("/auth/me"),
+  ]);
 
   return (
     <>
       <PageHeader
         title="Категории"
         description="Разделы каталога. Снятая с публикации категория пропадает с сайта вместе с товарами."
+        breadcrumbs={[{ label: "Каталог" }, { label: "Категории" }]}
         actions={
           <Link
             href="/admin/catalog/categories/new"
@@ -50,7 +58,9 @@ export default async function CategoriesPage() {
                   <Th>Адрес</Th>
                   <Th>Товаров</Th>
                   <Th>Статус</Th>
-                  <Th />
+                  <Th>
+                    <span className="sr-only">Действия</span>
+                  </Th>
                 </tr>
               </thead>
               <tbody>
@@ -89,7 +99,19 @@ export default async function CategoriesPage() {
                           published={category.status === "PUBLISHED"}
                           action={setCategoryStatus}
                         />
-                        <DeleteButton id={category.id} action={deleteCategory} />
+                        {me.role === "OWNER" ? (
+                          <DeleteButton
+                            id={category.id}
+                            action={deleteCategory}
+                            // Бэкенд удаляет категорию вместе с её товарами —
+                            // об этом надо предупредить до, а не после.
+                            confirmLabel={
+                              category._count.products > 0
+                                ? `Удалить и ${category._count.products} товаров`
+                                : "Точно удалить"
+                            }
+                          />
+                        ) : null}
                       </span>
                     </Td>
                   </Tr>

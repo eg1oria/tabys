@@ -37,6 +37,7 @@ export default async function LeadPage({ params }: PageProps<"/admin/leads/[id]"
   return (
     <>
       <PageHeader
+        breadcrumbs={[{ label: "Заявки", href: "/admin/leads" }, { label: lead.name }]}
         title={lead.name}
         description={`Заявка от ${formatDateTime(lead.createdAt)}`}
         actions={
@@ -131,6 +132,7 @@ export default async function LeadPage({ params }: PageProps<"/admin/leads/[id]"
               <LeadAssignForm
                 id={lead.id}
                 assignedToId={lead.assignedToId}
+                assignedToName={lead.assignedTo?.name}
                 admins={admins}
               />
             </div>

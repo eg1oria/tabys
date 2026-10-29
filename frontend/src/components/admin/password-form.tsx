@@ -12,7 +12,7 @@ export function PasswordForm() {
 
   if (state.status === "success") {
     return (
-      <p className="rounded-card border border-emerald-200 bg-emerald-50 px-3.5 py-3 text-[12.5px] leading-relaxed text-emerald-700">
+      <p role="status" className="rounded-card border border-emerald-200 bg-emerald-50 px-3.5 py-3 text-[12.5px] leading-relaxed text-emerald-700">
         Пароль изменён. Остальные сессии завершены — на других устройствах
         придётся войти заново.
       </p>

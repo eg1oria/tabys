@@ -21,11 +21,13 @@ export function SubmitButton({
   pendingLabel = "Сохраняем…",
   variant = "primary",
   className,
+  ref,
   ...rest
 }: Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "className" | "type"> & {
   pendingLabel?: string;
   variant?: Variant;
   className?: string;
+  ref?: React.Ref<HTMLButtonElement>;
   children: React.ReactNode;
 }) {
   const { pending } = useFormStatus();
@@ -33,6 +35,7 @@ export function SubmitButton({
   return (
     <button
       {...rest}
+      ref={ref}
       type="submit"
       // disabled после ...rest: иначе переданный disable={false} затирал бы
       // pending и форму можно было отправить дважды.

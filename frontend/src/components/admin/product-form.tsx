@@ -2,142 +2,184 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { Checkbox, Field, FormError, Select, TextArea, TextInput } from "@/components/ui/field";
+import { Field, FormError, Select, TextArea, TextInput } from "@/components/ui/field";
 import { SubmitButton } from "./submit-button";
 import { SpecsEditor } from "./specs-editor";
-import { saveProduct } from "@/lib/admin/catalog-actions";
-import { FORM_ERROR, initialFormState } from "@/lib/admin/form-state";
+import { DeleteButton } from "./row-actions";
+import { ProductGallery, type GalleryItem } from "./catalog/product-gallery";
+import { deleteProduct, saveProduct } from "@/lib/admin/catalog-actions";
+import { FORM_ERROR, initialFormState, str } from "@/lib/admin/form-state";
 import type { AdminProduct } from "@/lib/api/types";
+import type { PickableImage } from "./image-picker";
 
+/**
+ * Карточка товара в выдвижной панели.
+ *
+ * Поля неуправляемые, но форма перемонтируется по submissionId и
+ * пересевается тем, что человек отправил: React 19 после любого действия
+ * сбрасывает неуправляемые поля, и без этого неудачное сохранение
+ * стирало бы весь ввод вместе с показом ошибки.
+ */
 export function ProductForm({
   product,
   categories,
   defaultCategoryId,
-  imagePicker,
+  gallery,
+  library,
+  returnTo,
   facetPicker,
 }: {
   product: AdminProduct | null;
   categories: { id: string; title: string }[];
   defaultCategoryId?: string;
-  imagePicker: React.ReactNode;
+  gallery: GalleryItem[];
+  library: PickableImage[];
+  returnTo: string;
   facetPicker: React.ReactNode;
 }) {
   const [state, formAction] = useActionState(saveProduct, initialFormState);
   const errors = state.errors;
+  const was = (name: string) => str(state.values, name);
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form key={state.submissionId ?? 0} action={formAction} className="flex min-h-full flex-col">
       {product ? <input type="hidden" name="id" value={product.id} /> : null}
-      <FormError message={errors[FORM_ERROR]} />
+      <input type="hidden" name="returnTo" value={returnTo} />
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
-        <div className="space-y-4 rounded-card border border-line bg-white p-5">
-          <Field label="Категория" htmlFor="categoryId" error={errors.categoryId} required>
-            <Select
-              id="categoryId"
-              name="categoryId"
-              defaultValue={product?.categoryId ?? defaultCategoryId ?? ""}
-              error={errors.categoryId}
-            >
-              <option value="">Выберите категорию</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.title}
-                </option>
-              ))}
-            </Select>
-          </Field>
+      <div className="flex-1 space-y-4 p-5">
+        <FormError message={errors[FORM_ERROR]} />
 
-          <Field label="Название" htmlFor="title" error={errors.title} required>
-            <TextInput
-              id="title"
-              name="title"
-              defaultValue={product?.title ?? ""}
-              error={errors.title}
-              maxLength={300}
-            />
-          </Field>
+        <ProductGallery initial={gallery} library={library} />
 
+        <Field label="Название" htmlFor="title" error={errors.title} required>
+          <TextInput
+            id="title"
+            name="title"
+            defaultValue={was("title") ?? product?.title ?? ""}
+            error={errors.title}
+            maxLength={300}
+          />
+        </Field>
+
+        <Field
+          label="Артикул"
+          htmlFor="sku"
+          error={errors.sku}
+          hint="Латиница, цифры и дефис. Должен быть уникальным."
+        >
+          <TextInput
+            id="sku"
+            name="sku"
+            defaultValue={was("sku") ?? product?.sku ?? ""}
+            error={errors.sku}
+            placeholder="TC-R-500"
+            maxLength={64}
+          />
+        </Field>
+
+        <Field label="Категория" htmlFor="categoryId" error={errors.categoryId} required>
+          <Select
+            id="categoryId"
+            name="categoryId"
+            defaultValue={was("categoryId") ?? product?.categoryId ?? defaultCategoryId ?? ""}
+            error={errors.categoryId}
+          >
+            <option value="">Выберите категорию</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.title}
+              </option>
+            ))}
+          </Select>
+        </Field>
+
+        <div className="grid gap-4 sm:grid-cols-2">
           <Field
-            label="Адрес (slug)"
-            htmlFor="slug"
-            error={errors.slug}
-            hint="Пусто — соберётся из названия."
+            label="Цена от, ₸"
+            htmlFor="priceFrom"
+            error={errors.priceFrom}
+            hint="Пусто — «по запросу»."
           >
             <TextInput
-              id="slug"
-              name="slug"
-              defaultValue={product?.slug ?? ""}
-              error={errors.slug}
-              maxLength={80}
-            />
-          </Field>
-
-          <Field label="Описание" htmlFor="description" error={errors.description}>
-            <TextArea
-              id="description"
-              name="description"
-              defaultValue={product?.description ?? ""}
-              error={errors.description}
-              rows={5}
-              maxLength={5000}
-            />
-          </Field>
-
-          <div>
-            <span className="mb-1.5 block text-[12.5px] font-medium">Характеристики</span>
-            <SpecsEditor specs={product?.specs ?? null} />
-          </div>
-        </div>
-
-        <div className="space-y-5">
-          <section className="space-y-3 rounded-card border border-line bg-white p-5">
-            <h2 className="section-label">Цена</h2>
-            <Field
-              label="Цена от, ₸"
-              htmlFor="priceFrom"
+              id="priceFrom"
+              name="priceFrom"
+              inputMode="decimal"
+              defaultValue={was("priceFrom") ?? product?.priceFrom ?? ""}
               error={errors.priceFrom}
-              hint="Пусто — показываем «по запросу»."
-            >
-              <TextInput
-                id="priceFrom"
-                name="priceFrom"
-                inputMode="decimal"
-                defaultValue={product?.priceFrom ?? ""}
-                error={errors.priceFrom}
-              />
-            </Field>
-            <Checkbox
-              name="priceOnRequest"
-              defaultChecked={product ? product.priceOnRequest : true}
-              label="Цена по запросу"
+              placeholder="12 500 000"
             />
-          </section>
+          </Field>
 
-          <section className="space-y-3 rounded-card border border-line bg-white p-5">
-            <h2 className="section-label">Картинка</h2>
-            {imagePicker}
-          </section>
-
-          <section className="space-y-3 rounded-card border border-line bg-white p-5">
-            <h2 className="section-label">Фильтры</h2>
-            {facetPicker}
-          </section>
+          <Field label="Статус" htmlFor="status">
+            <Select
+              id="status"
+              name="status"
+              defaultValue={was("status") ?? product?.status ?? "PUBLISHED"}
+            >
+              <option value="PUBLISHED">Опубликован</option>
+              <option value="DRAFT">Черновик</option>
+            </Select>
+          </Field>
         </div>
+
+        <Field
+          label="Адрес (slug)"
+          htmlFor="slug"
+          error={errors.slug}
+          hint={product ? "Уже может стоять в ссылках." : "Пусто — соберём из названия."}
+        >
+          <TextInput
+            id="slug"
+            name="slug"
+            defaultValue={was("slug") ?? product?.slug ?? ""}
+            error={errors.slug}
+            maxLength={80}
+          />
+        </Field>
+
+        <Field label="Краткое описание" htmlFor="description" error={errors.description}>
+          <TextArea
+            id="description"
+            name="description"
+            defaultValue={was("description") ?? product?.description ?? ""}
+            error={errors.description}
+            rows={4}
+            maxLength={5000}
+          />
+        </Field>
+
+        <div>
+          <h3 className="section-label mb-2">Характеристики</h3>
+          <SpecsEditor specs={product?.specs ?? null} />
+        </div>
+
+        <details className="rounded-card border border-line">
+          <summary className="cursor-pointer px-3 py-2 text-[12.5px] text-text-2">
+            Фильтры каталога
+          </summary>
+          <div className="border-t border-line p-3">{facetPicker}</div>
+        </details>
       </div>
 
-      <div className="flex items-center gap-3">
-        <SubmitButton>{product ? "Сохранить" : "Создать товар"}</SubmitButton>
-        <Link
-          href="/admin/catalog/products"
-          prefetch={false}
-          className="text-[12.5px] text-text-2 hover:text-ink"
-        >
-          Отмена
-        </Link>
-        {state.status === "success" ? (
-          <span className="text-[12.5px] text-emerald-600">Сохранено</span>
-        ) : null}
+      <div className="sticky bottom-0 flex items-center justify-between gap-3 border-t border-line bg-white px-5 py-4">
+        <span>
+          {product ? (
+            <DeleteButton id={product.id} action={deleteProduct} returnTo={returnTo} />
+          ) : null}
+        </span>
+        <span className="flex items-center gap-3">
+          <span role="status" aria-live="polite" className="text-[12.5px] text-emerald-600">
+            {state.status === "success" ? "Сохранено" : null}
+          </span>
+          <Link
+            href={returnTo}
+            prefetch={false}
+            className="text-[12.5px] text-text-2 hover:text-ink"
+          >
+            Отмена
+          </Link>
+          <SubmitButton>Сохранить</SubmitButton>
+        </span>
       </div>
     </form>
   );

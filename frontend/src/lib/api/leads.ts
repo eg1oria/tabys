@@ -7,9 +7,10 @@ export function getLeads(params: {
   status?: LeadStatus;
   q?: string;
   page?: number;
+  perPage?: number;
 }): Promise<Paginated<Lead>> {
   return apiRead<Paginated<Lead>>(
-    `/admin/leads${searchString({ ...params, perPage: 20 })}`,
+    `/admin/leads${searchString({ ...params, perPage: params.perPage ?? 20 })}`,
   );
 }
 

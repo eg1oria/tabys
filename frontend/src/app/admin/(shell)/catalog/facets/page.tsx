@@ -13,6 +13,7 @@ export default async function FacetsPage() {
   return (
     <>
       <PageHeader
+        breadcrumbs={[{ label: "Каталог" }, { label: "Параметры" }]}
         title="Фильтры каталога"
         description="Значения, по которым посетитель отбирает оборудование. Сами группы фильтров задаются в коде бэкенда."
       />

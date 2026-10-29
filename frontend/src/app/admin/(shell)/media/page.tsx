@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { getMedia, thumbUrl } from "@/lib/api/media";
+import { pageParam } from "@/lib/admin/search-params";
 import { EmptyState, PageHeader, Panel } from "@/components/admin/page-header";
 import { Pagination } from "@/components/admin/pagination";
 import { MediaUpload } from "@/components/admin/media-upload";
@@ -12,19 +14,22 @@ import { MediaCard } from "@/components/admin/media-card";
  */
 export const instant = false;
 
-export const metadata: Metadata = { title: "Медиа" };
+export const metadata: Metadata = { title: "Файлы" };
 
 export default async function MediaPage({ searchParams }: PageProps<"/admin/media">) {
   const params = await searchParams;
-  const page = Number(params.page) > 1 ? Number(params.page) : undefined;
+  const page = pageParam(params.page);
 
   const { data, meta } = await getMedia({ page });
+
+  if (page && meta.total > 0 && page > meta.totalPages) redirect("/admin/media");
 
   return (
     <>
       <PageHeader
-        title="Медиа"
+        title="Файлы"
         description="Картинки каталога. Удалить можно только те, что нигде не используются."
+        breadcrumbs={[{ label: "Файлы" }]}
       />
 
       <div className="space-y-5 p-5 lg:p-8">

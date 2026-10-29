@@ -15,7 +15,8 @@ export default async function ProfilePage() {
 
   return (
     <>
-      <PageHeader title="Профиль" description="Ваша учётная запись в админке." />
+      <PageHeader
+        breadcrumbs={[{ label: "Настройки" }]} title="Профиль" description="Ваша учётная запись в админке." />
 
       <div className="grid gap-5 p-5 lg:max-w-4xl lg:grid-cols-2 lg:p-8">
         <Panel title="Учётная запись">

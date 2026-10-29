@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getLeads } from "@/lib/api/leads";
+import { pageParam, qParam } from "@/lib/admin/search-params";
 import { formatDateTime } from "@/lib/admin/format";
 import {
   LEAD_STATUSES,
@@ -29,16 +31,27 @@ export const metadata: Metadata = { title: "Заявки" };
 export default async function LeadsPage({ searchParams }: PageProps<"/admin/leads">) {
   const params = await searchParams;
   const status = isLeadStatus(params.status) ? params.status : undefined;
-  const q = typeof params.q === "string" && params.q !== "" ? params.q : undefined;
-  const page = Number(params.page) > 1 ? Number(params.page) : undefined;
+  // Параметры приходят из адреса: «?page=1.5» бэкенд отвергает четырёхсотым,
+  // и страница падала в error boundary вместо списка.
+  const q = qParam(params.q);
+  const page = pageParam(params.page);
 
   const { data, meta } = await getLeads({ status, q, page });
+
+  if (page && meta.total > 0 && page > meta.totalPages) {
+    const search = new URLSearchParams();
+    if (status) search.set("status", status);
+    if (q) search.set("q", q);
+    const query = search.toString();
+    redirect(`/admin/leads${query ? `?${query}` : ""}`);
+  }
 
   return (
     <>
       <PageHeader
         title="Заявки"
         description="Всё, что приходит с формы на сайте. Вложения скачиваются только отсюда."
+        breadcrumbs={[{ label: "Заявки" }]}
       />
 
       <div className="p-5 lg:p-8">

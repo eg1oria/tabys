@@ -4,14 +4,14 @@ import { useActionState } from "react";
 import { Field, FormError, TextInput } from "@/components/ui/field";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { login } from "@/lib/admin/auth-actions";
-import { FORM_ERROR, initialFormState } from "@/lib/admin/form-state";
+import { FORM_ERROR, initialFormState, str } from "@/lib/admin/form-state";
 
 export function LoginForm({ next, expired }: { next: string; expired: boolean }) {
   const [state, formAction] = useActionState(login, initialFormState);
   const errors = state.errors;
 
   return (
-    <form action={formAction} noValidate className="mt-6 space-y-4">
+    <form key={state.submissionId ?? 0} action={formAction} noValidate className="mt-6 space-y-4">
       <input type="hidden" name="next" value={next} />
 
       {/* Сообщение от proxy.ts: сессия истекла по дороге, а не из-за ввода. */}
@@ -27,6 +27,7 @@ export function LoginForm({ next, expired }: { next: string; expired: boolean })
         <TextInput
           id="email"
           name="email"
+          defaultValue={str(state.values, "email") ?? ""}
           type="email"
           autoComplete="username"
           autoFocus

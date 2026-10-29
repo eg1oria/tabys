@@ -77,10 +77,13 @@ export function LeadNoteForm({ id, note }: { id: string; note: string | null }) 
 export function LeadAssignForm({
   id,
   assignedToId,
+  assignedToName,
   admins,
 }: {
   id: string;
   assignedToId: string | null;
+  /** Имя текущего ответственного — нужно, если его уже отключили. */
+  assignedToName?: string | null;
   admins: AdminUserOption[];
 }) {
   const [state, formAction] = useActionState(assignLead, initialFormState);
@@ -92,6 +95,11 @@ export function LeadAssignForm({
 
       <Select name="assignedToId" defaultValue={assignedToId ?? ""} aria-label="Ответственный">
         <option value="">Не назначен</option>
+        {/* Отключённого сотрудника в списке активных нет: без этого пункта
+            форма показывала бы «Не назначен» и снимала ответственного. */}
+        {assignedToId && !admins.some((admin) => admin.id === assignedToId) ? (
+          <option value={assignedToId}>{assignedToName ?? "Бывший сотрудник"} (отключён)</option>
+        ) : null}
         {admins.map((admin) => (
           <option key={admin.id} value={admin.id}>
             {admin.name}
