@@ -1203,7 +1203,7 @@ export type $MediaAssetPayload<ExtArgs extends runtime.Types.Extensions.Internal
      */
     blurDataUrl: string | null
     /**
-     * { "400": "...-400.webp", "800": "...-800.webp" }
+     * { "400": "...-400.webp" }
      */
     derivatives: runtime.JsonValue | null
     alt: string

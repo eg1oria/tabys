@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { mkdir, mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import sharp from 'sharp';
@@ -76,8 +76,8 @@ describe('MediaService', () => {
       expect(prisma.mediaAsset.create).not.toHaveBeenCalled();
     });
 
-    it('уменьшенные копии — только те, что не больше оригинала', async () => {
-      const buffer = await image(900, 600).toBuffer();
+    it('делает одну копию на 400 и считает bytes по файлам на диске', async () => {
+      const buffer = await image(1800, 1200).toBuffer();
       const created = await svc.upload(
         { originalname: 'cat.png', buffer, size: buffer.length },
         'Ёмкость',
@@ -85,10 +85,10 @@ describe('MediaService', () => {
       );
 
       const derivatives = created.derivatives as Record<string, string>;
-      expect(Object.keys(derivatives).sort()).toEqual(['400', '800']);
+      expect(Object.keys(derivatives)).toEqual(['400']);
       expect(created).toMatchObject({
-        width: 900,
-        height: 600,
+        width: 1800,
+        height: 1200,
         mimeType: 'image/png',
         alt: 'Ёмкость',
       });
@@ -96,8 +96,29 @@ describe('MediaService', () => {
         `https://tabys.kz/uploads/${created.storageKey}`,
       );
       expect(created.blurDataUrl).toMatch(/^data:image\/webp;base64,/);
-      // Оригинал и две копии.
-      expect(await listFiles(uploads)).toHaveLength(3);
+      // Оригинал и одна копия.
+      expect(await listFiles(uploads)).toHaveLength(2);
+      // Оригинал перекодирован, поэтому size из запроса тут не годится.
+      const onDisk =
+        (await stat(join(uploads, created.storageKey))).size +
+        (await stat(join(uploads, derivatives['400']))).size;
+      expect(created.bytes).toBe(onDisk);
+      expect(created.bytes).not.toBe(buffer.length);
+    });
+
+    it('картинку уже меньше 400 не растягивает', async () => {
+      const buffer = await image(300, 200).toBuffer();
+      const created = await svc.upload(
+        { originalname: 'icon.png', buffer, size: buffer.length },
+        '',
+        actor,
+      );
+
+      expect(created.derivatives).toEqual({});
+      expect(await listFiles(uploads)).toHaveLength(1);
+      expect(created.bytes).toBe(
+        (await stat(join(uploads, created.storageKey))).size,
+      );
     });
 
     it('у фото, повёрнутого через EXIF, размеры — как на экране', async () => {

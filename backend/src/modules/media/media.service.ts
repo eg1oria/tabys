@@ -20,7 +20,12 @@ const ALLOWED_IMAGE_MIME = new Set([
   'image/avif',
 ]);
 
-const DERIVATIVE_WIDTHS = [400, 800, 1600] as const;
+/**
+ * Ширины уменьшенных копий. Сейчас нужна только 400 — миниатюры в админке;
+ * сайт отдаёт оригинал через next/image. Лишняя ширина — это лишний
+ * прогон sharp на каждую загрузку и лишний файл на диске.
+ */
+const DERIVATIVE_WIDTHS = [400] as const;
 
 /** Где стоит картинка — словами, чтобы редактор знал, откуда её убирать. */
 function usageDescription(count: {
@@ -81,21 +86,24 @@ export class MediaService {
     const { autoOrient: meta } = await image.metadata();
 
     // Метаданные не переносим: это снимает GPS-теги с фотографий из цеха.
-    await writeFile(absolute, await image.rotate().toBuffer());
+    // Перекодированный файл весит не столько, сколько прислали, поэтому
+    // bytes считаем по тому, что реально легло на диск, вместе с копиями.
+    const original = await image.rotate().toBuffer();
+    await writeFile(absolute, original);
+    let bytes = original.byteLength;
 
     const derivatives: Record<string, string> = {};
     for (const width of DERIVATIVE_WIDTHS) {
       if (meta.width < width) continue;
       const derivativeKey = `${prefix}/${filename.replace(/\.[^.]+$/, '')}-${width}.webp`;
       const derivativeAbs = resolveWithin(this.config.uploadDir, derivativeKey);
-      await writeFile(
-        derivativeAbs,
-        await sharp(file.buffer)
-          .rotate()
-          .resize({ width, withoutEnlargement: true })
-          .webp({ quality: 82 })
-          .toBuffer(),
-      );
+      const derivative = await sharp(file.buffer)
+        .rotate()
+        .resize({ width, withoutEnlargement: true })
+        .webp({ quality: 82 })
+        .toBuffer();
+      await writeFile(derivativeAbs, derivative);
+      bytes += derivative.byteLength;
       derivatives[String(width)] = derivativeKey;
     }
 
@@ -110,7 +118,7 @@ export class MediaService {
         storageKey,
         originalName: decodeMultipartFilename(file.originalname).slice(0, 255),
         mimeType: sniffed.mime,
-        bytes: file.size,
+        bytes,
         width: meta.width,
         height: meta.height,
         blurDataUrl: `data:image/webp;base64,${blur.toString('base64')}`,
@@ -125,7 +133,7 @@ export class MediaService {
       action: 'media.upload',
       entity: 'MediaAsset',
       entityId: created.id,
-      after: { storageKey, bytes: file.size, mimeType: sniffed.mime },
+      after: { storageKey, bytes, mimeType: sniffed.mime },
     });
 
     return { ...created, url: this.url(created.storageKey) };

@@ -84,7 +84,7 @@ model MediaAsset {
   height       Int?
   /// Крошечный base64 для placeholder="blur" в next/image.
   blurDataUrl  String?
-  /// { "400": "...-400.webp", "800": "...-800.webp" }
+  /// { "400": "...-400.webp" }
   derivatives  Json?
   alt          String   @default("")
   createdAt    DateTime @default(now())
