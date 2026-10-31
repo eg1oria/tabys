@@ -13,6 +13,7 @@ export function ListFilters({
   searchValue,
   searchPlaceholder = "Поиск",
   hidden,
+  withSearch = true,
   children,
 }: {
   action: string;
@@ -21,6 +22,8 @@ export function ListFilters({
   searchPlaceholder?: string;
   /** Параметры, которые форма обязана сохранить (вид, сортировка, категория). */
   hidden?: Record<string, string | undefined>;
+  /** false — только селекты: искать по тексту не в чем (журнал). */
+  withSearch?: boolean;
   children?: React.ReactNode;
 }) {
   return (
@@ -30,20 +33,24 @@ export function ListFilters({
       className="flex flex-wrap items-center gap-2 border-b border-line px-4 py-3"
     >
       {Object.entries(hidden ?? {}).map(([name, value]) =>
-        value ? <input key={name} type="hidden" name={name} value={value} /> : null,
+        value ? (
+          <input key={name} type="hidden" name={name} value={value} />
+        ) : null,
       )}
-      <div className="relative min-w-[160px] flex-1">
-        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-text-2" />
-        <input
-          type="search"
-          name={searchName}
-          defaultValue={searchValue ?? ""}
-          placeholder={searchPlaceholder}
-          aria-label={searchPlaceholder}
-          maxLength={100}
-          className={cn(fieldBase, "h-9 pl-9", fieldBorder(false))}
-        />
-      </div>
+      {withSearch ? (
+        <div className="relative min-w-[160px] flex-1">
+          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-text-2" />
+          <input
+            type="search"
+            name={searchName}
+            defaultValue={searchValue ?? ""}
+            placeholder={searchPlaceholder}
+            aria-label={searchPlaceholder}
+            maxLength={100}
+            className={cn(fieldBase, "h-9 pl-9", fieldBorder(false))}
+          />
+        </div>
+      ) : null}
 
       {children}
 

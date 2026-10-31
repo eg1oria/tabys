@@ -73,6 +73,7 @@ describe('Администраторы и роли (e2e)', () => {
       ['post', '/admin/users'],
       ['patch', '/admin/users/any-id'],
       ['post', '/admin/users/any-id/reset-password'],
+      ['get', '/admin/audit'],
     ];
 
     it.each(forbidden)('%s %s → 403', async (method, path) => {
@@ -106,6 +107,35 @@ describe('Администраторы и роли (e2e)', () => {
 
     const signIn = await login('new@tabys.kz', res.body.password);
     expect(signIn.status).toBe(200);
+  });
+
+  it('журнал показывает владельцу, кто и что сделал', async () => {
+    const res = await request(app.getHttpServer())
+      .get(`${base}/admin/audit?entity=AdminUser&perPage=5`)
+      .set(as(owner))
+      .expect(200);
+
+    const created = res.body.data.find(
+      (row: { action: string }) => row.action === 'user.create',
+    );
+    expect(created).toMatchObject({
+      entity: 'AdminUser',
+      actor: { email: ADMIN_EMAIL },
+      after: { email: 'new@tabys.kz', role: 'EDITOR' },
+    });
+    expect(JSON.stringify(res.body)).not.toMatch(/passwordHash/);
+
+    // Фильтр по разделу действительно фильтрует.
+    const other = await request(app.getHttpServer())
+      .get(`${base}/admin/audit?entity=Product`)
+      .set(as(owner))
+      .expect(200);
+    expect(other.body.meta.total).toBe(0);
+
+    await request(app.getHttpServer())
+      .get(`${base}/admin/audit?entity=passwordHash`)
+      .set(as(owner))
+      .expect(400);
   });
 
   it('второй администратор с тем же email — 409', async () => {

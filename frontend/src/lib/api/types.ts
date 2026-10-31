@@ -44,6 +44,20 @@ export type AdminUserOption = {
 /** USER_SELECT в backend/src/modules/users/users.service.ts. */
 export type AdminAccount = CurrentUser;
 
+/** AuditService.findAll в backend/src/common/audit/audit.service.ts. */
+export type AuditEntry = {
+  id: string;
+  action: string;
+  entity: string;
+  entityId: string | null;
+  before: unknown;
+  after: unknown;
+  ip: string | null;
+  createdAt: string;
+  /** null — запись системы или удалённого администратора. */
+  actor: { id: string; name: string; email: string } | null;
+};
+
 // ───────────────────────────── заявки ─────────────────────────────
 
 export type LeadAttachment = {
