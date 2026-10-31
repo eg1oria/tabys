@@ -1321,7 +1321,8 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     sku: string | null
     description: string | null
     /**
-     * { "Объём": "1 000 л", "Материал": "AISI 304" }
+     * [{ "key": "Объём", "value": "1 000 л" }, …] — массив, а не объект:
+     * jsonb переставляет ключи объекта, и порядок из админки терялся.
      */
     specs: runtime.JsonValue | null
     priceFrom: runtime.Decimal | null

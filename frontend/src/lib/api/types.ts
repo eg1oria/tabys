@@ -113,7 +113,8 @@ export type PublicProduct = {
   slug: string;
   title: string;
   description: string | null;
-  specs: Record<string, string> | null;
+  /** По порядку, как задал редактор; пусто — характеристик нет. */
+  specs: ProductSpec[];
   /** Decimal сериализуется строкой — число тут потеряло бы точность. */
   priceFrom: string | null;
   priceOnRequest: boolean;
@@ -175,6 +176,9 @@ export type AdminCategory = {
   updatedAt: string;
 };
 
+/** Характеристика товара. Массив пар, а не объект: так сохраняется порядок. */
+export type ProductSpec = { key: string; value: string };
+
 export type AdminProductImage = {
   mediaId: string;
   sortOrder: number;
@@ -191,7 +195,8 @@ export type AdminProduct = {
   sku: string | null;
   title: string;
   description: string | null;
-  specs: Record<string, string> | null;
+  /** null — характеристики ни разу не задавали. */
+  specs: ProductSpec[] | null;
   /** Decimal сериализуется строкой — число тут потеряло бы точность. */
   priceFrom: string | null;
   priceOnRequest: boolean;

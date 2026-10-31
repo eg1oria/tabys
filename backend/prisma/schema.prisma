@@ -189,7 +189,8 @@ model Product {
   /// Артикул: редактор вводит сам, поэтому проверяем уникальность в сервисе.
   sku         String?       @unique
   description String?
-  /// { "Объём": "1 000 л", "Материал": "AISI 304" }
+  /// [{ "key": "Объём", "value": "1 000 л" }, …] — массив, а не объект:
+  /// jsonb переставляет ключи объекта, и порядок из админки терялся.
   specs       Json?
   priceFrom      Decimal? @db.Decimal(12, 2)
   priceOnRequest Boolean  @default(true)

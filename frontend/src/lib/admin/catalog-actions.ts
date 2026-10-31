@@ -4,7 +4,14 @@ import { refresh, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { apiMutate } from "../api/server";
 import { CATALOG_TAG } from "../api/public";
-import { formError, safeNext, toFormState, withValues, type FormState } from "./form-state";
+import {
+  FORM_ERROR,
+  formError,
+  safeNext,
+  toFormState,
+  withValues,
+  type FormState,
+} from "./form-state";
 import {
   NOT_A_NUMBER,
   checkbox,
@@ -158,13 +165,18 @@ export async function saveProduct(prev: FormState, formData: FormData): Promise<
 
   const priceFrom = nullableAmount(formData, "priceFrom");
 
+  const specs = pairs(formData, "specKey", "specValue");
+  const repeated = specs.find((spec, index) =>
+    specs.some((other, j) => j < index && other.key === spec.key),
+  );
+
   const errors: Record<string, string> = {};
   if (title.length < 2) errors.title = "Название не короче двух символов";
   if (categoryId === "") errors.categoryId = "Выберите категорию";
   if (priceFrom === NOT_A_NUMBER) errors.priceFrom = "Цена — число, например 1 200 000";
+  if (repeated) errors[FORM_ERROR] = `Характеристика «${repeated.key}» указана дважды`;
   if (Object.keys(errors).length > 0) return fail({ status: "error", errors });
 
-  const specs = pairs(formData, "specKey", "specValue");
   const imageIds = strings(formData, "imageIds");
 
   const body = omitUndefined({

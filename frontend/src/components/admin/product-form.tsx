@@ -14,7 +14,7 @@ import { SpecsEditor } from "./specs-editor";
 import { DeleteSubmit } from "./catalog/delete-submit";
 import { ProductGallery, type GalleryItem } from "./catalog/product-gallery";
 import { deleteProduct, saveProduct } from "@/lib/admin/catalog-actions";
-import { FORM_ERROR, initialFormState, str } from "@/lib/admin/form-state";
+import { FORM_ERROR, initialFormState, str, submittedSpecs } from "@/lib/admin/form-state";
 import type { AdminProduct } from "@/lib/api/types";
 import { productHref } from "@/lib/catalog-urls";
 import type { PickableImage } from "./image-picker";
@@ -203,7 +203,7 @@ export function ProductForm({
 
           <div>
             <h3 className="section-label mb-2">Характеристики</h3>
-            <SpecsEditor specs={product?.specs ?? null} />
+            <SpecsEditor specs={submittedSpecs(state.values) ?? product?.specs ?? null} />
           </div>
         </div>
 

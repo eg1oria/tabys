@@ -107,6 +107,23 @@ const SORTABLE = [
   'updatedAt',
 ] as const;
 
+/** Характеристика товара — как её отдаёт API (см. ProductSpecDto). */
+export type ProductSpec = { key: string; value: string };
+
+/**
+ * specs в базе — массив пар (миграция product_specs_ordered). Json из Prisma
+ * не типизирован, поэтому берём только корректные элементы, а отсутствие
+ * характеристик отдаём пустым массивом: сайту не нужно различать null и [].
+ */
+function toSpecs(value: Prisma.JsonValue | null): ProductSpec[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => {
+    if (item === null || typeof item !== 'object' || Array.isArray(item)) return [];
+    const { key, value: text } = item;
+    return typeof key === 'string' && typeof text === 'string' ? [{ key, value: text }] : [];
+  });
+}
+
 /** Потолок выгрузки: больше одной CSV-страницы каталог всё равно не бывает. */
 const EXPORT_LIMIT = 5000;
 
@@ -150,7 +167,7 @@ export class ProductsService {
       slug: row.slug,
       title: row.title,
       description: row.description,
-      specs: row.specs,
+      specs: toSpecs(row.specs),
       // Decimal не сериализуется в JSON сам — отдаём строку, чтобы не терять точность.
       priceFrom: row.priceFrom?.toString() ?? null,
       priceOnRequest: row.priceOnRequest,
@@ -370,7 +387,8 @@ export class ProductsService {
         slug,
         sku: dto.sku ?? null,
         description: dto.description,
-        specs: dto.specs,
+        // DTO — экземпляры класса; в Json кладём простые объекты.
+        specs: dto.specs?.map(({ key, value }) => ({ key, value })),
         priceFrom: dto.priceFrom ?? null,
         priceOnRequest: dto.priceOnRequest ?? dto.priceFrom === undefined,
         // Главное фото — первое в галерее, иначе переданное отдельно.
@@ -408,7 +426,7 @@ export class ProductsService {
 
   async update(id: string, dto: UpdateProductDto, actor: AuthUser) {
     const before = await this.findOneAdmin(id);
-    const { facetValueIds, imageIds, slug, ...rest } = dto;
+    const { facetValueIds, imageIds, slug, specs, ...rest } = dto;
 
     // Слаг — часть адреса страницы, без него товара на сайте нет.
     // Стёртое в форме поле значит «собрать заново из названия».
@@ -458,6 +476,7 @@ export class ProductsService {
         // показывала бы картинку, которую редактор уже убрал.
         data: {
           ...rest,
+          ...(specs ? { specs: specs.map(({ key, value }) => ({ key, value })) } : {}),
           ...(nextSlug !== undefined ? { slug: nextSlug } : {}),
           ...(gallery ? { imageId: gallery[0] ?? null } : {}),
         },

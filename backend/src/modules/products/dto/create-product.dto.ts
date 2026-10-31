@@ -2,12 +2,12 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
+  ArrayUnique,
   IsArray,
   IsBoolean,
   IsEnum,
   IsInt,
   IsNumber,
-  IsObject,
   IsOptional,
   IsString,
   Matches,
@@ -15,8 +15,23 @@ import {
   Min,
   MinLength,
   ValidateIf,
+  ValidateNested,
 } from 'class-validator';
 import { PublishStatus } from '../../../prisma/client.js';
+
+/** Одна характеристика. Массив пар, а не объект: так сохраняется порядок. */
+export class ProductSpecDto {
+  @ApiProperty({ example: 'Объём' })
+  @IsString()
+  @MinLength(1)
+  @MaxLength(100)
+  key!: string;
+
+  @ApiProperty({ example: '1 000 л' })
+  @IsString()
+  @MaxLength(300)
+  value!: string;
+}
 
 /** Пустое поле формы приходит как null — это «очистить», а не «не передано». */
 const notNull = () => ValidateIf((_: unknown, value: unknown) => value !== null);
@@ -62,12 +77,23 @@ export class CreateProductDto {
   description?: string | null;
 
   @ApiPropertyOptional({
-    description: 'Характеристики парами',
-    example: { 'Объём': '1 000 л', 'Материал': 'AISI 304' },
+    description: 'Характеристики по порядку. Пустой массив — стереть все.',
+    type: [ProductSpecDto],
+    example: [
+      { key: 'Объём', value: '1 000 л' },
+      { key: 'Материал', value: 'AISI 304' },
+    ],
   })
-  @IsObject()
+  @IsArray()
+  @ArrayMaxSize(50)
+  // В объекте повтор молча затирал первое значение — здесь он ошибка.
+  @ArrayUnique((spec: ProductSpecDto) => spec.key, {
+    message: 'specs: названия характеристик не должны повторяться',
+  })
+  @ValidateNested({ each: true })
+  @Type(() => ProductSpecDto)
   @IsOptional()
-  specs?: Record<string, string>;
+  specs?: ProductSpecDto[];
 
   @ApiPropertyOptional({ description: 'Цена «от». Пусто — цена по запросу.' })
   @Type(() => Number)

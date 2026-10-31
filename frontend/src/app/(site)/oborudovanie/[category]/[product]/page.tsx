@@ -86,7 +86,7 @@ export default async function ProductPage({ params }: Props) {
   if (!product) notFound();
 
   const url = productHref(product.category.slug, product.slug);
-  const specs = Object.entries(product.specs ?? {});
+  const specs = product.specs;
   const others = siblings.filter((p) => p.slug !== product.slug).slice(0, 3);
   const price = product.priceOnRequest || !product.priceFrom ? null : product.priceFrom;
 
@@ -188,7 +188,7 @@ export default async function ProductPage({ params }: Props) {
                     Характеристики
                   </h2>
                   <dl className="mt-4 divide-y divide-line border-y border-line">
-                    {specs.map(([key, value]) => (
+                    {specs.map(({ key, value }) => (
                       <div key={key} className="grid grid-cols-2 gap-4 py-3 text-[13.5px]">
                         <dt className="text-text-2">{key}</dt>
                         <dd className="font-medium">{value}</dd>

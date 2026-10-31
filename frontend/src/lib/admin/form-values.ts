@@ -96,15 +96,19 @@ export function strings(formData: FormData, name: string): string[] {
   return formData.getAll(name).filter((v): v is string => typeof v === "string" && v !== "");
 }
 
-/** Пары «ключ/значение» из редактора характеристик. */
-export function pairs(formData: FormData, keyName: string, valueName: string) {
+/**
+ * Пары «ключ/значение» из редактора характеристик — массивом, в порядке
+ * строк формы. Объект здесь терял бы порядок (в jsonb) и молча склеивал
+ * повторы. Строки без названия пропускаем: это пустые заготовки.
+ */
+export function pairs(
+  formData: FormData,
+  keyName: string,
+  valueName: string,
+): { key: string; value: string }[] {
   const keys = formData.getAll(keyName).map((v) => String(v).trim());
   const values = formData.getAll(valueName).map((v) => String(v).trim());
-  const result: Record<string, string> = {};
-  keys.forEach((key, index) => {
-    if (key !== "") result[key] = values[index] ?? "";
-  });
-  return result;
+  return keys.flatMap((key, index) => (key === "" ? [] : [{ key, value: values[index] ?? "" }]));
 }
 
 export function omitUndefined<T extends Record<string, unknown>>(input: T): Partial<T> {

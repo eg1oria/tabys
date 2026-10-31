@@ -41,6 +41,24 @@ export function formError(message: string): FormState {
   return { status: "error", errors: { [FORM_ERROR]: message } };
 }
 
+/**
+ * Строки редактора характеристик из отправленной формы — в том же порядке,
+ * включая недозаполненные: после ошибки редактор должен вернуть ровно то,
+ * что человек видел. undefined — форму ещё не отправляли.
+ */
+export function submittedSpecs(
+  values: FormState["values"],
+): { key: string; value: string }[] | undefined {
+  const keys = values?.specKey;
+  if (keys === undefined) return undefined;
+  const keyList = Array.isArray(keys) ? keys : [keys];
+  const raw = values?.specValue;
+  const valueList = raw === undefined ? [] : Array.isArray(raw) ? raw : [raw];
+  return keyList
+    .map((key, index) => ({ key, value: valueList[index] ?? "" }))
+    .filter((row) => row.key !== "" || row.value !== "");
+}
+
 /** Дополняет состояние ошибки тем, что ввёл пользователь. */
 export function withValues(
   state: FormState,

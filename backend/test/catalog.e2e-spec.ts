@@ -287,4 +287,76 @@ describe('Каталог (e2e)', () => {
 
     await prisma.product.delete({ where: { id: created.body.id } });
   });
+
+  it('характеристики возвращаются в том порядке, в каком их задал редактор', async () => {
+    // Порядок нарочно не алфавитный и не по длине: объект в jsonb
+    // переставил бы ключи именно так.
+    const specs = [
+      { key: 'Я', value: '1' },
+      { key: 'А', value: '2' },
+      { key: 'Бв', value: '3' },
+    ];
+    const created = await request(app.getHttpServer())
+      .post(`${base}/admin/products`)
+      .set(auth())
+      .send({ categoryId: publishedId, title: 'Порядок характеристик', specs })
+      .expect(201);
+
+    const page = await request(app.getHttpServer())
+      .get(`${base}/public/products/opublikovannaya/${created.body.slug}`)
+      .expect(200);
+    expect(page.body.specs).toEqual(specs);
+
+    // Перестановка в админке — тоже сохраняется как есть.
+    const reordered = [specs[2], specs[0], specs[1]];
+    await request(app.getHttpServer())
+      .patch(`${base}/admin/products/${created.body.id}`)
+      .set(auth())
+      .send({ specs: reordered })
+      .expect(200);
+    const again = await request(app.getHttpServer())
+      .get(`${base}/public/products/opublikovannaya/${created.body.slug}`)
+      .expect(200);
+    expect(again.body.specs).toEqual(reordered);
+
+    // Пустой массив стирает все характеристики.
+    await request(app.getHttpServer())
+      .patch(`${base}/admin/products/${created.body.id}`)
+      .set(auth())
+      .send({ specs: [] })
+      .expect(200);
+    const cleared = await request(app.getHttpServer())
+      .get(`${base}/public/products/opublikovannaya/${created.body.slug}`)
+      .expect(200);
+    expect(cleared.body.specs).toEqual([]);
+
+    await prisma.product.delete({ where: { id: created.body.id } });
+  });
+
+  it('повтор названия характеристики и старый формат-объект — 400', async () => {
+    await request(app.getHttpServer())
+      .post(`${base}/admin/products`)
+      .set(auth())
+      .send({
+        categoryId: publishedId,
+        title: 'Дубль характеристики',
+        specs: [
+          { key: 'Объём', value: '1 000 л' },
+          { key: 'Объём', value: '2 000 л' },
+        ],
+      })
+      .expect(400);
+    await request(app.getHttpServer())
+      .post(`${base}/admin/products`)
+      .set(auth())
+      .send({ categoryId: publishedId, title: 'Объект', specs: { 'Объём': '1 000 л' } })
+      .expect(400);
+  });
+
+  it('у товара без характеристик specs — пустой массив, а не null', async () => {
+    const res = await request(app.getHttpServer())
+      .get(`${base}/public/products/opublikovannaya/tovar-1`)
+      .expect(200);
+    expect(res.body.specs).toEqual([]);
+  });
 });

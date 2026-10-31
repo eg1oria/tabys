@@ -18,7 +18,7 @@ export function priceLabel(product: PublicProduct): string {
 /** Позиция каталога в сетке категории — ведёт на страницу товара. */
 export function ProductCard({ product }: { product: PublicProduct }) {
   // Характеристик бывает много — в карточке показываем первые четыре.
-  const specs = Object.entries(product.specs ?? {}).slice(0, 4);
+  const specs = product.specs.slice(0, 4);
 
   return (
     <Link
@@ -49,7 +49,7 @@ export function ProductCard({ product }: { product: PublicProduct }) {
 
       {specs.length > 0 ? (
         <dl className="mt-4 space-y-1.5 border-t border-line pt-3.5">
-          {specs.map(([key, value]) => (
+          {specs.map(({ key, value }) => (
             <div key={key} className="flex items-baseline justify-between gap-3 text-[12.5px]">
               <dt className="text-text-2">{key}</dt>
               <dd className="text-right font-medium">{value}</dd>
