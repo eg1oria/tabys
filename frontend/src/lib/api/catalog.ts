@@ -9,11 +9,27 @@ import type {
   PublishStatus,
 } from "./types";
 
-/** Категорий всего дюжина, и порядок меняется по всему списку сразу. */
-export function getCategories(params: { status?: PublishStatus; q?: string } = {}) {
-  return apiRead<Paginated<AdminCategory>>(
-    `/admin/categories${searchString({ ...params, perPage: 100, sortBy: "sortOrder", order: "asc" })}`,
-  );
+/**
+ * Все категории сразу, а не страница: порядок меняется по всему списку,
+ * и потерянная за потолком perPage (100) категория выпала бы и из
+ * таблицы, и из перестановки. Страницы обходим подряд; сейчас их одна.
+ */
+export async function getCategories(
+  params: { status?: PublishStatus; q?: string } = {},
+): Promise<Paginated<AdminCategory>> {
+  const all: AdminCategory[] = [];
+  for (let page = 1; ; page += 1) {
+    const chunk = await apiRead<Paginated<AdminCategory>>(
+      `/admin/categories${searchString({ ...params, page, perPage: 100, sortBy: "sortOrder", order: "asc" })}`,
+    );
+    all.push(...chunk.data);
+    if (page >= chunk.meta.totalPages) {
+      return {
+        data: all,
+        meta: { page: 1, perPage: all.length, total: chunk.meta.total, totalPages: 1 },
+      };
+    }
+  }
 }
 
 export function getCategory(id: string): Promise<AdminCategory> {
