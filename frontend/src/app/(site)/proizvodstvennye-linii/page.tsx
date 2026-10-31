@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { PageHero } from "@/components/ui/page-hero";
 import { Container } from "@/components/ui/container";
 import { SectionLabel } from "@/components/ui/section-label";
@@ -6,12 +7,14 @@ import { ImageSlot } from "@/components/ui/image-slot";
 import { CtaBand } from "@/components/home/cta-band";
 import { Solutions } from "@/components/home/solutions";
 import { lineStages, lineTypes } from "@/lib/content/lines";
+import heroMainPhoto from "@/assets/images/hero-main.jpg";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Производственные линии",
   description:
     "Комплектуем производственные линии для молока, сыра, сметаны, йогурта, творога и кефира — от приёмки сырья до фасовки готового продукта.",
-};
+  path: "/proizvodstvennye-linii",
+});
 
 export default function LinesPage() {
   return (
@@ -54,7 +57,7 @@ export default function LinesPage() {
 
             <div className="lg:col-span-7">
               <ImageSlot
-                src="/images/hero-main.jpg"
+                src={heroMainPhoto}
                 alt="Производственная линия из нержавеющей стали"
                 className="aspect-[4/3] w-full rounded-card"
                 sizes="(max-width: 1024px) 100vw, 58vw"

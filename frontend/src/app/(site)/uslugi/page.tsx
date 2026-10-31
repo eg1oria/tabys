@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { PageHero } from "@/components/ui/page-hero";
 import { Container } from "@/components/ui/container";
 import { SectionLabel } from "@/components/ui/section-label";
@@ -6,11 +7,12 @@ import { Check } from "@/components/ui/icons";
 import { CtaBand } from "@/components/home/cta-band";
 import { services } from "@/lib/content/services";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Услуги",
   description:
     "Проектирование, изготовление оборудования по техническому заданию, комплектация производственных линий, монтаж, пусконаладка и сервисное обслуживание.",
-};
+  path: "/uslugi",
+});
 
 export default function ServicesPage() {
   return (

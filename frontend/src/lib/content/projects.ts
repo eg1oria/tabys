@@ -1,3 +1,8 @@
+import type { StaticImageData } from "next/image";
+import catCheesePhoto from "@/assets/images/cat-cheese.jpg";
+import catPasteurizationPhoto from "@/assets/images/cat-pasteurization.jpg";
+import catTanksPhoto from "@/assets/images/cat-tanks.jpg";
+
 export type Project = {
   slug: string;
   title: string;
@@ -5,7 +10,7 @@ export type Project = {
   location: string;
   year: string;
   scope: string[];
-  image: string;
+  image: StaticImageData;
 };
 
 export const projects: Project[] = [
@@ -20,7 +25,7 @@ export const projects: Project[] = [
       "Пастеризационно-охладительная установка",
       "Резервуары хранения 5 000 л",
     ],
-    image: "/images/cat-tanks.jpg",
+    image: catTanksPhoto,
   },
   {
     slug: "syrovarnya-pod-klyuch",
@@ -33,7 +38,7 @@ export const projects: Project[] = [
       "Пресс-формы и солильный бассейн",
       "Монтаж и пусконаладка",
     ],
-    image: "/images/cat-cheese.jpg",
+    image: catCheesePhoto,
   },
   {
     slug: "liniya-pasterizacii-i-rozliva",
@@ -46,6 +51,6 @@ export const projects: Project[] = [
       "СИП станция мойки",
       "Обвязка и автоматика",
     ],
-    image: "/images/cat-pasteurization.jpg",
+    image: catPasteurizationPhoto,
   },
 ];

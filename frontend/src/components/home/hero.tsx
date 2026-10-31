@@ -3,12 +3,13 @@ import { Button } from "@/components/ui/button";
 import { ImageSlot } from "@/components/ui/image-slot";
 import { Pin } from "@/components/ui/icons";
 import { company } from "@/lib/content/company";
+import heroMainPhoto from "@/assets/images/hero-main.jpg";
 
 export function Hero() {
   return (
     <section className="relative isolate overflow-hidden bg-ink text-white">
       <ImageSlot
-        src="/images/hero-main.jpg"
+        src={heroMainPhoto}
         alt="Производственный цех с ёмкостями из нержавеющей стали"
         className="absolute inset-0 -z-10"
         imageClassName="opacity-55"

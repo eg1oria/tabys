@@ -3,6 +3,7 @@ import { SectionLabel } from "@/components/ui/section-label";
 import { Button } from "@/components/ui/button";
 import { ImageSlot } from "@/components/ui/image-slot";
 import { tzSteps } from "@/lib/content/services";
+import weldingPhoto from "@/assets/images/welding.jpg";
 
 export function TzBlock() {
   return (
@@ -31,7 +32,7 @@ export function TzBlock() {
           </div>
 
           <ImageSlot
-            src="/images/welding.jpg"
+            src={weldingPhoto}
             alt="Сварка ёмкости из нержавеющей стали"
             label="Производство"
             className="aspect-[4/3] rounded-card lg:col-span-4 lg:aspect-auto"

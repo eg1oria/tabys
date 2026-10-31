@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { baseOpenGraph, defaultOgImages, mediaOgImage } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import { PageHero } from "@/components/ui/page-hero";
 import { Container } from "@/components/ui/container";
@@ -60,20 +61,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description,
     alternates: { canonical: categoryHref(category.slug) },
     openGraph: {
-      type: "website",
+      ...baseOpenGraph,
       title,
       description,
       url: categoryHref(category.slug),
-      images: category.image
-        ? [
-            {
-              url: category.image.url,
-              width: category.image.width ?? undefined,
-              height: category.image.height ?? undefined,
-              alt: category.image.alt || category.title,
-            },
-          ]
-        : undefined,
+      images: category.image ? [mediaOgImage(category.image, category.title)] : defaultOgImages,
     },
   };
 }

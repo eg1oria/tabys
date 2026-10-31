@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Montserrat } from "next/font/google";
-import { SITE_URL, company } from "@/lib/content/company";
+import { SITE_URL } from "@/lib/content/company";
+import { baseOpenGraph } from "@/lib/seo";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -35,13 +36,14 @@ export const metadata: Metadata = {
     "Казахстан",
   ],
   openGraph: {
-    type: "website",
-    locale: "ru_RU",
-    siteName: company.shortName,
+    ...baseOpenGraph,
+    url: "/",
     title: "Tabys Consulting — оборудование для пищевой промышленности",
     description:
       "От отдельных единиц оборудования до комплексных производственных линий. Изготовление по техническому заданию.",
   },
+  // Крупная картинка в превью, а не значок сбоку.
+  twitter: { card: "summary_large_image" },
   robots: { index: true, follow: true },
 };
 

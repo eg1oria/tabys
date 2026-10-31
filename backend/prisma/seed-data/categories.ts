@@ -11,7 +11,8 @@ export type CategorySeed = {
   description: string;
   /** Витринное число — переопределяет вычисляемое количество товаров. */
   positionCount: number;
-  image: string;
+  /** Фото из frontend/src/assets; нет — обложку загружают в админке. */
+  image?: string;
   highlights: string[];
   /** Ключ группы фасетов -> значения. */
   facets: Record<string, string[]>;
@@ -359,7 +360,6 @@ export const categorySeeds: CategorySeed[] = [
     "short": "Насосы",
     "description": "Насосное оборудование для пищевой промышленности",
     "positionCount": 6,
-    "image": "/images/cat-pumps.jpg",
     "highlights": [],
     "facets": {
       "type": [
@@ -401,7 +401,6 @@ export const categorySeeds: CategorySeed[] = [
     "short": "Торцевые уплотнения",
     "description": "Торцевые уплотнения для насосов и промышленного оборудования",
     "positionCount": 20,
-    "image": "/images/seals.jpg",
     "highlights": [],
     "facets": {
       "type": [
@@ -437,7 +436,6 @@ export const categorySeeds: CategorySeed[] = [
     "short": "Другие решения",
     "description": "Дополнительное оборудование и комплектующие",
     "positionCount": 5,
-    "image": "/images/cat-other.jpg",
     "highlights": [],
     "facets": {
       "type": [

@@ -75,8 +75,8 @@ services:
       SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-}
     volumes:
       - uploads:/app/uploads
-      # Сид переносит фото категорий из frontend/public (prisma/seed-media.ts).
-      - ./frontend/public:/frontend/public:ro
+      # Сид переносит фото категорий из фронтенда (prisma/seed-media.ts).
+      - ./frontend/src/assets:/frontend/src/assets:ro
     depends_on:
       db:
         condition: service_healthy

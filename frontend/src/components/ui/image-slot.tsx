@@ -1,10 +1,12 @@
-import Image from "next/image";
-import { hasImage } from "@/lib/images";
+import Image, { type StaticImageData } from "next/image";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  /** Путь в /public или абсолютный адрес из медиатеки. Пусто — плейсхолдер. */
-  src: string | undefined;
+  /**
+   * Статический импорт из src/assets/images или абсолютный адрес из
+   * медиатеки. Пусто — плейсхолдер: фото ещё не сняли или не загрузили.
+   */
+  src: StaticImageData | string | null | undefined;
   alt: string;
   /** Подпись в плейсхолдере, если фото ещё нет. */
   label?: string;
@@ -17,8 +19,12 @@ type Props = {
 };
 
 /**
- * Слот под фотографию. Пока файла нет — рисует «стальной» плейсхолдер
- * вместо битой картинки, поэтому вёрстку можно делать до съёмки.
+ * Слот под фотографию. Пока фото нет — рисует «стальной» плейсхолдер,
+ * поэтому вёрстку можно делать до съёмки.
+ *
+ * Своих фото по строковому пути здесь не бывает: они импортируются
+ * статически, и опечатка в имени файла ломает сборку, а не превращается
+ * молча в плейсхолдер. Размытая превьюшка у них тоже своя, от Next.
  */
 export function ImageSlot({
   src,
@@ -34,7 +40,13 @@ export function ImageSlot({
   // две утилиты position в одном классе конфликтуют и побеждает та, что идёт позже в CSS.
   const position = /\b(absolute|fixed|sticky)\b/.test(className ?? "") ? "" : "relative";
 
-  if (hasImage(src)) {
+  if (src) {
+    const blur =
+      typeof src === "string"
+        ? blurDataUrl
+          ? { placeholder: "blur" as const, blurDataURL: blurDataUrl }
+          : {}
+        : { placeholder: "blur" as const };
     return (
       <div className={cn(position, "overflow-hidden bg-muted", className)}>
         <Image
@@ -43,7 +55,7 @@ export function ImageSlot({
           fill
           sizes={sizes}
           priority={priority}
-          {...(blurDataUrl ? { placeholder: "blur" as const, blurDataURL: blurDataUrl } : {})}
+          {...blur}
           className={cn("object-cover", imageClassName)}
         />
       </div>

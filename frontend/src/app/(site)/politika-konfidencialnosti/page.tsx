@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { PageHero } from "@/components/ui/page-hero";
 import { Container } from "@/components/ui/container";
 import { company } from "@/lib/content/company";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Политика конфиденциальности",
   description:
     "Политика в отношении обработки персональных данных пользователей сайта Tabys Consulting.",
   robots: { index: false, follow: true },
-};
+  path: "/politika-konfidencialnosti",
+});
 
 const sections = [
   {

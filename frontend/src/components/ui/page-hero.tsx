@@ -1,8 +1,10 @@
 import Link from "next/link";
+import type { StaticImageData } from "next/image";
 import { Container } from "./container";
 import { ImageSlot } from "./image-slot";
 import { company } from "@/lib/content/company";
 import { Pin } from "./icons";
+import heroDarkPhoto from "@/assets/images/hero-dark.jpg";
 
 type Crumb = { label: string; href: string };
 
@@ -15,8 +17,8 @@ type Props = {
   /** Вторая строка заголовка — подсвечивается акцентом. */
   titleAccent?: string;
   description: string;
-  /** Путь в /public или адрес из медиатеки. */
-  image?: string;
+  /** Статический импорт или адрес из медиатеки. */
+  image?: StaticImageData | string;
   imageBlur?: string | null;
 };
 
@@ -26,7 +28,7 @@ export function PageHero({
   title,
   titleAccent,
   description,
-  image = "/images/hero-dark.jpg",
+  image = heroDarkPhoto,
   imageBlur,
 }: Props) {
   return (

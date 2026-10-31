@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { PageHero } from "@/components/ui/page-hero";
 import { Container } from "@/components/ui/container";
 import { SectionLabel } from "@/components/ui/section-label";
@@ -8,16 +9,20 @@ import { ContactCards } from "@/components/contacts/contact-cards";
 import { Schedule } from "@/components/contacts/schedule";
 import { RequestForm } from "@/components/forms/request-form";
 import { company } from "@/lib/content/company";
+import catCipPhoto from "@/assets/images/cat-cip.jpg";
+import catVacuumPhoto from "@/assets/images/cat-vacuum.jpg";
+import heroMainPhoto from "@/assets/images/hero-main.jpg";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Контакты",
   description: `Контакты Tabys Consulting: ${company.address}. Телефоны, email и форма заявки на подбор оборудования для пищевой промышленности.`,
-};
+  path: "/kontakty",
+});
 
 const gallery = [
-  { src: "/images/hero-main.jpg", alt: "Производственный цех Tabys Consulting" },
-  { src: "/images/cat-cip.jpg", alt: "Участок сборки оборудования" },
-  { src: "/images/cat-vacuum.jpg", alt: "Готовое оборудование перед отгрузкой" },
+  { src: heroMainPhoto, alt: "Производственный цех Tabys Consulting" },
+  { src: catCipPhoto, alt: "Участок сборки оборудования" },
+  { src: catVacuumPhoto, alt: "Готовое оборудование перед отгрузкой" },
 ];
 
 export default function ContactsPage() {
@@ -93,7 +98,7 @@ export default function ContactsPage() {
                 />
                 {gallery.slice(1).map((photo) => (
                   <ImageSlot
-                    key={photo.src}
+                    key={photo.src.src}
                     src={photo.src}
                     alt={photo.alt}
                     className="aspect-[4/3] w-full rounded-card"

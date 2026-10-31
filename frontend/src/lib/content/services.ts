@@ -1,3 +1,9 @@
+import catCipPhoto from "@/assets/images/cat-cip.jpg";
+import catPasteurizationPhoto from "@/assets/images/cat-pasteurization.jpg";
+import catTanksPhoto from "@/assets/images/cat-tanks.jpg";
+import catVacuumPhoto from "@/assets/images/cat-vacuum.jpg";
+import weldingPhoto from "@/assets/images/welding.jpg";
+
 export type Service = {
   number: string;
   title: string;
@@ -65,26 +71,26 @@ export const whyUs = [
   {
     title: "Собственное производство",
     description: "Полный цикл в Алматы — от раскроя до испытаний",
-    image: "/images/welding.jpg",
+    image: weldingPhoto,
   },
   {
     title: "Изготовление по ТЗ",
     description: "Конструкция под ваш технологический процесс",
-    image: "/images/cat-cip.jpg",
+    image: catCipPhoto,
   },
   {
     title: "Комплексные решения",
     description: "Линии под ключ, а не разрозненное оборудование",
-    image: "/images/cat-tanks.jpg",
+    image: catTanksPhoto,
   },
   {
     title: "Нержавеющая сталь",
     description: "AISI 304 и 316, пищевые допуски и сертификаты",
-    image: "/images/cat-vacuum.jpg",
+    image: catVacuumPhoto,
   },
   {
     title: "Сервис после запуска",
     description: "Обслуживание, запчасти, модернизация",
-    image: "/images/cat-pasteurization.jpg",
+    image: catPasteurizationPhoto,
   },
 ];

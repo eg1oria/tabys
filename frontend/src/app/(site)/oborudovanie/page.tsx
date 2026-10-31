@@ -1,16 +1,18 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { PageHero } from "@/components/ui/page-hero";
 import { Container } from "@/components/ui/container";
 import { CatalogBrowser } from "@/components/catalog/catalog-browser";
 import { CtaBand } from "@/components/home/cta-band";
 import { getCategories, getFacetGroups } from "@/lib/api/public";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Каталог оборудования",
   description:
     "Каталог оборудования из нержавеющей стали для пищевой промышленности: ёмкости и резервуары, пастеризационное оборудование, сыроварни, охладители молока, насосы и торцевые уплотнения.",
-};
+  path: "/oborudovanie",
+});
 
 export default function CatalogPage() {
   return (

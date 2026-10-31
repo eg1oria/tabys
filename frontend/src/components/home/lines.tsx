@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ImageSlot } from "@/components/ui/image-slot";
 import { ArrowRight } from "@/components/ui/icons";
 import { lineStages, lineTypes } from "@/lib/content/lines";
+import heroMainPhoto from "@/assets/images/hero-main.jpg";
 
 export function Lines() {
   return (
@@ -39,7 +40,7 @@ export function Lines() {
         <div className="grid gap-4 lg:grid-cols-12">
           <div className="relative overflow-hidden rounded-card lg:col-span-8 xl:col-span-9">
             <ImageSlot
-              src="/images/hero-main.jpg"
+              src={heroMainPhoto}
               alt="Производственная линия переработки молока"
               label="Производственная линия"
               className="aspect-[4/3] w-full sm:aspect-[16/9] lg:aspect-[2/1]"

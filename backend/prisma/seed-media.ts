@@ -9,7 +9,8 @@ import { categorySeeds } from './seed-data/categories.js';
 /** Путь из данных фронтенда -> id MediaAsset. */
 export type MediaIndex = Map<string, string>;
 
-const FRONTEND_PUBLIC = resolve(process.cwd(), '../frontend/public');
+/** Фото вёрстки фронтенда: пути в данных вида /images/<файл>.jpg. */
+const FRONTEND_ASSETS = resolve(process.cwd(), '../frontend/src/assets');
 const UPLOAD_DIR = resolve(process.cwd(), (process.env.UPLOAD_DIR ?? './uploads').replace(/^\.\//, ''));
 
 async function exists(path: string): Promise<boolean> {
@@ -22,18 +23,20 @@ async function exists(path: string): Promise<boolean> {
 }
 
 /**
- * Переносит в медиатеку только те файлы, которые реально лежат в public/images.
- * Часть путей в данных битая (cat-pumps, cat-other, seals) — у таких категорий
- * imageId остаётся пустым, и фронтенд рисует ту же заглушку, что и сейчас.
+ * Переносит фото категорий из frontend/src/assets/images в медиатеку.
+ * У категорий без фото (насосы, уплотнения, «другое») imageId остаётся
+ * пустым — сайт рисует плейсхолдер, пока обложку не загрузят в админке.
  */
 export async function seedMedia(prisma: PrismaClient): Promise<MediaIndex> {
   const index: MediaIndex = new Map();
-  const unique = [...new Set(categorySeeds.map((c) => c.image))];
+  const unique = [
+    ...new Set(categorySeeds.flatMap((c) => (c.image ? [c.image] : []))),
+  ];
   let imported = 0;
   let missing = 0;
 
   for (const publicPath of unique) {
-    const source = join(FRONTEND_PUBLIC, publicPath.replace(/^\//, ''));
+    const source = join(FRONTEND_ASSETS, publicPath.replace(/^\//, ''));
 
     if (!(await exists(source))) {
       missing += 1;
@@ -89,7 +92,7 @@ export async function seedMedia(prisma: PrismaClient): Promise<MediaIndex> {
   // и ЦКТ), поэтому связываем по карте, а не копируем файл на каждую.
   let linked = 0;
   for (const seed of categorySeeds) {
-    const imageId = index.get(seed.image);
+    const imageId = seed.image ? index.get(seed.image) : undefined;
     if (!imageId) continue;
     const { count } = await prisma.category.updateMany({
       where: { slug: seed.slug, imageId: null },

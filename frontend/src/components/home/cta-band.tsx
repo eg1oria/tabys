@@ -3,12 +3,13 @@ import { Button } from "@/components/ui/button";
 import { ImageSlot } from "@/components/ui/image-slot";
 import { WhatsApp } from "@/components/ui/icons";
 import { company } from "@/lib/content/company";
+import heroDarkPhoto from "@/assets/images/hero-dark.jpg";
 
 export function CtaBand() {
   return (
     <section className="relative isolate overflow-hidden bg-ink text-white">
       <ImageSlot
-        src="/images/hero-dark.jpg"
+        src={heroDarkPhoto}
         alt=""
         className="absolute inset-0 -z-10"
         imageClassName="opacity-40"

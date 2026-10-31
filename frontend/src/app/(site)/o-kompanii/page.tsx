@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { PageHero } from "@/components/ui/page-hero";
 import { Container } from "@/components/ui/container";
 import { SectionLabel } from "@/components/ui/section-label";
@@ -6,12 +7,14 @@ import { ImageSlot } from "@/components/ui/image-slot";
 import { CtaBand } from "@/components/home/cta-band";
 import { WhyUs } from "@/components/home/why-us";
 import { companyFacts } from "@/lib/content/lines";
+import weldingPhoto from "@/assets/images/welding.jpg";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "О компании",
   description:
     "Tabys Consulting — собственное производство оборудования из нержавеющей стали для пищевой промышленности в Алматы. Проектирование, изготовление по ТЗ, комплектация линий и сервис.",
-};
+  path: "/o-kompanii",
+});
 
 export default function AboutPage() {
   return (
@@ -53,7 +56,7 @@ export default function AboutPage() {
 
             <div className="lg:col-span-6">
               <ImageSlot
-                src="/images/welding.jpg"
+                src={weldingPhoto}
                 alt="Производство оборудования Tabys Consulting"
                 className="aspect-[4/3] w-full rounded-card"
                 sizes="(max-width: 1024px) 100vw, 50vw"

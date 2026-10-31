@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { baseOpenGraph, defaultOgImages, mediaOgImage } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/container";
@@ -57,20 +58,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: describe(product),
     alternates: { canonical: url },
     openGraph: {
-      type: "website",
+      ...baseOpenGraph,
       title: product.title,
       description: describe(product),
       url,
-      images: image
-        ? [
-            {
-              url: image.url,
-              width: image.width ?? undefined,
-              height: image.height ?? undefined,
-              alt: image.alt || product.title,
-            },
-          ]
-        : undefined,
+      images: image ? [mediaOgImage(image, product.title)] : defaultOgImages,
     },
   };
 }
