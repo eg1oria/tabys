@@ -91,7 +91,7 @@ export default async function LeadsPage({
                 ))}
               </select>
             </span>
-            <span className="w-[200px]">
+            <span className="w-[220px]">
               <select
                 name="notified"
                 defaultValue={notified ?? ""}
