@@ -104,6 +104,7 @@ docker compose up -d --build
 | `POSTGRES_PASSWORD` | да | пароль базы внутри compose |
 | `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` | да | не короче 32 символов, разные (`openssl rand -base64 48`) |
 | `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` | для сида | первый администратор |
+| `AUDIT_RETENTION_DAYS` | нет | сколько дней хранить журнал действий (365; 0 — вечно) |
 
 Остальное (адреса сервисов, `TRUST_PROXY`, `PUBLIC_URL`, `CORS_ORIGINS`)
 задано в `compose.yaml` и для этой схемы менять не нужно.
@@ -196,6 +197,11 @@ docker compose logs -f backend frontend      # логи (у бэкенда — J
 docker compose run --rm migrate npx prisma migrate status
 docker compose exec db psql -U tabys tabys   # консоль базы
 ```
+
+Чистить базу и загрузки руками не нужно: раз в сутки бэкенд удаляет
+истёкшие сессии, журнал действий старше `AUDIT_RETENTION_DAYS` и файлы
+в `uploads`, на которые не ссылается ни одна запись (подробнее —
+`backend/README.md`, «Эксплуатация»).
 
 Перезапуск после перезагрузки сервера — `restart: unless-stopped`, отдельный
 systemd-юнит не нужен; достаточно, чтобы сам Docker стартовал с системой

@@ -1,11 +1,13 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../auth/decorators/public.decorator.js';
+import { PublicCache } from '../../common/http/cache-control.js';
 import { ProductsService } from './products.service.js';
 import { QueryProductsDto } from './dto/query-products.dto.js';
 
 @ApiTags('public')
 @Public()
+@PublicCache()
 @Controller('public/products')
 export class PublicProductsController {
   constructor(private readonly products: ProductsService) {}

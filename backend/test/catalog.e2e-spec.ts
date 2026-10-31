@@ -135,6 +135,26 @@ describe('Каталог (e2e)', () => {
     await request(app.getHttpServer()).get(`${base}/public/categories/chernovik`).expect(404);
   });
 
+  it('публичный каталог кешируется, админка и ошибки — нет', async () => {
+    const server = app.getHttpServer();
+    const pub = await request(server).get(`${base}/public/categories`).expect(200);
+    expect(pub.headers['cache-control']).toBe('public, max-age=60, stale-while-revalidate=600');
+
+    // Повтор с ETag — 304 без тела: каталог не гоняется по сети заново.
+    await request(server)
+      .get(`${base}/public/categories`)
+      .set('If-None-Match', pub.headers.etag)
+      .expect(304);
+
+    const missing = await request(server).get(`${base}/public/categories/chernovik`).expect(404);
+    expect(missing.headers['cache-control']).toBe('no-store');
+
+    const admin = await request(server).get(`${base}/admin/categories`).set(auth()).expect(200);
+    expect(admin.headers['cache-control']).toBe('no-store');
+    const health = await request(server).get(`${base}/health`).expect(200);
+    expect(health.headers['cache-control']).toBe('no-store');
+  });
+
   it('фасеты заменяют хардкод filterGroups', async () => {
     const res = await request(app.getHttpServer()).get(`${base}/public/facets`).expect(200);
     expect(res.body).toEqual([

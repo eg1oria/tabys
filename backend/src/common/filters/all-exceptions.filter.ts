@@ -118,6 +118,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
       this.logger.warn(`${requestId} ${request.method} ${request.url} -> ${body.statusCode} ${body.message}`);
     }
 
+    // Ошибку не кешируем нигде: иначе сбой на минуту пережил бы починку.
+    response.setHeader('Cache-Control', 'no-store');
     response.status(body.statusCode).json(body);
   }
 }

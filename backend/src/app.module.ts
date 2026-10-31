@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { CacheControlInterceptor } from './common/http/cache-control.js';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter.js';
 import { AppConfigModule } from './config/config.module.js';
 import { AppConfigService } from './config/app-config.service.js';
@@ -20,6 +21,7 @@ import { LeadsModule } from './modules/leads/leads.module.js';
 import { UsersModule } from './modules/users/users.module.js';
 import { NotificationsModule } from './modules/notifications/notifications.module.js';
 import { StatsModule } from './modules/stats/stats.module.js';
+import { HousekeepingModule } from './modules/housekeeping/housekeeping.module.js';
 
 @Module({
   imports: [
@@ -45,6 +47,7 @@ import { StatsModule } from './modules/stats/stats.module.js';
     UsersModule,
     NotificationsModule,
     StatsModule,
+    HousekeepingModule,
     HealthModule,
   ],
   providers: [
@@ -53,6 +56,7 @@ import { StatsModule } from './modules/stats/stats.module.js';
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
+    { provide: APP_INTERCEPTOR, useClass: CacheControlInterceptor },
   ],
 })
 export class AppModule {}

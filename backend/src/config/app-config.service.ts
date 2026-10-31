@@ -69,6 +69,10 @@ export class AppConfigService {
     return this.get('REDIS_URL') || undefined;
   }
 
+  get auditRetentionDays(): number {
+    return this.get('AUDIT_RETENTION_DAYS');
+  }
+
   get publicUrl(): string {
     return this.get('PUBLIC_URL').replace(/\/+$/, '');
   }

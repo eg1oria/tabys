@@ -34,8 +34,10 @@ jobs:
           --health-cmd "redis-cli ping"
           --health-interval 5s --health-timeout 3s --health-retries 20
     env:
-      # Остальное e2e заполняют сами (test/setup-env.ts).
-      DATABASE_URL: postgresql://ci:ci@localhost:5432/tabys_test?schema=public
+      # База e2e — по соглашениям libpq (test/test-database.ts); остальное
+      # тесты заполняют сами (test/setup-env.ts).
+      PGUSER: ci
+      PGPASSWORD: ci
       # Хранилище лимитов проверяется на настоящем Redis; без переменной
       # эти тесты пропускаются.
       TEST_REDIS_URL: redis://localhost:6379/15
