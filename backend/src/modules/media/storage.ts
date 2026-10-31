@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { mkdir } from 'node:fs/promises';
+import { access, constants, mkdir } from 'node:fs/promises';
 import { extname, join, resolve } from 'node:path';
 
 /** Раскладка по годам/месяцам: листинги остаются обозримыми, бэкап — простым. */
@@ -34,4 +34,18 @@ export function resolveWithin(baseDir: string, relative: string): string {
     throw new Error(`Путь вне каталога загрузок: ${relative}`);
   }
   return target;
+}
+
+/**
+ * Проверка каталога загрузок при старте. Без неё недоступный на запись том
+ * (не тот владелец, read-only) всплывал бы только на первой заявке с
+ * вложением — 500 у посетителя и потерянный файл.
+ */
+export async function assertWritableDir(dir: string): Promise<void> {
+  try {
+    await mkdir(dir, { recursive: true });
+    await access(dir, constants.W_OK);
+  } catch (cause) {
+    throw new Error(`Каталог загрузок ${resolve(dir)} недоступен на запись`, { cause });
+  }
 }

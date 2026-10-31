@@ -33,4 +33,33 @@ describe('validateEnv', () => {
   it('отвергает нечисловой порт', () => {
     expect(() => validateEnv({ ...base, PORT: 'abc' })).toThrow(/PORT/);
   });
+
+  describe('в проде', () => {
+    const prod = {
+      ...base,
+      NODE_ENV: 'production',
+      UPLOAD_DIR: '/app/uploads',
+      PUBLIC_URL: 'https://tabys.kz',
+    };
+
+    it('принимает абсолютный UPLOAD_DIR и публичный PUBLIC_URL', () => {
+      expect(() => validateEnv(prod)).not.toThrow();
+    });
+
+    it('отвергает относительный UPLOAD_DIR — файлы жили бы в слое контейнера', () => {
+      expect(() => validateEnv({ ...prod, UPLOAD_DIR: './uploads' })).toThrow(/UPLOAD_DIR/);
+    });
+
+    it('отвергает PUBLIC_URL на localhost — картинки не откроются у посетителя', () => {
+      expect(() => validateEnv({ ...prod, PUBLIC_URL: 'http://localhost:4000' })).toThrow(
+        /PUBLIC_URL/,
+      );
+    });
+
+    it('в разработке относительный путь и localhost допустимы', () => {
+      expect(() =>
+        validateEnv({ ...base, UPLOAD_DIR: './uploads', PUBLIC_URL: 'http://localhost:4000' }),
+      ).not.toThrow();
+    });
+  });
 });

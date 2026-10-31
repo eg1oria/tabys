@@ -1,3 +1,4 @@
+import { isAbsolute } from 'node:path';
 import { plainToInstance, Type } from 'class-transformer';
 import {
   IsEnum,
@@ -76,7 +77,11 @@ export class EnvConfig {
   @IsOptional()
   TRUST_PROXY = '';
 
-  /** Куда складываем вложения заявок и картинки каталога. */
+  /**
+   * Куда складываем вложения заявок и картинки каталога. Это единственная
+   * копия файлов (чертежи и ТЗ заказчиков), поэтому в проде — абсолютный
+   * путь на постоянном томе: см. productionProblems ниже.
+   */
   @IsString()
   @IsOptional()
   UPLOAD_DIR = './uploads';
@@ -96,6 +101,31 @@ export class EnvConfig {
   TELEGRAM_CHAT_IDS?: string;
 }
 
+/**
+ * Проверки, которые имеют смысл только в проде: локально относительный
+ * ./uploads и localhost — нормальны, а на сервере это тихая потеря данных.
+ */
+function productionProblems(config: EnvConfig): string[] {
+  if (config.NODE_ENV !== NodeEnv.Production) return [];
+  const problems: string[] = [];
+
+  // Относительный путь в контейнере — это слой самого контейнера: файлы
+  // живут до его пересоздания (обновление, docker compose up --build).
+  if (!isAbsolute(config.UPLOAD_DIR)) {
+    problems.push(
+      `UPLOAD_DIR должен быть абсолютным путём на постоянном томе, а не «${config.UPLOAD_DIR}»`,
+    );
+  }
+
+  // Из PUBLIC_URL собираются адреса картинок каталога: с localhost
+  // браузер посетителя их не откроет.
+  if (/^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0)(:|\/|$)/.test(config.PUBLIC_URL)) {
+    problems.push(`PUBLIC_URL должен быть публичным адресом сайта, а не «${config.PUBLIC_URL}»`);
+  }
+
+  return problems;
+}
+
 export function validateEnv(raw: Record<string, unknown>): EnvConfig {
   const config = plainToInstance(EnvConfig, raw, {
     enableImplicitConversion: true,
@@ -103,12 +133,13 @@ export function validateEnv(raw: Record<string, unknown>): EnvConfig {
   });
 
   const errors = validateSync(config, { skipMissingProperties: false });
+  const messages = [
+    ...errors.map((e) => Object.values(e.constraints ?? {}).join(', ')),
+    ...(errors.length === 0 ? productionProblems(config) : []),
+  ];
 
-  if (errors.length > 0) {
-    const details = errors
-      .map((e) => Object.values(e.constraints ?? {}).join(', '))
-      .join('\n  - ');
-    throw new Error(`Некорректное окружение:\n  - ${details}`);
+  if (messages.length > 0) {
+    throw new Error(`Некорректное окружение:\n  - ${messages.join('\n  - ')}`);
   }
 
   return config;

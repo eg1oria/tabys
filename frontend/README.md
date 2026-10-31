@@ -27,7 +27,7 @@ npx tsc --noEmit
 | --- | --- | --- |
 | `API_URL` | при запросе | базовый URL API вместе с `/api/v1`; серверная, в браузер не попадает |
 | `API_ORIGIN` | **при сборке** и при запросе | origin, под которым браузер видит `/uploads`; попадает в `images.remotePatterns` |
-| `NEXT_PUBLIC_SITE_URL` | **при сборке** | адрес сайта для canonical, sitemap и JSON-LD |
+| `NEXT_PUBLIC_SITE_URL` | **при сборке** | адрес сайта для canonical, sitemap и JSON-LD; в прод-сборке обязателен |
 
 Образец — `.env.example`. В dev бэкенд на `localhost`, поэтому в
 `next.config.ts` для dev включён `images.dangerouslyAllowLocalIP` — иначе
@@ -152,9 +152,8 @@ Middleware в Next 16 называется **proxy** и лежит в `src/proxy
 времени показа — бэкенд помечает такие заявки спамом, отвечая при этом успехом.
 
 Вложение ограничено 4 МБ. `bodySizeLimit` поднят до 5 МБ, потому что в тело
-Server Action входят ещё поля формы и служебные байты multipart; на Vercel
-потолок ~4,5 МБ, и для файлов крупнее нужен свой хостинг или загрузка напрямую
-в бэкенд.
+Server Action входят ещё поля формы и служебные байты multipart. Caddy перед
+Next своего лимита на тело не ставит.
 
 ### IP посетителя
 

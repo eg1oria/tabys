@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import { AppModule } from './app.module.js';
 import { AppConfigService } from './config/app-config.service.js';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter.js';
+import { assertWritableDir } from './modules/media/storage.js';
 import type { Request, Response } from 'express';
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -17,6 +18,8 @@ const app = await NestFactory.create<NestExpressApplication>(AppModule, {
 });
 
 const config = app.get(AppConfigService);
+// Падаем на старте, а не на первой заявке с вложением.
+await assertWritableDir(config.uploadDir);
 
 app.setGlobalPrefix('api/v1');
 // Без этого req.ip — адрес ближайшего клиента, то есть сервера Next для

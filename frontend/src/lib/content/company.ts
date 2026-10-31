@@ -1,5 +1,18 @@
-export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://tabys-consulting.vercel.app";
+/**
+ * Адрес сайта для canonical, sitemap, Open Graph и JSON-LD. Встраивается
+ * при сборке. Умолчания для прода нет намеренно: раньше здесь стоял
+ * tabys-consulting.vercel.app, и сборка без переменной молча отдавала
+ * поисковикам чужой домен. Vercel к тому же не подходит в принципе: файлы
+ * каталога и вложения заявок живут на диске бэкенда (README, «Деплой»).
+ */
+export const SITE_URL = (() => {
+  const value = process.env.NEXT_PUBLIC_SITE_URL;
+  if (value) return value.replace(/\/+$/, "");
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("Не задан NEXT_PUBLIC_SITE_URL — адрес сайта (см. .env.example)");
+  }
+  return "http://localhost:3000";
+})();
 
 /**
  * Год в подвале — константа, а не new Date().getFullYear():

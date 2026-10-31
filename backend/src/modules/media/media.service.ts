@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { readFile, unlink, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { dirname } from 'node:path';
 import { fileTypeFromBuffer } from 'file-type';
 import sharp from 'sharp';
 import { PrismaService } from '../../prisma/prisma.service.js';
@@ -220,7 +220,4 @@ export class MediaService {
     return created;
   }
 
-  uploadsPath(): string {
-    return join(process.cwd(), this.config.uploadDir.replace(/^\.\//, ''));
-  }
 }
