@@ -3,6 +3,7 @@ import { refreshTokens } from "@/lib/api/refresh";
 import { ApiUnreachableError } from "@/lib/api/errors";
 import { REFRESH_COOKIE, clearTokensOn, setTokensOn } from "@/lib/api/session";
 import { safeNext } from "@/lib/admin/form-state";
+import { loginPath, redirectToPath } from "@/lib/admin/redirect";
 
 /**
  * Обновление сессии. Сюда редиректит proxy.ts, когда access-cookie
@@ -14,11 +15,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const next = safeNext(request.nextUrl.searchParams.get("next"));
   const refreshToken = request.cookies.get(REFRESH_COOKIE)?.value;
 
-  if (!refreshToken) return toLogin(request, next);
+  if (!refreshToken) return redirectToPath(loginPath(next));
 
   try {
     const pair = await refreshTokens(refreshToken);
-    const response = NextResponse.redirect(new URL(next, request.url));
+    const response = redirectToPath(next);
     setTokensOn(response, pair);
     return response;
   } catch (error) {
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (error instanceof ApiUnreachableError) return offline(next);
     // Семейство токенов отозвано — на логин, предварительно убрав мёртвые
     // cookie, иначе proxy.ts зациклит редирект.
-    const response = toLogin(request, next);
+    const response = redirectToPath(loginPath(next));
     clearTokensOn(response);
     return response;
   }
@@ -54,11 +55,4 @@ function offline(next: string): NextResponse {
      </div>`,
     { status: 503, headers: { "Content-Type": "text/html; charset=utf-8" } },
   );
-}
-
-function toLogin(request: NextRequest, next: string): NextResponse {
-  const url = new URL("/admin/login", request.url);
-  url.searchParams.set("next", next);
-  url.searchParams.set("expired", "1");
-  return NextResponse.redirect(url);
 }

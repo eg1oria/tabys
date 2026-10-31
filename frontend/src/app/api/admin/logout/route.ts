@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { clearTokensOn } from "@/lib/api/session";
 import { safeNext } from "@/lib/admin/form-state";
+import { loginPath, redirectToPath } from "@/lib/admin/redirect";
 
 /**
  * Принудительный выход. Нужен потому, что Server Component не может
@@ -12,11 +13,7 @@ import { safeNext } from "@/lib/admin/form-state";
  */
 export function GET(request: NextRequest): NextResponse {
   const next = safeNext(request.nextUrl.searchParams.get("next"));
-  const url = new URL("/admin/login", request.url);
-  url.searchParams.set("expired", "1");
-  if (next !== "/admin") url.searchParams.set("next", next);
-
-  const response = NextResponse.redirect(url);
+  const response = redirectToPath(loginPath(next));
   clearTokensOn(response);
   return response;
 }
