@@ -41,6 +41,7 @@ describe('validateEnv', () => {
       UPLOAD_DIR: '/app/uploads',
       PUBLIC_URL: 'https://tabys.kz',
       REDIS_URL: 'redis://redis:6379',
+      TRUST_PROXY: 'uniquelocal',
     };
 
     it('принимает абсолютный UPLOAD_DIR и публичный PUBLIC_URL', () => {
@@ -54,6 +55,10 @@ describe('validateEnv', () => {
     it('требует REDIS_URL — иначе лимиты у каждого инстанса свои и сбрасываются рестартом', () => {
       const { REDIS_URL: _unused, ...rest } = prod;
       expect(() => validateEnv(rest)).toThrow(/REDIS_URL/);
+    });
+
+    it('требует TRUST_PROXY — иначе все входы и заявки делят IP сервера Next', () => {
+      expect(() => validateEnv({ ...prod, TRUST_PROXY: '' })).toThrow(/TRUST_PROXY/);
     });
 
     it('отвергает PUBLIC_URL на localhost — картинки не откроются у посетителя', () => {

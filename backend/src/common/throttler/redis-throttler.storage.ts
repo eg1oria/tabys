@@ -1,6 +1,7 @@
 import { Logger, type OnApplicationShutdown } from '@nestjs/common';
 import type { ThrottlerStorage } from '@nestjs/throttler';
-import { Redis } from 'ioredis';
+import type { Redis } from 'ioredis';
+import { connectRedis } from '../redis/connect.js';
 
 /** Пакет не реэкспортирует тип записи — берём его из сигнатуры increment. */
 type ThrottlerStorageRecord = Awaited<
@@ -59,17 +60,7 @@ export class RedisThrottlerStorage
   constructor(private readonly redis: Redis) {}
 
   static fromUrl(url: string): RedisThrottlerStorage {
-    return new RedisThrottlerStorage(
-      new Redis(url, {
-        // Очередь оставляем: без неё команды до первого соединения
-        // отвергаются, и сразу после старта лимиты бы не действовали.
-        // Зависнуть запросу не дают таймаут и один повтор: пока Redis
-        // недоступен, ждём не дольше секунды и пропускаем запрос.
-        maxRetriesPerRequest: 1,
-        commandTimeout: 1000,
-        connectTimeout: 3000,
-      }),
-    );
+    return new RedisThrottlerStorage(connectRedis(url));
   }
 
   async increment(

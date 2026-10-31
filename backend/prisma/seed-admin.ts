@@ -1,6 +1,7 @@
 import { hash } from '@node-rs/argon2';
 import { randomBytes } from 'node:crypto';
 import type { PrismaClient } from '../src/prisma/client.js';
+import { passwordProblem } from '../src/auth/password-policy.js';
 
 // algorithm не указываем: по умолчанию argon2id, а его enum ambient const.
 // Параметры совпадают с src/auth/password.service.ts.
@@ -28,6 +29,10 @@ export async function seedAdmin(prisma: PrismaClient): Promise<void> {
   }
 
   const provided = process.env.SEED_ADMIN_PASSWORD?.trim();
+  // Та же политика, что у смены пароля в админке: сид не должен заводить
+  // владельца с паролем, который потом нельзя было бы поставить руками.
+  const problem = provided ? passwordProblem(provided, email) : null;
+  if (problem) throw new Error(`SEED_ADMIN_PASSWORD не подходит: ${problem}`);
   const password = provided || randomBytes(12).toString('base64url');
 
   await prisma.adminUser.create({

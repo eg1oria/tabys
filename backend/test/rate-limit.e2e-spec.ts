@@ -1,6 +1,7 @@
 import type { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { Redis } from 'ioredis';
+import { LOGIN_ATTEMPTS, MAX_FAILURES, type LoginAttempts } from '../src/auth/login-attempts.js';
 
 /**
  * Лимиты на Redis: два экземпляра бэкенда делят один счётчик, и рестарт
@@ -23,19 +24,19 @@ describe.skipIf(!url)('Лимиты запросов в Redis (e2e)', () => {
     return app;
   };
 
-  const login = (app: INestApplication) =>
+  // Каждый раз новый адрес: проверяем лимит на IP, а не блокировку
+  // адреса (login-attempts.ts) — у той свой счётчик и свой тест ниже.
+  let seq = 0;
+  const login = (app: INestApplication, email = `nobody-${++seq}@tabys.kz`) =>
     request(app.getHttpServer())
       .post(`${base}/auth/login`)
-      .send({
-        email: 'nobody@tabys.kz',
-        password: 'wrong-password-long-enough',
-      });
+      .send({ email, password: 'wrong-password-long-enough' });
 
   beforeAll(async () => {
     // Счётчики живут между прогонами: начинаем с чистого листа. Чистим
     // только ключи лимитов и только в тестовой базе Redis.
     const redis = new Redis(url!);
-    const keys = await redis.keys('throttle:*');
+    const keys = [...(await redis.keys('throttle:*')), ...(await redis.keys('login:*'))];
     if (keys.length > 0) await redis.del(...keys);
     await redis.quit();
   });
@@ -71,5 +72,16 @@ describe.skipIf(!url)('Лимиты запросов в Redis (e2e)', () => {
     const restarted = await start();
     const res = await login(restarted).expect(429);
     expect(Number(res.headers['retry-after'])).toBeGreaterThan(0);
+  });
+
+  it('блокировку адреса видят все экземпляры', async () => {
+    const [first, second] = [apps[0], await start()];
+    const attempts = (app: INestApplication) => app.get<LoginAttempts>(LOGIN_ATTEMPTS);
+
+    // Напрямую, а не через HTTP: лимит на IP уже исчерпан тестом выше.
+    for (let i = 0; i < MAX_FAILURES; i++) {
+      await attempts(first).recordFailure('owner@tabys.kz');
+    }
+    expect(await attempts(second).lockedFor('owner@tabys.kz')).toBeGreaterThan(0);
   });
 });

@@ -37,7 +37,7 @@ export function PasswordForm() {
         label="Новый пароль"
         htmlFor="newPassword"
         error={errors.newPassword}
-        hint="Не короче 12 символов."
+        hint="Не короче 12 символов, не из одних цифр, без email и слов вроде password. Проще всего — фраза из нескольких слов."
         required
       >
         <TextInput

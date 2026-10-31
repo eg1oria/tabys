@@ -29,6 +29,7 @@ export class AuthController {
 
   @Public()
   // Логин админки без лимита — открытая дверь для перебора пароля.
+  // Это лимит на IP; на адрес — отдельная блокировка (login-attempts.ts).
   @Throttle({ default: { ttl: 300_000, limit: 10 } })
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -62,6 +63,8 @@ export class AuthController {
   }
 
   @ApiBearerAuth('access-token')
+  // С украденной вкладкой иначе можно было бы перебирать текущий пароль.
+  @Throttle({ default: { ttl: 300_000, limit: 10 } })
   @Post('change-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({

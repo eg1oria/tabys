@@ -19,9 +19,10 @@ export async function login(prev: FormState, formData: FormData): Promise<FormSt
   const fail = (state: FormState) => withValues(state, prev, values);
 
   // Правила зеркалят LoginDto: иначе единственной ошибкой будет 400 от бэкенда.
+  // Длину пароля на входе не проверяем — правила действуют при его смене.
   const errors: Record<string, string> = {};
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) errors.email = "Укажите корректный email";
-  if (password.length < 8) errors.password = "Пароль не короче 8 символов";
+  if (password.length === 0) errors.password = "Введите пароль";
   if (Object.keys(errors).length > 0) return fail({ status: "error", errors });
 
   let pair: TokenPair;
@@ -40,6 +41,7 @@ export async function login(prev: FormState, formData: FormData): Promise<FormSt
       return fail(formError("Неверный email или пароль"));
     }
     if (error instanceof ApiError && error.statusCode === 429) {
+      // Лимит на IP (5 минут) или блокировка адреса после серии неудач (15).
       return fail(formError("Слишком много попыток входа. Повторите через несколько минут."));
     }
     if (error instanceof ApiUnreachableError) {
@@ -99,7 +101,8 @@ export async function changePassword(
   const repeatPassword = String(formData.get("repeatPassword") ?? "");
 
   const errors: Record<string, string> = {};
-  if (currentPassword.length < 8) errors.currentPassword = "Введите текущий пароль";
+  if (currentPassword.length === 0) errors.currentPassword = "Введите текущий пароль";
+  // Остальную политику (повторы, очевидные слова, email) проверяет бэкенд.
   if (newPassword.length < 12) errors.newPassword = "Новый пароль не короче 12 символов";
   if (newPassword !== repeatPassword) errors.repeatPassword = "Пароли не совпадают";
   if (Object.keys(errors).length > 0) return { status: "error", errors };
@@ -111,6 +114,11 @@ export async function changePassword(
       json: { currentPassword, newPassword },
     });
   } catch (error) {
+    // 400 здесь — политика нового пароля (password-policy.ts на бэкенде):
+    // показываем её под полем, а не общей ошибкой над формой.
+    if (error instanceof ApiError && error.statusCode === 400) {
+      return { status: "error", errors: { newPassword: error.messages.join(". ") } };
+    }
     return toFormState(error, ["currentPassword", "newPassword"]);
   }
 
