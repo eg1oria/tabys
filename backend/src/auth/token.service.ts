@@ -1,12 +1,20 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { createHash, randomBytes, randomUUID } from 'node:crypto';
+import { createHash, createHmac, randomBytes, randomUUID } from 'node:crypto';
 import { AppConfigService } from '../config/app-config.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { AdminUser } from '../prisma/client.js';
 import type { JwtPayload, TokenPair } from './types.js';
 
 type IssueContext = { ip?: string; userAgent?: string };
+
+/**
+ * Сколько после ротации повторное предъявление того же токена считается
+ * гонкой, а не утечкой. Два экземпляра Next (или две вкладки) обновляют
+ * сессию параллельно с одной cookie: без окна второй запрос гасил бы всё
+ * семейство и выбрасывал редактора из админки.
+ */
+const REUSE_GRACE_MS = 30_000;
 
 /**
  * Refresh-токен — непрозрачные 256 бит случайности, в базе лежит его SHA-256.
@@ -67,36 +75,49 @@ export class TokenService {
     return payload;
   }
 
+  /**
+   * Наследник refresh-токена выводится из родителя, а не случаен: тогда
+   * повтор в льготном окне получает ровно тот же токен, что и первый
+   * запрос, — обе стороны гонки запишут в cookie одно и то же, и сессия не
+   * раздвоится. Без секрета наследника не вычислить, а сам секрет на
+   * клиент не уходит.
+   */
+  private successorOf(rawToken: string): string {
+    return createHmac('sha256', this.config.jwtRefreshSecret)
+      .update(rawToken)
+      .digest('base64url');
+  }
+
+  private get refreshTtlMs(): number {
+    return parseTtlToMs(this.config.jwtRefreshTtl);
+  }
+
   /** Выдаёт новую пару и открывает новое семейство ротации. */
   async issuePair(
     user: Pick<AdminUser, 'id' | 'email' | 'role'>,
     ctx: IssueContext = {},
   ): Promise<TokenPair> {
-    return this.issueWithFamily(user, randomUUID(), ctx);
-  }
-
-  private async issueWithFamily(
-    user: Pick<AdminUser, 'id' | 'email' | 'role'>,
-    familyId: string,
-    ctx: IssueContext,
-  ): Promise<TokenPair> {
     const raw = randomBytes(32).toString('base64url');
-    const ttlMs = parseTtlToMs(this.config.jwtRefreshTtl);
-
     await this.prisma.refreshToken.create({
       data: {
         userId: user.id,
         tokenHash: hashToken(raw),
-        familyId,
-        expiresAt: new Date(Date.now() + ttlMs),
+        familyId: randomUUID(),
+        expiresAt: new Date(Date.now() + this.refreshTtlMs),
         ip: ctx.ip,
         userAgent: ctx.userAgent,
       },
     });
+    return this.pair(user, raw);
+  }
 
+  private async pair(
+    user: Pick<AdminUser, 'id' | 'email' | 'role'>,
+    refreshToken: string,
+  ): Promise<TokenPair> {
     return {
       accessToken: await this.signAccess(user),
-      refreshToken: raw,
+      refreshToken,
       expiresIn: this.accessTtlSeconds,
     };
   }
@@ -104,36 +125,45 @@ export class TokenService {
   /**
    * Ротация с обнаружением повторного использования: если предъявили уже
    * отозванный токен, значит он утёк — гасим всё семейство, а не одну строку.
+   * Исключение — повтор в первые REUSE_GRACE_MS после ротации, пока
+   * наследник жив: это параллельное обновление, и ему отдаётся тот же
+   * наследник.
    */
   async rotate(rawToken: string, ctx: IssueContext = {}): Promise<TokenPair> {
     const tokenHash = hashToken(rawToken);
+    const successor = this.successorOf(rawToken);
+    const now = new Date();
 
-    // Гасим строку условным UPDATE, а не read-then-write: две параллельные
-    // ротации одного токена иначе обе проходят, семейство раздваивается и
-    // обнаружение утечки перестаёт работать. Выигрывает ровно один запрос.
-    const { count } = await this.prisma.refreshToken.updateMany({
-      where: { tokenHash, revokedAt: null, expiresAt: { gt: new Date() } },
-      data: { revokedAt: new Date() },
-    });
-
-    const stored = await this.prisma.refreshToken.findUnique({
-      where: { tokenHash },
-      include: { user: true },
+    // Отзыв и наследник — одной транзакцией. Гасим строку условным UPDATE,
+    // а не read-then-write: из двух параллельных ротаций выигрывает ровно
+    // одна, вторая ждёт блокировку строки и после коммита видит и отзыв,
+    // и уже созданного наследника — никогда одно без другого.
+    const { rotated, stored } = await this.prisma.$transaction(async (tx) => {
+      const { count } = await tx.refreshToken.updateMany({
+        where: { tokenHash, revokedAt: null, expiresAt: { gt: now } },
+        data: { revokedAt: now },
+      });
+      const found = await tx.refreshToken.findUnique({
+        where: { tokenHash },
+        include: { user: true },
+      });
+      if (count === 1 && found?.user.isActive) {
+        await tx.refreshToken.create({
+          data: {
+            userId: found.userId,
+            tokenHash: hashToken(successor),
+            familyId: found.familyId,
+            expiresAt: new Date(now.getTime() + this.refreshTtlMs),
+            ip: ctx.ip,
+            userAgent: ctx.userAgent,
+          },
+        });
+      }
+      return { rotated: count === 1, stored: found };
     });
 
     if (!stored) {
       throw new UnauthorizedException('Недействительный refresh-токен');
-    }
-
-    if (count === 0) {
-      if (stored.expiresAt.getTime() <= Date.now()) {
-        throw new UnauthorizedException('Refresh-токен истёк');
-      }
-      // Строка уже была отозвана — токен предъявили повторно.
-      await this.revokeFamily(stored.familyId);
-      throw new UnauthorizedException(
-        'Повторное использование токена — все сессии завершены',
-      );
     }
 
     if (!stored.user.isActive) {
@@ -141,7 +171,42 @@ export class TokenService {
       throw new UnauthorizedException('Пользователь отключён');
     }
 
-    return this.issueWithFamily(stored.user, stored.familyId, ctx);
+    if (rotated) return this.pair(stored.user, successor);
+
+    if (stored.expiresAt.getTime() <= now.getTime()) {
+      throw new UnauthorizedException('Refresh-токен истёк');
+    }
+
+    if (await this.isConcurrentRotation(stored.revokedAt, successor, now)) {
+      return this.pair(stored.user, successor);
+    }
+
+    // Строка отозвана давно, выходом или её наследник уже ушёл дальше —
+    // токен предъявили повторно.
+    await this.revokeFamily(stored.familyId);
+    throw new UnauthorizedException(
+      'Повторное использование токена — все сессии завершены',
+    );
+  }
+
+  /**
+   * Повтор считается гонкой, только если родителя отозвали только что и
+   * его наследник ещё жив. Выход гасит и наследника, а следующая ротация
+   * отзывает его — в обоих случаях это уже не гонка, а повтор.
+   */
+  private async isConcurrentRotation(
+    revokedAt: Date | null,
+    successor: string,
+    now: Date,
+  ): Promise<boolean> {
+    if (!revokedAt || now.getTime() - revokedAt.getTime() > REUSE_GRACE_MS) {
+      return false;
+    }
+    const child = await this.prisma.refreshToken.findUnique({
+      where: { tokenHash: hashToken(successor) },
+      select: { revokedAt: true, expiresAt: true },
+    });
+    return child !== null && child.revokedAt === null && child.expiresAt > now;
   }
 
   async revokeFamily(familyId: string): Promise<void> {
