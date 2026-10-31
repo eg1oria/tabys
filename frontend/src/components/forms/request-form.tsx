@@ -23,6 +23,17 @@ function FieldError({ message }: { message?: string }) {
 export function RequestForm({ defaultMessage }: { defaultMessage?: string } = {}) {
   const [state, formAction, isPending] = useActionState(submitRequest, initialRequestState);
   const [fileName, setFileName] = useState<string | null>(null);
+  const values = state.values;
+
+  // После ошибки форма перемонтируется, и выбранный файл из поля пропадает
+  // (браузер не даёт вернуть его программно). Сбрасываем и подпись, иначе
+  // она показывала бы файл, которого в форме уже нет. Сброс — при рендере,
+  // как в шапке сайта, без лишнего прохода через эффект.
+  const [seenSubmission, setSeenSubmission] = useState(state.submissionId);
+  if (seenSubmission !== state.submissionId) {
+    setSeenSubmission(state.submissionId);
+    setFileName(null);
+  }
   const formRef = useRef<HTMLFormElement>(null);
   const renderedAtRef = useRef<HTMLInputElement>(null);
 
@@ -62,7 +73,13 @@ export function RequestForm({ defaultMessage }: { defaultMessage?: string } = {}
   const errors = state.errors;
 
   return (
-    <form ref={formRef} action={formAction} noValidate className="space-y-4">
+    <form
+      key={state.submissionId ?? 0}
+      ref={formRef}
+      action={formAction}
+      noValidate
+      className="space-y-4"
+    >
       {/* Ловушка для ботов: людям поле не видно и в табуляцию не попадает.
           Заполненное — верный признак скрипта, бэкенд пометит заявку спамом. */}
       <div aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
@@ -75,7 +92,12 @@ export function RequestForm({ defaultMessage }: { defaultMessage?: string } = {}
           autoComplete="off"
         />
       </div>
-      <input ref={renderedAtRef} type="hidden" name="renderedAt" defaultValue="" />
+      <input
+        ref={renderedAtRef}
+        type="hidden"
+        name="renderedAt"
+        defaultValue={values?.renderedAt ?? ""}
+      />
 
       <FormError message={errors._form} />
 
@@ -87,6 +109,7 @@ export function RequestForm({ defaultMessage }: { defaultMessage?: string } = {}
           <input
             id="name"
             name="name"
+            defaultValue={values?.name}
             autoComplete="name"
             placeholder="Ваше имя *"
             aria-invalid={Boolean(errors.name)}
@@ -109,6 +132,7 @@ export function RequestForm({ defaultMessage }: { defaultMessage?: string } = {}
             <input
               id="phone"
               name="phone"
+              defaultValue={values?.phone}
               type="tel"
               inputMode="tel"
               autoComplete="tel"
@@ -128,6 +152,7 @@ export function RequestForm({ defaultMessage }: { defaultMessage?: string } = {}
         <input
           id="email"
           name="email"
+          defaultValue={values?.email}
           type="email"
           autoComplete="email"
           placeholder="Email"
@@ -145,7 +170,7 @@ export function RequestForm({ defaultMessage }: { defaultMessage?: string } = {}
           id="message"
           name="message"
           rows={5}
-          defaultValue={defaultMessage}
+          defaultValue={values?.message ?? defaultMessage}
           placeholder="Сообщение&#10;(Опишите задачу, интересующее оборудование или прикрепите ТЗ)"
           aria-invalid={Boolean(errors.message)}
           className={cn(
@@ -185,7 +210,14 @@ export function RequestForm({ defaultMessage }: { defaultMessage?: string } = {}
             className="sr-only"
             onChange={(e) => setFileName(e.target.files?.[0]?.name ?? null)}
           />
-          <FieldError message={errors.attachment} />
+          <FieldError
+            message={
+              errors.attachment ??
+              (values?.hadAttachment && !fileName
+                ? "Прикрепите файл ещё раз — после ошибки браузер его сбрасывает"
+                : undefined)
+            }
+          />
         </div>
 
         <button
@@ -205,6 +237,7 @@ export function RequestForm({ defaultMessage }: { defaultMessage?: string } = {}
           <input
             name="consent"
             type="checkbox"
+            defaultChecked={values?.consent}
             className="mt-0.5 size-4 shrink-0 accent-accent"
             aria-invalid={Boolean(errors.consent)}
           />

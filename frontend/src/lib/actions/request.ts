@@ -6,7 +6,9 @@ import {
   ALLOWED_EXTENSIONS,
   MAX_FILE_BYTES,
   type RequestState,
+  type RequestValues,
 } from "./request-state";
+import { phoneDigits } from "@/lib/phone";
 
 type RequestFields = {
   name: string;
@@ -108,14 +110,27 @@ async function errorMessages(response: Response): Promise<string[]> {
   }
 }
 
-function digits(value: string) {
-  return value.replace(/\D/g, "");
-}
-
 export async function submitRequest(
-  _prev: RequestState,
+  prev: RequestState,
   formData: FormData,
 ): Promise<RequestState> {
+  const result = await validateAndDeliver(formData);
+  if (result.status !== "error") return result;
+
+  const file = formData.get("attachment");
+  const values: RequestValues = {
+    name: String(formData.get("name") ?? ""),
+    phone: String(formData.get("phone") ?? ""),
+    email: String(formData.get("email") ?? ""),
+    message: String(formData.get("message") ?? ""),
+    consent: formData.get("consent") !== null,
+    renderedAt: String(formData.get("renderedAt") ?? ""),
+    hadAttachment: file instanceof File && file.size > 0,
+  };
+  return { ...result, values, submissionId: (prev.submissionId ?? 0) + 1 };
+}
+
+async function validateAndDeliver(formData: FormData): Promise<RequestState> {
   const name = String(formData.get("name") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
@@ -129,9 +144,10 @@ export async function submitRequest(
     errors.name = "Укажите ваше имя";
   }
 
-  const phoneDigits = digits(phone);
-  if (phoneDigits.length < 10) {
-    errors.phone = "Укажите корректный номер телефона";
+  // Бэкенду уходит номер уже с кодом страны: «+7» у поля — только подпись.
+  const normalizedPhone = phoneDigits(phone);
+  if (!normalizedPhone) {
+    errors.phone = "Укажите номер в формате +7 (700) 000-00-00";
   }
 
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
@@ -165,7 +181,7 @@ export async function submitRequest(
   return deliverRequest(
     {
       name,
-      phone,
+      phone: `+${normalizedPhone}`,
       email,
       message,
       companyWebsite: String(formData.get("companyWebsite") ?? ""),

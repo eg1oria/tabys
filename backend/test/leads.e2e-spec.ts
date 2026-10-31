@@ -95,7 +95,7 @@ describe('Заявки (e2e)', () => {
       .field('consent', 'true')
       .expect(400);
     expect(res.body.errors).toEqual(
-      expect.arrayContaining(['Укажите ваше имя', 'Укажите корректный номер телефона']),
+      expect.arrayContaining(['Укажите ваше имя', 'Укажите номер в формате +7 (700) 000-00-00']),
     );
   });
 
@@ -204,5 +204,48 @@ describe('Заявки (e2e)', () => {
     // и делает недоставленные уведомления отслеживаемыми.
     const pending = await prisma.lead.count({ where: { notifiedAt: null } });
     expect(pending).toBeGreaterThan(0);
+  });
+
+  it('номер без кода страны сохраняется с +7 — как его вводят рядом с нарисованным «+7»', async () => {
+    const send = (phone: string) =>
+      request(app.getHttpServer())
+        .post(`${base}/public/leads`)
+        .field('name', 'Без кода')
+        .field('phone', phone)
+        .field('consent', 'true')
+        .expect(201);
+
+    const typed = await send('(708) 111-22-33');
+    const viaEight = await send('8 708 111 22 33');
+
+    const leads = await prisma.lead.findMany({
+      where: { id: { in: [typed.body.id, viaEight.body.id] } },
+      select: { phone: true, phoneDigits: true },
+    });
+    // Оба способа набора дают один и тот же номер — дубли склеиваются.
+    expect(leads).toEqual([
+      { phone: '+7 (708) 111-22-33', phoneDigits: '77081112233' },
+      { phone: '+7 (708) 111-22-33', phoneDigits: '77081112233' },
+    ]);
+  });
+
+  it('поиск находит заявку и по «8 708…», и по «+7 708…»', async () => {
+    for (const q of ['8 708 111 22 33', '+7 708 111-22-33', '708 111']) {
+      const res = await request(app.getHttpServer())
+        .get(`${base}/admin/leads?q=${encodeURIComponent(q)}`)
+        .set(auth())
+        .expect(200);
+      expect(res.body.meta.total, `поиск «${q}»`).toBe(2);
+    }
+  });
+
+  it('номер, который нельзя привести к +7 или международному виду, — 400', async () => {
+    const res = await request(app.getHttpServer())
+      .post(`${base}/public/leads`)
+      .field('name', 'Девять цифр')
+      .field('phone', '707 267 12 3')
+      .field('consent', 'true')
+      .expect(400);
+    expect(JSON.stringify(res.body)).toMatch(/\+7 \(700\) 000-00-00/);
   });
 });

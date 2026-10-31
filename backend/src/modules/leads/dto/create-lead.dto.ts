@@ -10,6 +10,7 @@ import {
   ValidatorConstraint,
   type ValidatorConstraintInterface,
 } from 'class-validator';
+import { normalizePhone, type NormalizedPhone } from '../../../common/phone/phone.js';
 
 /** Поля multipart приходят строками, поэтому "false"/"0"/"" — это ложь. */
 function toBoolean(value: unknown): boolean {
@@ -20,18 +21,14 @@ function toBoolean(value: unknown): boolean {
   return false;
 }
 
-function digitsOnly(value: unknown): string {
-  return typeof value === 'string' ? value.replace(/\D/g, '') : '';
-}
-
-@ValidatorConstraint({ name: 'phoneHasEnoughDigits' })
-class PhoneDigits implements ValidatorConstraintInterface {
+@ValidatorConstraint({ name: 'phoneNormalizable' })
+class PhoneNumber implements ValidatorConstraintInterface {
   validate(value: unknown): boolean {
-    return digitsOnly(value).length >= 10;
+    return typeof value === 'string' && normalizePhone(value) !== null;
   }
 
   defaultMessage(): string {
-    return 'Укажите корректный номер телефона';
+    return 'Укажите номер в формате +7 (700) 000-00-00';
   }
 }
 
@@ -58,7 +55,7 @@ export class CreateLeadDto {
   @ApiProperty({ example: '+7 (707) 267-12-37' })
   @IsString()
   @MaxLength(50)
-  @Validate(PhoneDigits)
+  @Validate(PhoneNumber)
   phone!: string;
 
   @ApiPropertyOptional()
@@ -95,8 +92,14 @@ export class CreateLeadDto {
   @IsOptional()
   renderedAt?: string;
 
-  get phoneDigits(): string {
-    return digitsOnly(this.phone);
+  /**
+   * Номер с кодом страны (common/phone/phone.ts). Вызывается после
+   * валидации, поэтому null здесь — ошибка программы, а не ввода.
+   */
+  get normalizedPhone(): NormalizedPhone {
+    const phone = normalizePhone(this.phone);
+    if (!phone) throw new Error('normalizedPhone до валидации DTO');
+    return phone;
   }
 
   get consentGiven(): boolean {

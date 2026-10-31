@@ -33,6 +33,7 @@ import type { AuthUser } from '../../auth/types.js';
 import type { CreateLeadDto } from './dto/create-lead.dto.js';
 import type { QueryLeadsDto } from './dto/query-leads.dto.js';
 import type { UpdateLeadDto } from './dto/update-lead.dto.js';
+import { phoneSearchDigits } from '../../common/phone/phone.js';
 
 export const LEAD_CREATED = 'lead.created';
 
@@ -111,8 +112,10 @@ export class LeadsService {
     const lead = await this.prisma.lead.create({
       data: {
         name: dto.name,
-        phone: dto.phone,
-        phoneDigits: dto.phoneDigits,
+        // Канонический вид: +7 (707) 267-12-37 / 77072671237, а не то,
+        // как набрал посетитель, — иначе дубли не склеиваются.
+        phone: dto.normalizedPhone.display,
+        phoneDigits: dto.normalizedPhone.digits,
         email: dto.email,
         message: dto.message,
         status,
@@ -161,7 +164,7 @@ export class LeadsService {
             OR: [
               { name: { contains: dto.q, mode: 'insensitive' } },
               { email: { contains: dto.q, mode: 'insensitive' } },
-              { phoneDigits: { contains: dto.q.replace(/\D/g, '') || dto.q } },
+              { phoneDigits: { contains: phoneSearchDigits(dto.q) || dto.q } },
               { message: { contains: dto.q, mode: 'insensitive' } },
             ],
           }
