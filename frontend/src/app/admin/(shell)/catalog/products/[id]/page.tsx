@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getCategories, getProduct } from "@/lib/api/catalog";
+import { apiRead } from "@/lib/api/server";
 import { getFormOptions } from "@/lib/admin/catalog-form-data";
 import { productGallery } from "@/lib/admin/product-gallery-data";
 import { safeNext } from "@/lib/admin/form-state";
@@ -10,7 +11,7 @@ import { PageHeader } from "@/components/admin/page-header";
 import { ProductForm } from "@/components/admin/product-form";
 import { FacetPicker } from "@/components/admin/facet-picker";
 import { Badge } from "@/components/ui/badge";
-import type { AdminProduct } from "@/lib/api/types";
+import type { AdminProduct, CurrentUser } from "@/lib/api/types";
 
 export const instant = false;
 
@@ -32,7 +33,11 @@ export default async function EditProductPage({
     throw error;
   }
 
-  const [{ groups, images }, categories] = await Promise.all([getFormOptions(), getCategories()]);
+  const [{ groups, images }, categories, me] = await Promise.all([
+    getFormOptions(),
+    getCategories(),
+    apiRead<CurrentUser>("/auth/me"),
+  ]);
 
   return (
     <>
@@ -57,6 +62,7 @@ export default async function EditProductPage({
           gallery={productGallery(product)}
           library={images}
           returnTo={returnTo}
+          canDelete={me.role === "OWNER"}
           facetPicker={
             <FacetPicker
               groups={groups}

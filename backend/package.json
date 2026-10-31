@@ -28,6 +28,7 @@
     "db:seed": "prisma db seed",
     "db:reset": "prisma migrate reset --force && prisma generate",
     "db:studio": "prisma studio",
+    "admin:reset": "tsx prisma/reset-admin.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {

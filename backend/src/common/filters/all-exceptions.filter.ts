@@ -6,8 +6,20 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { randomUUID } from 'node:crypto';
 import type { Request, Response } from 'express';
+
+/** Событие о 5xx: его слушает OpsAlerts и шлёт владельцу в Telegram. */
+export const SERVER_ERROR = 'server.error';
+
+export type ServerErrorEvent = {
+  requestId: string;
+  method: string;
+  /** Шаблон маршрута (/admin/products/:id), а не адрес: по нему склеиваются повторы. */
+  route: string;
+  error: string;
+};
 
 type ErrorBody = {
   statusCode: number;
@@ -36,10 +48,15 @@ export function prismaCode(error: unknown): string | undefined {
 /**
  * Единая точка превращения исключений в ответ. Клиенту не уходит ни стек,
  * ни текст ошибки драйвера — только requestId, по которому строку найдут в логах.
+ *
+ * Регистрируется через APP_FILTER (app.module.ts), а не useGlobalFilters:
+ * так у фильтра есть DI и он может сообщить о сбое.
  */
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(AllExceptionsFilter.name);
+
+  constructor(private readonly events: EventEmitter2) {}
 
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
@@ -86,6 +103,17 @@ export class AllExceptionsFilter implements ExceptionFilter {
         `${requestId} ${request.method} ${request.url}`,
         exception instanceof Error ? exception.stack : String(exception),
       );
+      const route = (request.route as { path?: string } | undefined)?.path;
+      const event: ServerErrorEvent = {
+        requestId,
+        method: request.method,
+        route: route ?? request.path,
+        error:
+          exception instanceof Error
+            ? `${exception.name}: ${exception.message}`
+            : String(exception),
+      };
+      this.events.emit(SERVER_ERROR, event);
     } else {
       this.logger.warn(`${requestId} ${request.method} ${request.url} -> ${body.statusCode} ${body.message}`);
     }

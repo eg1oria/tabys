@@ -35,6 +35,7 @@ export function ProductForm({
   library,
   returnTo,
   facetPicker,
+  canDelete = false,
 }: {
   product: AdminProduct | null;
   categories: { id: string; title: string }[];
@@ -43,6 +44,8 @@ export function ProductForm({
   library: PickableImage[];
   returnTo: string;
   facetPicker: React.ReactNode;
+  /** Удалять товары может только владелец (бэкенд проверяет сам). */
+  canDelete?: boolean;
 }) {
   const [state, formAction] = useActionState(saveProduct, initialFormState);
   // Отдельное состояние для удаления: кнопка отправляет ту же форму
@@ -221,7 +224,7 @@ export function ProductForm({
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-line bg-white px-5 py-4">
-        <span>{product ? <DeleteSubmit action={removeAction} /> : null}</span>
+        <span>{product && canDelete ? <DeleteSubmit action={removeAction} /> : null}</span>
         <span className="flex items-center gap-3">
           <span
             role="status"

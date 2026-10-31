@@ -1,4 +1,4 @@
-import { Bell, Home, ImageIcon, Inbox, Layers, Sliders, Modules, User } from "@/components/ui/icons";
+import { Bell, Home, ImageIcon, Inbox, Layers, Sliders, Modules, Shield, User } from "@/components/ui/icons";
 
 type Icon = (props: React.SVGProps<SVGSVGElement>) => React.ReactElement;
 
@@ -10,6 +10,8 @@ export type NavLink = {
   exact?: boolean;
   /** Показать счётчик новых заявок. */
   badge?: boolean;
+  /** Только для владельца: редактору бэкенд всё равно ответит 403. */
+  ownerOnly?: boolean;
 };
 
 export type NavEntry = NavLink | { label: string; Icon: Icon; children: NavLink[] };
@@ -28,6 +30,7 @@ export const navEntries: NavEntry[] = [
   },
   { href: "/admin/media", label: "Файлы", Icon: ImageIcon },
   { href: "/admin/notifications", label: "Уведомления", Icon: Bell },
+  { href: "/admin/users", label: "Администраторы", Icon: Shield, ownerOnly: true },
   { href: "/admin/profile", label: "Настройки", Icon: User },
 ];
 

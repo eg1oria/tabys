@@ -46,6 +46,7 @@ npm run start:dev             # http://localhost:4000
 | `npm run test:e2e` | e2e против отдельной базы `tabys_test` |
 | `npm run db:migrate` | `migrate dev` + `generate` |
 | `npm run db:seed` | идемпотентный сид |
+| `npm run admin:reset -- <email>` | новый пароль и роль OWNER — если войти в админку некому |
 | `npm run db:studio` | Prisma Studio как временная замена UI |
 
 Для e2e нужна база `tabys_test` (`createdb tabys_test`) — миграции к ней
@@ -101,16 +102,20 @@ POST   /auth/login | refresh | logout
 GET    /auth/me
 POST   /auth/change-password
 
-GET                   /admin/users
+GET                   /admin/users                          активные — для назначения заявок
+GET                   /admin/users/all                      (только OWNER)
+POST                  /admin/users                          (только OWNER) временный пароль в ответе
+PATCH                 /admin/users/:id                      (только OWNER) имя, роль, isActive
+POST                  /admin/users/:id/reset-password       (только OWNER)
 
 GET|POST          /admin/categories
-GET|PATCH|DELETE  /admin/categories/:id
+GET|PATCH|DELETE  /admin/categories/:id         DELETE — только OWNER
 PATCH             /admin/categories/reorder
 PATCH             /admin/categories/:id/publish | unpublish
-# та же форма у /admin/products
+# та же форма у /admin/products, DELETE — только OWNER
 
-GET|POST|PATCH|DELETE /admin/facets/values
-GET|POST|PATCH|DELETE /admin/media
+GET|POST|PATCH|DELETE /admin/facets/values                 запись — только OWNER
+GET|POST|PATCH|DELETE /admin/media                         DELETE — только OWNER
 GET|PATCH             /admin/leads
 GET                   /admin/leads/:id/attachments/:attachmentId
 
@@ -121,6 +126,14 @@ POST                  /admin/notifications/telegram/link/:code/check
 DELETE                /admin/notifications/telegram/chats/:id    (только OWNER)
 POST                  /admin/notifications/telegram/test
 ```
+
+**Роли.** Без `@Roles` эндпоинт открыт любому вошедшему. EDITOR работает
+с заявками, товарами и категориями (кроме удаления) и загружает картинки;
+OWNER — ещё удаление, значения фильтров, бот Telegram и учётные записи.
+Полная таблица — в `src/auth/decorators/roles.decorator.ts`, проверка —
+`test/users.e2e-spec.ts`. Роль гвард читает из базы, а не из токена: смена
+роли действует сразу. Последнего активного владельца понизить или отключить
+нельзя, свою роль и доступ — тоже.
 
 **Лимиты считаются по IP, а фронтенд ходит со своего сервера.** Админка
 обращается к API с сервера Next, поэтому для бэкенда все администраторы — один
@@ -240,8 +253,6 @@ POST                  /admin/notifications/telegram/test
   а не API. При переводе на API понадобятся `"use cache"`,
   `cacheTag`/`revalidateTag` (во фронтенде включён `cacheComponents`) и замена
   хардкод-списка `src/lib/images.ts`.
-- Управление администраторами: `GET /admin/users` только отдаёт список для
-  назначения заявок. Создать, выключить или сменить роль можно лишь сидом.
 - Чтение журнала действий: таблица `AuditLog` заполняется при каждой правке,
   но наружу не отдаётся — смотреть через `npm run db:studio`.
 

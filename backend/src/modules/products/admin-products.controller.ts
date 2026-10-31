@@ -19,7 +19,8 @@ import { UpdateProductDto } from './dto/update-product.dto.js';
 import { QueryProductsDto } from './dto/query-products.dto.js';
 import { ReorderDto } from '../categories/dto/reorder.dto.js';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
-import { PublishStatus } from '../../prisma/client.js';
+import { Roles } from '../../auth/decorators/roles.decorator.js';
+import { AdminRole, PublishStatus } from '../../prisma/client.js';
 import type { AuthUser } from '../../auth/types.js';
 
 @ApiTags('admin')
@@ -91,8 +92,9 @@ export class AdminProductsController {
   }
 
   @Delete(':id')
+  @Roles(AdminRole.OWNER)
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Удалить товар' })
+  @ApiOperation({ summary: 'Удалить товар (только OWNER)' })
   remove(@Param('id') id: string, @CurrentUser() user: AuthUser): Promise<void> {
     return this.products.remove(id, user);
   }

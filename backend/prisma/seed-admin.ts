@@ -3,11 +3,16 @@ import { randomBytes } from 'node:crypto';
 import type { PrismaClient } from '../src/prisma/client.js';
 
 // algorithm не указываем: по умолчанию argon2id, а его enum ambient const.
+// Параметры совпадают с src/auth/password.service.ts.
 const OPTIONS = {
   memoryCost: 19456,
   timeCost: 2,
   parallelism: 1,
 } as const;
+
+export function hashPassword(plain: string): Promise<string> {
+  return hash(plain, OPTIONS);
+}
 
 /**
  * Первый администратор. Пароль берётся из SEED_ADMIN_PASSWORD; если его нет —
@@ -30,7 +35,7 @@ export async function seedAdmin(prisma: PrismaClient): Promise<void> {
       email,
       name: 'Владелец',
       role: 'OWNER',
-      passwordHash: await hash(password, OPTIONS),
+      passwordHash: await hashPassword(password),
     },
   });
 

@@ -2,14 +2,14 @@ import { ValidationPipe, type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../src/app.module.js';
 import { PrismaService } from '../src/prisma/prisma.service.js';
-import { AllExceptionsFilter } from '../src/common/filters/all-exceptions.filter.js';
 
 export async function createTestApp(): Promise<INestApplication> {
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
   const app = moduleRef.createNestApplication();
 
   // Повторяем конфигурацию main.ts: без неё тесты проверяли бы другое
-  // приложение, чем то, что уходит в прод.
+  // приложение, чем то, что уходит в прод. Фильтр исключений приходит
+  // из AppModule (APP_FILTER).
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(
     new ValidationPipe({
@@ -19,7 +19,6 @@ export async function createTestApp(): Promise<INestApplication> {
       transformOptions: { enableImplicitConversion: true },
     }),
   );
-  app.useGlobalFilters(new AllExceptionsFilter());
 
   await app.init();
   return app;

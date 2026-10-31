@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import Image from "next/image";
 import { getCategories, getProducts } from "@/lib/api/catalog";
+import { apiRead } from "@/lib/api/server";
 import { uploadUrl } from "@/lib/api/url";
 import {
   deleteProduct,
@@ -29,6 +30,7 @@ import { Badge } from "@/components/ui/badge";
 import { Download, ImageIcon, Pencil, Plus } from "@/components/ui/icons";
 import { fieldBase, fieldBorder } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
+import type { CurrentUser } from "@/lib/api/types";
 
 export const instant = false;
 
@@ -57,9 +59,10 @@ export default async function ProductsPage({
   );
   const { sortBy, order } = sortParam(sort, SORTABLE);
 
-  const [{ data, meta }, categories] = await Promise.all([
+  const [{ data, meta }, categories, me] = await Promise.all([
     getProducts({ category, status, q, page, sortBy, order }),
     getCategories(),
+    apiRead<CurrentUser>("/auth/me"),
   ]);
 
   /** Адрес списка с текущими фильтрами — для пагинации, панели и возвратов. */
@@ -307,11 +310,13 @@ export default async function ProductsPage({
                               published={product.status === "PUBLISHED"}
                               action={setProductStatus}
                             />
-                            <DeleteButton
-                              id={product.id}
-                              action={deleteProduct}
-                              returnTo={listHref()}
-                            />
+                            {me.role === "OWNER" ? (
+                              <DeleteButton
+                                id={product.id}
+                                action={deleteProduct}
+                                returnTo={listHref()}
+                              />
+                            ) : null}
                           </RowMenu>
                         </span>
                       </Td>

@@ -4,12 +4,26 @@ import { AdminNav } from "./nav";
 import { LeadsBadge } from "./leads-badge";
 import { SidebarShell } from "./sidebar-state";
 import { SidebarLogout } from "./user-menu";
+import { apiRead } from "@/lib/api/server";
+import type { CurrentUser } from "@/lib/api/types";
+
+/** Меню с учётом роли: ждёт /auth/me, но только внутри своего Suspense. */
+async function RoleAwareNav({ leadsBadge }: { leadsBadge: React.ReactNode }) {
+  const me = await apiRead<CurrentUser>("/auth/me");
+  return <AdminNav leadsBadge={leadsBadge} isOwner={me.role === "OWNER"} />;
+}
 
 /**
  * Тёмная колонка с разделами. Серверный компонент: клиентского тут
  * только раскрытие шторки и подсветка активного пункта.
  */
 export function Sidebar() {
+  const leadsBadge = (
+    <Suspense fallback={null}>
+      <LeadsBadge />
+    </Suspense>
+  );
+
   return (
     <SidebarShell>
       <Link
@@ -34,13 +48,9 @@ export function Sidebar() {
       </Link>
 
       <div className="flex-1 overflow-y-auto p-3">
-        <AdminNav
-          leadsBadge={
-            <Suspense fallback={null}>
-              <LeadsBadge />
-            </Suspense>
-          }
-        />
+        <Suspense fallback={<AdminNav leadsBadge={leadsBadge} />}>
+          <RoleAwareNav leadsBadge={leadsBadge} />
+        </Suspense>
       </div>
 
       <SidebarLogout />

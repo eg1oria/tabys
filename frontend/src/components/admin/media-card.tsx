@@ -11,7 +11,15 @@ import { FORM_ERROR, initialFormState } from "@/lib/admin/form-state";
 import { formatBytes } from "@/lib/admin/format";
 import type { MediaAsset } from "@/lib/api/types";
 
-export function MediaCard({ asset, thumbUrl }: { asset: MediaAsset; thumbUrl: string }) {
+export function MediaCard({
+  asset,
+  thumbUrl,
+  canDelete,
+}: {
+  asset: MediaAsset;
+  thumbUrl: string;
+  canDelete: boolean;
+}) {
   const [altState, saveAlt] = useActionState(updateMediaAlt, initialFormState);
   const [removeState, remove] = useActionState(deleteMedia, initialFormState);
   const [confirming, setConfirming] = useState(false);
@@ -66,32 +74,34 @@ export function MediaCard({ asset, thumbUrl }: { asset: MediaAsset; thumbUrl: st
           </div>
         </form>
 
-        <form action={remove} className="mt-auto border-t border-line pt-3">
-          <input type="hidden" name="id" value={asset.id} />
-          <FieldError message={removeState.errors[FORM_ERROR]} />
-          {confirming ? (
-            <div className="flex items-center gap-2">
-              <SubmitButton variant="outline" pendingLabel="Удаляем…" className="h-8 px-3 text-[12px]">
-                Точно удалить
-              </SubmitButton>
-              <button
-                type="button"
-                onClick={() => setConfirming(false)}
-                className="text-[12px] text-text-2 hover:text-ink"
+        {canDelete ? (
+          <form action={remove} className="mt-auto border-t border-line pt-3">
+            <input type="hidden" name="id" value={asset.id} />
+            <FieldError message={removeState.errors[FORM_ERROR]} />
+            {confirming ? (
+              <div className="flex items-center gap-2">
+                <SubmitButton variant="outline" pendingLabel="Удаляем…" className="h-8 px-3 text-[12px]">
+                  Точно удалить
+                </SubmitButton>
+                <button
+                  type="button"
+                  onClick={() => setConfirming(false)}
+                  className="text-[12px] text-text-2 hover:text-ink"
+                >
+                  Отмена
+                </button>
+              </div>
+            ) : (
+              <IconButton
+                label={`Удалить ${asset.originalName}`}
+                tone="danger"
+                onClick={() => setConfirming(true)}
               >
-                Отмена
-              </button>
-            </div>
-          ) : (
-            <IconButton
-              label={`Удалить ${asset.originalName}`}
-              tone="danger"
-              onClick={() => setConfirming(true)}
-            >
-              <Trash className="size-4" />
-            </IconButton>
-          )}
-        </form>
+                <Trash className="size-4" />
+              </IconButton>
+            )}
+          </form>
+        ) : null}
       </div>
     </li>
   );

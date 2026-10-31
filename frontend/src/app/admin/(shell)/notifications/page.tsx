@@ -143,6 +143,12 @@ export default async function NotificationsPage() {
               </ul>
             )}
 
+            {chats.length > 0 ? (
+              <p className="text-[12px] leading-relaxed text-text-2">
+                Чаты, подключённые владельцем, получают ещё и технические алерты: ошибки
+                сервера и недоступность базы.
+              </p>
+            ) : null}
             {bot ? <ConnectChat /> : null}
             {bot && chats.length > 0 ? <TestMessageButton /> : null}
           </div>

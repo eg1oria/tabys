@@ -41,6 +41,9 @@ export type AdminUserOption = {
   isActive: boolean;
 };
 
+/** USER_SELECT в backend/src/modules/users/users.service.ts. */
+export type AdminAccount = CurrentUser;
+
 // ───────────────────────────── заявки ─────────────────────────────
 
 export type LeadAttachment = {

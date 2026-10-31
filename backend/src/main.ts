@@ -6,7 +6,6 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
 import { AppModule } from './app.module.js';
 import { AppConfigService } from './config/app-config.service.js';
-import { AllExceptionsFilter } from './common/filters/all-exceptions.filter.js';
 import { assertWritableDir } from './modules/media/storage.js';
 import type { Request, Response } from 'express';
 
@@ -57,7 +56,6 @@ app.useGlobalPipes(
     transformOptions: { enableImplicitConversion: true },
   }),
 );
-app.useGlobalFilters(new AllExceptionsFilter());
 app.enableShutdownHooks();
 
 if (!config.isProduction) {

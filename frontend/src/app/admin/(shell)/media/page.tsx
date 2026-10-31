@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getMedia, thumbUrl } from "@/lib/api/media";
+import { apiRead } from "@/lib/api/server";
 import { pageParam } from "@/lib/admin/search-params";
 import { EmptyState, PageHeader, Panel } from "@/components/admin/page-header";
 import { Pagination } from "@/components/admin/pagination";
 import { MediaUpload } from "@/components/admin/media-upload";
 import { MediaCard } from "@/components/admin/media-card";
+import type { CurrentUser } from "@/lib/api/types";
 
 /**
  * Страница читает данные под авторизацией на каждый запрос: кешировать
@@ -20,7 +22,11 @@ export default async function MediaPage({ searchParams }: PageProps<"/admin/medi
   const params = await searchParams;
   const page = pageParam(params.page);
 
-  const { data, meta } = await getMedia({ page });
+  const [{ data, meta }, me] = await Promise.all([
+    getMedia({ page }),
+    apiRead<CurrentUser>("/auth/me"),
+  ]);
+  const isOwner = me.role === "OWNER";
 
   if (page && meta.total > 0 && page > meta.totalPages) redirect("/admin/media");
 
@@ -28,7 +34,11 @@ export default async function MediaPage({ searchParams }: PageProps<"/admin/medi
     <>
       <PageHeader
         title="Файлы"
-        description="Картинки каталога. Удалить можно только те, что нигде не используются."
+        description={
+          isOwner
+            ? "Картинки каталога. Удалить можно только те, что нигде не используются."
+            : "Картинки каталога. Удаляет их владелец."
+        }
         breadcrumbs={[{ label: "Файлы" }]}
       />
 
@@ -47,7 +57,12 @@ export default async function MediaPage({ searchParams }: PageProps<"/admin/medi
             <>
               <ul className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {data.map((asset) => (
-                  <MediaCard key={asset.id} asset={asset} thumbUrl={thumbUrl(asset)} />
+                  <MediaCard
+                    key={asset.id}
+                    asset={asset}
+                    thumbUrl={thumbUrl(asset)}
+                    canDelete={isOwner}
+                  />
                 ))}
               </ul>
               <Pagination basePath="/admin/media" params={{}} meta={meta} />

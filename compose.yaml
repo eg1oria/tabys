@@ -5,8 +5,15 @@
 
 name: tabys
 
-x-restart: &restart
+x-service: &service
   restart: unless-stopped
+  # Логи — в json-file Docker'а (docker compose logs), с ротацией: без неё
+  # они копятся без предела и однажды забивают диск сервера.
+  logging:
+    driver: json-file
+    options:
+      max-size: "20m"
+      max-file: "5"
 
 x-backend-env: &backend-env
   NODE_ENV: production
@@ -28,7 +35,7 @@ x-backend-env: &backend-env
 
 services:
   db:
-    <<: *restart
+    <<: *service
     image: postgres:17-alpine
     environment:
       POSTGRES_DB: tabys
@@ -45,7 +52,7 @@ services:
   # Только счётчики лимитов с TTL — терять при пересоздании нечего, поэтому
   # без тома и без сохранения на диск. Наружу порт не открыт.
   redis:
-    <<: *restart
+    <<: *service
     image: redis:8-alpine
     command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "64mb", "--maxmemory-policy", "volatile-ttl"]
     healthcheck:
@@ -72,9 +79,14 @@ services:
       db:
         condition: service_healthy
     restart: "no"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "2"
 
   backend:
-    <<: *restart
+    <<: *service
     build:
       context: ./backend
       target: runtime
@@ -90,7 +102,7 @@ services:
         condition: service_completed_successfully
 
   frontend:
-    <<: *restart
+    <<: *service
     build:
       context: ./frontend
       args:
@@ -107,7 +119,7 @@ services:
         condition: service_healthy
 
   caddy:
-    <<: *restart
+    <<: *service
     image: caddy:2.10-alpine
     ports:
       - "80:80"

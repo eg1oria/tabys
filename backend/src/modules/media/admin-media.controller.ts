@@ -20,6 +20,8 @@ import { UploadMediaDto } from './dto/upload-media.dto.js';
 import { UpdateMediaDto } from './dto/update-media.dto.js';
 import { PaginationDto } from '../../common/dto/pagination.dto.js';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
+import { Roles } from '../../auth/decorators/roles.decorator.js';
+import { AdminRole } from '../../prisma/client.js';
 import type { AuthUser } from '../../auth/types.js';
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
@@ -75,8 +77,9 @@ export class AdminMediaController {
   }
 
   @Delete(':id')
+  @Roles(AdminRole.OWNER)
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Удалить неиспользуемое изображение' })
+  @ApiOperation({ summary: 'Удалить неиспользуемое изображение (только OWNER)' })
   remove(@Param('id') id: string, @CurrentUser() user: AuthUser): Promise<void> {
     return this.media.remove(id, user);
   }

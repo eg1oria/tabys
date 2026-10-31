@@ -13,13 +13,21 @@ function active(pathname: string, item: NavLink): boolean {
  * Разделы админки. Клиентский компонент только ради usePathname: счётчик
  * заявок приходит готовым узлом из серверной части оболочки.
  */
-export function AdminNav({ leadsBadge }: { leadsBadge?: React.ReactNode }) {
+export function AdminNav({
+  leadsBadge,
+  isOwner = false,
+}: {
+  leadsBadge?: React.ReactNode;
+  /** Пока роль не пришла, пункты владельца скрыты — потом дорисуются. */
+  isOwner?: boolean;
+}) {
   const pathname = usePathname();
 
   return (
     <nav aria-label="Разделы админки" className="flex flex-1 flex-col gap-1 overflow-y-auto">
       {navEntries.map((entry) => {
         if (!isGroup(entry)) {
+          if (entry.ownerOnly && !isOwner) return null;
           return (
             <Item key={entry.href} item={entry} pathname={pathname} badge={leadsBadge} />
           );
