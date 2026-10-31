@@ -359,4 +359,49 @@ describe('Каталог (e2e)', () => {
       .expect(200);
     expect(res.body.specs).toEqual([]);
   });
+
+  it('картинку из галереи товара удалить нельзя, пока её не уберут из галереи', async () => {
+    // Файла на диске нет — удаление его и не требует: запись в базе
+    // проверяется раньше, а отсутствующий файл только пишет warn в лог.
+    const asset = await prisma.mediaAsset.create({
+      data: {
+        storageKey: 'e2e/gallery-only.jpg',
+        originalName: 'gallery-only.jpg',
+        mimeType: 'image/jpeg',
+        bytes: 1,
+      },
+    });
+    const product = await request(app.getHttpServer())
+      .post(`${base}/admin/products`)
+      .set(auth())
+      .send({ categoryId: publishedId, title: 'Товар с галереей' })
+      .expect(201);
+    await prisma.productImage.create({
+      data: { productId: product.body.id, mediaId: asset.id, sortOrder: 1 },
+    });
+
+    const refused = await request(app.getHttpServer())
+      .delete(`${base}/admin/media/${asset.id}`)
+      .set(auth())
+      .expect(400);
+    expect(refused.body.message).toMatch(/галереи товаров: 1/);
+    expect(await prisma.productImage.count({ where: { mediaId: asset.id } })).toBe(1);
+
+    // И в обход сервиса база не даёт удалить: связь RESTRICT, а не CASCADE.
+    await expect(prisma.mediaAsset.delete({ where: { id: asset.id } })).rejects.toMatchObject({
+      code: 'P2003',
+    });
+
+    await request(app.getHttpServer())
+      .patch(`${base}/admin/products/${product.body.id}`)
+      .set(auth())
+      .send({ imageIds: [] })
+      .expect(200);
+    await request(app.getHttpServer())
+      .delete(`${base}/admin/media/${asset.id}`)
+      .set(auth())
+      .expect(204);
+
+    await prisma.product.delete({ where: { id: product.body.id } });
+  });
 });

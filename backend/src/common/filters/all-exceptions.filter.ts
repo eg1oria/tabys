@@ -25,7 +25,7 @@ const PRISMA_STATUS: Record<string, { status: number; message: string }> = {
   P2025: { status: HttpStatus.NOT_FOUND, message: 'Запись не найдена' },
 };
 
-function prismaCode(error: unknown): string | undefined {
+export function prismaCode(error: unknown): string | undefined {
   if (typeof error === 'object' && error !== null && 'code' in error) {
     const code = (error as { code: unknown }).code;
     if (typeof code === 'string' && /^P\d{4}$/.test(code)) return code;

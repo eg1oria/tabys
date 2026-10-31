@@ -215,7 +215,8 @@ model ProductImage {
   productId String
   product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
   mediaId   String
-  media     MediaAsset @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  /// Restrict: картинку из галереи нельзя удалить молча — сначала её убирают из товара.
+  media     MediaAsset @relation(fields: [mediaId], references: [id], onDelete: Restrict)
   sortOrder Int        @default(0)
   createdAt DateTime   @default(now())
 

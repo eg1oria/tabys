@@ -10,6 +10,7 @@ import { paginate, type Paginated, type PaginationDto } from '../../common/dto/p
 import { datePrefix, ensureDir, resolveWithin, safeFilename } from './storage.js';
 import type { AuthUser } from '../../auth/types.js';
 import { decodeMultipartFilename } from '../../common/http/multipart-filename.js';
+import { prismaCode } from '../../common/filters/all-exceptions.filter.js';
 
 /** Что действительно принимаем как изображение — по магическим байтам. */
 const ALLOWED_IMAGE_MIME = new Set([
@@ -20,6 +21,25 @@ const ALLOWED_IMAGE_MIME = new Set([
 ]);
 
 const DERIVATIVE_WIDTHS = [400, 800, 1600] as const;
+
+/** Где стоит картинка — словами, чтобы редактор знал, откуда её убирать. */
+function usageDescription(count: {
+  categories: number;
+  products: number;
+  productImages: number;
+}): string {
+  return [
+    count.categories > 0 ? `обложки категорий: ${count.categories}` : '',
+    count.products > 0 ? `обложки товаров: ${count.products}` : '',
+    count.productImages > 0 ? `галереи товаров: ${count.productImages}` : '',
+  ]
+    .filter(Boolean)
+    .join(', ');
+}
+
+function inUseMessage(usage: string): string {
+  return `Изображение используется (${usage}) — сначала уберите его оттуда`;
+}
 
 @Injectable()
 export class MediaService {
@@ -146,18 +166,25 @@ export class MediaService {
   async remove(id: string, actor: AuthUser): Promise<void> {
     const asset = await this.prisma.mediaAsset.findUnique({
       where: { id },
-      include: { _count: { select: { categories: true, products: true } } },
+      include: {
+        _count: { select: { categories: true, products: true, productImages: true } },
+      },
     });
     if (!asset) throw new NotFoundException('Файл не найден');
 
-    const used = asset._count.categories + asset._count.products;
-    if (used > 0) {
-      throw new BadRequestException(
-        `Изображение используется в ${used} записях — сначала отвяжите его`,
-      );
-    }
+    const usage = usageDescription(asset._count);
+    if (usage) throw new BadRequestException(inUseMessage(usage));
 
-    await this.prisma.mediaAsset.delete({ where: { id } });
+    try {
+      await this.prisma.mediaAsset.delete({ where: { id } });
+    } catch (error) {
+      // Галерея держит картинку через RESTRICT: если её добавили в товар
+      // между проверкой и удалением, база откажет с P2003.
+      if (prismaCode(error) === 'P2003') {
+        throw new BadRequestException(inUseMessage('галерея товара'));
+      }
+      throw error;
+    }
 
     // Файлы удаляем после записи в базе: осиротевший файл на диске —
     // мелочь, а запись без файла ломает выдачу.
