@@ -51,6 +51,11 @@ const TRANSITIONS: Record<LeadStatus, LeadStatus[]> = {
   SPAM: [LeadStatus.NEW],
 };
 
+/** Оставить статус прежним можно всегда — это не переход. */
+export function canTransition(from: LeadStatus, to: LeadStatus): boolean {
+  return from === to || TRANSITIONS[from].includes(to);
+}
+
 @Injectable()
 export class LeadsService {
   private readonly logger = new Logger(LeadsService.name);
@@ -215,11 +220,23 @@ export class LeadsService {
   async update(id: string, dto: UpdateLeadDto, actor: AuthUser) {
     const before = await this.findOne(id);
 
-    if (dto.status && dto.status !== before.status) {
-      const allowed = TRANSITIONS[before.status];
-      if (!allowed.includes(dto.status)) {
+    if (dto.status && !canTransition(before.status, dto.status)) {
+      throw new BadRequestException(
+        `Нельзя перевести заявку из ${before.status} в ${dto.status}`,
+      );
+    }
+
+    // Проверяем только смену ответственного: форма шлёт его вместе с
+    // заметкой, и заявку отключённого сотрудника иначе нельзя было бы
+    // даже прокомментировать.
+    if (dto.assignedToId && dto.assignedToId !== before.assignedToId) {
+      const assignee = await this.prisma.adminUser.findUnique({
+        where: { id: dto.assignedToId },
+        select: { isActive: true },
+      });
+      if (!assignee?.isActive) {
         throw new BadRequestException(
-          `Нельзя перевести заявку из ${before.status} в ${dto.status}`,
+          'Ответственный не найден или его вход отключён',
         );
       }
     }

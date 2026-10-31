@@ -371,6 +371,7 @@ export class ProductsService {
     if (!category) throw new NotFoundException('Категория не найдена');
 
     const slug = dto.slug ?? (await this.freeSlug(dto.categoryId, dto.title));
+    if (dto.slug) await this.ensureFreeSlug(dto.categoryId, dto.slug);
     const last = await this.prisma.product.findFirst({
       where: { categoryId: dto.categoryId },
       orderBy: { sortOrder: 'desc' },
@@ -439,6 +440,12 @@ export class ProductsService {
           )
         : slug;
 
+    // Слаг уникален в категории: занятым он может оказаться и при ручной
+    // правке, и при переносе товара туда, где такой адрес уже есть.
+    const targetCategory = dto.categoryId ?? before.categoryId;
+    if (typeof slug === 'string' || targetCategory !== before.categoryId) {
+      await this.ensureFreeSlug(targetCategory, nextSlug ?? before.slug, id);
+    }
     await this.ensureFreeSku(dto.sku, id);
     const gallery = await this.checkedGallery(imageIds);
 
@@ -553,6 +560,22 @@ export class ProductsService {
     });
     if (found)
       throw new ConflictException(`sku: артикул уже у товара «${found.title}»`);
+  }
+
+  private async ensureFreeSlug(
+    categoryId: string,
+    slug: string,
+    selfId?: string,
+  ): Promise<void> {
+    const found = await this.prisma.product.findFirst({
+      where: { categoryId, slug, ...(selfId ? { id: { not: selfId } } : {}) },
+      select: { title: true },
+    });
+    if (found) {
+      throw new ConflictException(
+        `slug: адрес уже занят товаром «${found.title}» в этой категории`,
+      );
+    }
   }
 
   /**

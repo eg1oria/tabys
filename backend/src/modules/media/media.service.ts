@@ -75,14 +75,17 @@ export class MediaService {
     await ensureDir(dirname(absolute));
 
     const image = sharp(file.buffer, { failOn: 'error' });
-    const meta = await image.metadata();
+    // autoOrient — размеры с учётом поворота из EXIF: телефон пишет кадр
+    // «лёжа» и разворачивает его флагом. Файл ниже поворачиваем так же,
+    // иначе вертикальное фото получило бы горизонтальные width/height.
+    const { autoOrient: meta } = await image.metadata();
 
     // Метаданные не переносим: это снимает GPS-теги с фотографий из цеха.
     await writeFile(absolute, await image.rotate().toBuffer());
 
     const derivatives: Record<string, string> = {};
     for (const width of DERIVATIVE_WIDTHS) {
-      if (meta.width && meta.width < width) continue;
+      if (meta.width < width) continue;
       const derivativeKey = `${prefix}/${filename.replace(/\.[^.]+$/, '')}-${width}.webp`;
       const derivativeAbs = resolveWithin(this.config.uploadDir, derivativeKey);
       await writeFile(
@@ -108,8 +111,8 @@ export class MediaService {
         originalName: decodeMultipartFilename(file.originalname).slice(0, 255),
         mimeType: sniffed.mime,
         bytes: file.size,
-        width: meta.width ?? null,
-        height: meta.height ?? null,
+        width: meta.width,
+        height: meta.height,
         blurDataUrl: `data:image/webp;base64,${blur.toString('base64')}`,
         derivatives,
         alt,
@@ -227,8 +230,8 @@ export class MediaService {
     await ensureDir(dirname(absolute));
     await writeFile(absolute, buffer);
 
-    const meta = await sharp(buffer).metadata();
-    const blur = await sharp(buffer).resize({ width: 16 }).webp({ quality: 40 }).toBuffer();
+    const { autoOrient: meta } = await sharp(buffer).metadata();
+    const blur = await sharp(buffer).rotate().resize({ width: 16 }).webp({ quality: 40 }).toBuffer();
 
     const created = await this.prisma.mediaAsset.create({
       data: {
@@ -236,8 +239,8 @@ export class MediaService {
         originalName: sourcePath.split('/').pop() ?? 'image',
         mimeType: sniffed.mime,
         bytes: buffer.byteLength,
-        width: meta.width ?? null,
-        height: meta.height ?? null,
+        width: meta.width,
+        height: meta.height,
         blurDataUrl: `data:image/webp;base64,${blur.toString('base64')}`,
         alt,
       },
