@@ -1,5 +1,5 @@
 # Прод-окружение на одном сервере: docker compose up -d --build
-# Порядок запуска: db → migrate (миграции, одноразово) → backend → frontend → caddy.
+# Порядок запуска: db, redis → migrate (миграции, одноразово) → backend → frontend → caddy.
 # Переменные — в .env рядом с этим файлом (шаблон: .env.example).
 # Подробности — README.md, раздел «Деплой».
 
@@ -22,6 +22,9 @@ x-backend-env: &backend-env
   # и Caddy (/uploads) из внутренней сети. Им и доверяем X-Forwarded-For —
   # иначе лимит заявок по IP был бы общим на всех посетителей.
   TRUST_PROXY: uniquelocal
+  # Счётчики лимитов (вход, заявки) — в Redis: общие для всех экземпляров
+  # бэкенда и не обнуляются при его перезапуске.
+  REDIS_URL: redis://redis:6379
 
 services:
   db:
@@ -35,6 +38,18 @@ services:
       - db-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U tabys -d tabys"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Только счётчики лимитов с TTL — терять при пересоздании нечего, поэтому
+  # без тома и без сохранения на диск. Наружу порт не открыт.
+  redis:
+    <<: *restart
+    image: redis:8-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "64mb", "--maxmemory-policy", "volatile-ttl"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -68,6 +83,8 @@ services:
       - uploads:/app/uploads
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully

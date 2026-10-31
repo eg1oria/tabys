@@ -3,6 +3,8 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { APP_GUARD } from '@nestjs/core';
 import { AppConfigModule } from './config/config.module.js';
+import { AppConfigService } from './config/app-config.service.js';
+import { RedisThrottlerStorage } from './common/throttler/redis-throttler.storage.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard.js';
@@ -23,8 +25,14 @@ import { StatsModule } from './modules/stats/stats.module.js';
     AppConfigModule,
     PrismaModule,
     EventEmitterModule.forRoot(),
-    ThrottlerModule.forRoot({
-      throttlers: [{ name: 'default', ttl: 60_000, limit: 120 }],
+    ThrottlerModule.forRootAsync({
+      inject: [AppConfigService],
+      useFactory: (config: AppConfigService) => ({
+        throttlers: [{ name: 'default', ttl: 60_000, limit: 120 }],
+        // Без REDIS_URL — встроенное хранилище в памяти: так работают
+        // локальная разработка и e2e. В проде REDIS_URL обязателен.
+        storage: config.redisUrl ? RedisThrottlerStorage.fromUrl(config.redisUrl) : undefined,
+      }),
     }),
     AuthModule,
     AuditModule,

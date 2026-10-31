@@ -65,6 +65,10 @@ export class AppConfigService {
     return this.get('UPLOAD_DIR');
   }
 
+  get redisUrl(): string | undefined {
+    return this.get('REDIS_URL') || undefined;
+  }
+
   get publicUrl(): string {
     return this.get('PUBLIC_URL').replace(/\/+$/, '');
   }

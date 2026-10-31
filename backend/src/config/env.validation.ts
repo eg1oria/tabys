@@ -91,6 +91,15 @@ export class EnvConfig {
   @IsOptional()
   PUBLIC_URL = 'http://localhost:4000';
 
+  /**
+   * Redis для счётчиков лимитов запросов (вход, заявки). Пусто — счётчики
+   * в памяти процесса: локально это нормально, в проде запрещено, см.
+   * productionProblems ниже.
+   */
+  @IsString()
+  @IsOptional()
+  REDIS_URL?: string;
+
   // Telegram в окружении не настраивается: бота и чаты подключают в
   // админке (раздел «Уведомления»), они живут в базе.
 }
@@ -115,6 +124,12 @@ function productionProblems(config: EnvConfig): string[] {
   // браузер посетителя их не откроет.
   if (/^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0)(:|\/|$)/.test(config.PUBLIC_URL)) {
     problems.push(`PUBLIC_URL должен быть публичным адресом сайта, а не «${config.PUBLIC_URL}»`);
+  }
+
+  // В памяти процесса каждый инстанс считает свой лимит, а рестарт
+  // обнуляет счётчики — защита входа и формы заявок становится условной.
+  if (!config.REDIS_URL) {
+    problems.push('REDIS_URL обязателен: без Redis лимиты запросов живут в памяти процесса');
   }
 
   return problems;

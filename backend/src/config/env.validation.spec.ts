@@ -40,6 +40,7 @@ describe('validateEnv', () => {
       NODE_ENV: 'production',
       UPLOAD_DIR: '/app/uploads',
       PUBLIC_URL: 'https://tabys.kz',
+      REDIS_URL: 'redis://redis:6379',
     };
 
     it('принимает абсолютный UPLOAD_DIR и публичный PUBLIC_URL', () => {
@@ -48,6 +49,11 @@ describe('validateEnv', () => {
 
     it('отвергает относительный UPLOAD_DIR — файлы жили бы в слое контейнера', () => {
       expect(() => validateEnv({ ...prod, UPLOAD_DIR: './uploads' })).toThrow(/UPLOAD_DIR/);
+    });
+
+    it('требует REDIS_URL — иначе лимиты у каждого инстанса свои и сбрасываются рестартом', () => {
+      const { REDIS_URL: _unused, ...rest } = prod;
+      expect(() => validateEnv(rest)).toThrow(/REDIS_URL/);
     });
 
     it('отвергает PUBLIC_URL на localhost — картинки не откроются у посетителя', () => {

@@ -27,9 +27,18 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U ci -d tabys_test"
           --health-interval 5s --health-timeout 3s --health-retries 20
+      redis:
+        image: redis:8-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 3s --health-retries 20
     env:
       # Остальное e2e заполняют сами (test/setup-env.ts).
       DATABASE_URL: postgresql://ci:ci@localhost:5432/tabys_test?schema=public
+      # Хранилище лимитов проверяется на настоящем Redis; без переменной
+      # эти тесты пропускаются.
+      TEST_REDIS_URL: redis://localhost:6379/15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
