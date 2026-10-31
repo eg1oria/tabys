@@ -38,6 +38,7 @@ function stub(products: Row[] = [], mediaIds: string[] = []) {
       return (p as Record<string, unknown>)[key] === value;
     });
 
+  const saved = new Map<string, object>();
   const prisma = {
     category: { findUnique: vi.fn().mockResolvedValue({ id: 'c1' }) },
     product: {
@@ -54,17 +55,20 @@ function stub(products: Row[] = [], mediaIds: string[] = []) {
         },
       ),
       findUnique: vi.fn(async ({ where: w }: { where: { id: string } }) => {
+        if (saved.has(w.id)) return saved.get(w.id);
         const row = products.find((p) => p.id === w.id);
         return row ? { ...row, images: [], facetValues: [] } : null;
       }),
-      create: vi.fn(async ({ data }: { data: unknown }) => ({
-        id: 'new',
-        ...(data as object),
-      })),
-      update: vi.fn(async ({ data }: { data: unknown }) => ({
-        id: 'p1',
-        ...(data as object),
-      })),
+      // Сервис пишет с select: { id }, а затем перечитывает запись —
+      // поэтому записанное запоминаем, как база.
+      create: vi.fn(async ({ data }: { data: unknown }) => {
+        saved.set('new', { id: 'new', ...(data as object) });
+        return { id: 'new' };
+      }),
+      update: vi.fn(async ({ where: w, data }: { where: { id: string }; data: unknown }) => {
+        saved.set(w.id, { ...(saved.get(w.id) ?? { id: w.id }), ...(data as object) });
+        return { id: w.id };
+      }),
       findMany: vi.fn().mockResolvedValue([]),
       count: vi.fn().mockResolvedValue(0),
     },

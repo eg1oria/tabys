@@ -146,7 +146,7 @@ export class CategoriesService {
       select: { sortOrder: true },
     });
 
-    const created = await this.prisma.category.create({
+    const { id } = await this.prisma.category.create({
       data: {
         slug,
         title: dto.title,
@@ -162,8 +162,9 @@ export class CategoriesService {
           ? { create: dto.facetValueIds.map((facetValueId) => ({ facetValueId })) }
           : undefined,
       },
-      select: ADMIN_SELECT,
+      select: { id: true },
     });
+    const created = await this.findOneAdmin(id);
 
     await this.audit.log({
       actor,
@@ -179,7 +180,7 @@ export class CategoriesService {
     const before = await this.findOneAdmin(id);
     const { facetValueIds, ...rest } = dto;
 
-    const updated = await this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx) => {
       if (facetValueIds) {
         // Связи пересобираем целиком: PATCH со списком задаёт его целиком.
         await tx.categoryFacetValue.deleteMany({ where: { categoryId: id } });
@@ -191,15 +192,18 @@ export class CategoriesService {
         }
       }
 
-      return tx.category.update({
+      await tx.category.update({
         where: { id },
         data: {
           ...rest,
           ...(rest.highlights ? { highlights: rest.highlights } : {}),
         },
-        select: ADMIN_SELECT,
+        select: { id: true },
       });
     });
+
+    // Связи — после коммита: см. комментарий к ADMIN_SELECT в products.service.ts.
+    const updated = await this.findOneAdmin(id);
 
     await this.audit.log({
       actor,
@@ -214,14 +218,15 @@ export class CategoriesService {
 
   async setStatus(id: string, status: PublishStatus, actor: AuthUser) {
     const before = await this.findOneAdmin(id);
-    const updated = await this.prisma.category.update({
+    await this.prisma.category.update({
       where: { id },
       data: {
         status,
         publishedAt: status === PublishStatus.PUBLISHED ? new Date() : null,
       },
-      select: ADMIN_SELECT,
+      select: { id: true },
     });
+    const updated = await this.findOneAdmin(id);
 
     await this.audit.log({
       actor,

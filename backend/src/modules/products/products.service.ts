@@ -65,6 +65,13 @@ const PUBLIC_DETAIL_SELECT = {
 } satisfies Prisma.ProductSelect;
 
 /** Шире публичного: форме правки нужны идентификаторы, а не только значения. */
+/**
+ * Со связями — поэтому только для чтения. В записи (create/update) им не
+ * место: Prisma заворачивает такую запись в транзакцию и тянет связи
+ * параллельно по одному соединению pg, а pg@9 это запретит. Пишем с
+ * select: { id: true }, затем читаем через findOneAdmin; e2e падает на
+ * нарушении (test/setup-e2e.ts).
+ */
 const ADMIN_SELECT = {
   ...PUBLIC_SELECT,
   id: true,
@@ -381,7 +388,7 @@ export class ProductsService {
     await this.ensureFreeSku(dto.sku);
     const gallery = await this.checkedGallery(dto.imageIds);
 
-    const created = await this.prisma.product.create({
+    const { id } = await this.prisma.product.create({
       data: {
         categoryId: dto.categoryId,
         title: dto.title,
@@ -412,8 +419,9 @@ export class ProductsService {
             }
           : undefined,
       },
-      select: ADMIN_SELECT,
+      select: { id: true },
     });
+    const created = await this.findOneAdmin(id);
 
     await this.audit.log({
       actor,
@@ -449,7 +457,7 @@ export class ProductsService {
     await this.ensureFreeSku(dto.sku, id);
     const gallery = await this.checkedGallery(imageIds);
 
-    const updated = await this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx) => {
       if (facetValueIds) {
         await tx.productFacetValue.deleteMany({ where: { productId: id } });
         if (facetValueIds.length > 0) {
@@ -477,7 +485,7 @@ export class ProductsService {
         }
       }
 
-      return tx.product.update({
+      await tx.product.update({
         where: { id },
         // Главное фото всегда первое в галерее: иначе карточка на сайте
         // показывала бы картинку, которую редактор уже убрал.
@@ -487,9 +495,12 @@ export class ProductsService {
           ...(nextSlug !== undefined ? { slug: nextSlug } : {}),
           ...(gallery ? { imageId: gallery[0] ?? null } : {}),
         },
-        select: ADMIN_SELECT,
+        select: { id: true },
       });
     });
+
+    // Связи читаем уже после коммита — см. ADMIN_SELECT.
+    const updated = await this.findOneAdmin(id);
 
     await this.audit.log({
       actor,
@@ -504,11 +515,12 @@ export class ProductsService {
 
   async setStatus(id: string, status: PublishStatus, actor: AuthUser) {
     await this.findOneAdmin(id);
-    const updated = await this.prisma.product.update({
+    await this.prisma.product.update({
       where: { id },
       data: { status },
-      select: ADMIN_SELECT,
+      select: { id: true },
     });
+    const updated = await this.findOneAdmin(id);
     await this.audit.log({
       actor,
       action:

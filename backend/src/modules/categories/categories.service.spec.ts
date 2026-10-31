@@ -13,26 +13,29 @@ import type { AuthUser } from '../../auth/types.js';
 const actor: AuthUser = { id: 'u1', email: 'e@tabys.kz', role: 'EDITOR' };
 
 function stub(takenSlugs: string[] = []) {
+  const saved = new Map<string, object>();
   const prisma = {
     category: {
       findUnique: vi.fn(
         async ({ where }: { where: { slug?: string; id?: string } }) => {
           if (where.slug)
             return takenSlugs.includes(where.slug) ? { id: 'x' } : null;
+          if (where.id && saved.has(where.id)) return saved.get(where.id);
           return where.id === 'c1'
             ? { id: 'c1', status: PublishStatus.DRAFT }
             : null;
         },
       ),
       findFirst: vi.fn().mockResolvedValue({ sortOrder: 11 }),
-      create: vi.fn(async ({ data }: { data: object }) => ({
-        id: 'new',
-        ...data,
-      })),
-      update: vi.fn(async ({ data }: { data: object }) => ({
-        id: 'c1',
-        ...data,
-      })),
+      // Сервис пишет с select: { id }, а затем перечитывает запись.
+      create: vi.fn(async ({ data }: { data: object }) => {
+        saved.set('new', { id: 'new', ...data });
+        return { id: 'new' };
+      }),
+      update: vi.fn(async ({ where, data }: { where: { id: string }; data: object }) => {
+        saved.set(where.id, { id: where.id, status: PublishStatus.DRAFT, ...saved.get(where.id), ...data });
+        return { id: where.id };
+      }),
     },
     categoryFacetValue: { deleteMany: vi.fn(), createMany: vi.fn() },
     $transaction: vi.fn(),
