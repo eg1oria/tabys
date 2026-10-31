@@ -1,31 +1,14 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { readFile, unlink, writeFile } from 'node:fs/promises';
-import { dirname } from 'node:path';
-import { fileTypeFromBuffer } from 'file-type';
-import sharp from 'sharp';
+import { unlink } from 'node:fs/promises';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AppConfigService } from '../../config/app-config.service.js';
 import { AuditService } from '../../common/audit/audit.service.js';
 import { paginate, type Paginated, type PaginationDto } from '../../common/dto/pagination.dto.js';
-import { datePrefix, ensureDir, resolveWithin, safeFilename } from './storage.js';
+import { resolveWithin } from './storage.js';
+import { sniffImage, storeImage } from './image-pipeline.js';
 import type { AuthUser } from '../../auth/types.js';
 import { decodeMultipartFilename } from '../../common/http/multipart-filename.js';
 import { prismaCode } from '../../common/filters/all-exceptions.filter.js';
-
-/** Что действительно принимаем как изображение — по магическим байтам. */
-const ALLOWED_IMAGE_MIME = new Set([
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'image/avif',
-]);
-
-/**
- * Ширины уменьшенных копий. Сейчас нужна только 400 — миниатюры в админке;
- * сайт отдаёт оригинал через next/image. Лишняя ширина — это лишний
- * прогон sharp на каждую загрузку и лишний файл на диске.
- */
-const DERIVATIVE_WIDTHS = [400] as const;
 
 /** Где стоит картинка — словами, чтобы редактор знал, откуда её убирать. */
 function usageDescription(count: {
@@ -65,64 +48,20 @@ export class MediaService {
     alt: string,
     actor: AuthUser,
   ) {
-    // Расширению не верим: проверяем настоящий тип по содержимому.
-    const sniffed = await fileTypeFromBuffer(file.buffer);
-    if (!sniffed || !ALLOWED_IMAGE_MIME.has(sniffed.mime)) {
+    const { image, detected } = await sniffImage(file.buffer);
+    if (!image) {
       throw new BadRequestException(
-        `Это не изображение (определён тип: ${sniffed?.mime ?? 'неизвестно'})`,
+        `Это не изображение (определён тип: ${detected ?? 'неизвестно'})`,
       );
     }
 
-    const prefix = datePrefix();
-    const filename = safeFilename(`x.${sniffed.ext}`);
-    const storageKey = `${prefix}/${filename}`;
-    const absolute = resolveWithin(this.config.uploadDir, storageKey);
-    await ensureDir(dirname(absolute));
-
-    const image = sharp(file.buffer, { failOn: 'error' });
-    // autoOrient — размеры с учётом поворота из EXIF: телефон пишет кадр
-    // «лёжа» и разворачивает его флагом. Файл ниже поворачиваем так же,
-    // иначе вертикальное фото получило бы горизонтальные width/height.
-    const { autoOrient: meta } = await image.metadata();
-
-    // Метаданные не переносим: это снимает GPS-теги с фотографий из цеха.
-    // Перекодированный файл весит не столько, сколько прислали, поэтому
-    // bytes считаем по тому, что реально легло на диск, вместе с копиями.
-    const original = await image.rotate().toBuffer();
-    await writeFile(absolute, original);
-    let bytes = original.byteLength;
-
-    const derivatives: Record<string, string> = {};
-    for (const width of DERIVATIVE_WIDTHS) {
-      if (meta.width < width) continue;
-      const derivativeKey = `${prefix}/${filename.replace(/\.[^.]+$/, '')}-${width}.webp`;
-      const derivativeAbs = resolveWithin(this.config.uploadDir, derivativeKey);
-      const derivative = await sharp(file.buffer)
-        .rotate()
-        .resize({ width, withoutEnlargement: true })
-        .webp({ quality: 82 })
-        .toBuffer();
-      await writeFile(derivativeAbs, derivative);
-      bytes += derivative.byteLength;
-      derivatives[String(width)] = derivativeKey;
-    }
-
-    const blur = await sharp(file.buffer)
-      .rotate()
-      .resize({ width: 16 })
-      .webp({ quality: 40 })
-      .toBuffer();
+    const stored = await storeImage(file.buffer, image, this.config.uploadDir);
+    const { storageKey, bytes, mimeType } = stored;
 
     const created = await this.prisma.mediaAsset.create({
       data: {
-        storageKey,
+        ...stored,
         originalName: decodeMultipartFilename(file.originalname).slice(0, 255),
-        mimeType: sniffed.mime,
-        bytes,
-        width: meta.width,
-        height: meta.height,
-        blurDataUrl: `data:image/webp;base64,${blur.toString('base64')}`,
-        derivatives,
         alt,
         uploadedById: actor.id,
       },
@@ -133,7 +72,7 @@ export class MediaService {
       action: 'media.upload',
       entity: 'MediaAsset',
       entityId: created.id,
-      after: { storageKey, bytes, mimeType: sniffed.mime },
+      after: { storageKey, bytes, mimeType },
     });
 
     return { ...created, url: this.url(created.storageKey) };
@@ -219,43 +158,4 @@ export class MediaService {
       before: { storageKey: asset.storageKey },
     });
   }
-
-  /** Используется сидом: заводит запись из файла, уже лежащего на диске. */
-  async importFromFile(
-    sourcePath: string,
-    alt: string,
-  ): Promise<{ id: string; storageKey: string }> {
-    const buffer = await readFile(sourcePath);
-    const sniffed = await fileTypeFromBuffer(buffer);
-    if (!sniffed || !ALLOWED_IMAGE_MIME.has(sniffed.mime)) {
-      throw new BadRequestException(`${sourcePath}: не изображение`);
-    }
-
-    const prefix = datePrefix();
-    const filename = safeFilename(`x.${sniffed.ext}`);
-    const storageKey = `${prefix}/${filename}`;
-    const absolute = resolveWithin(this.config.uploadDir, storageKey);
-    await ensureDir(dirname(absolute));
-    await writeFile(absolute, buffer);
-
-    const { autoOrient: meta } = await sharp(buffer).metadata();
-    const blur = await sharp(buffer).rotate().resize({ width: 16 }).webp({ quality: 40 }).toBuffer();
-
-    const created = await this.prisma.mediaAsset.create({
-      data: {
-        storageKey,
-        originalName: sourcePath.split('/').pop() ?? 'image',
-        mimeType: sniffed.mime,
-        bytes: buffer.byteLength,
-        width: meta.width,
-        height: meta.height,
-        blurDataUrl: `data:image/webp;base64,${blur.toString('base64')}`,
-        alt,
-      },
-      select: { id: true, storageKey: true },
-    });
-
-    return created;
-  }
-
 }
