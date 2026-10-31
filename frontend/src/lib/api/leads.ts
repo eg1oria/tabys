@@ -6,11 +6,17 @@ import type { Lead, LeadStatus, Paginated } from "./types";
 export function getLeads(params: {
   status?: LeadStatus;
   q?: string;
+  /** false — только заявки, о которых Telegram не уведомил. */
+  notified?: boolean;
   page?: number;
   perPage?: number;
 }): Promise<Paginated<Lead>> {
   return apiRead<Paginated<Lead>>(
-    `/admin/leads${searchString({ ...params, perPage: params.perPage ?? 20 })}`,
+    `/admin/leads${searchString({
+      ...params,
+      notified: params.notified === undefined ? undefined : String(params.notified),
+      perPage: params.perPage ?? 20,
+    })}`,
   );
 }
 

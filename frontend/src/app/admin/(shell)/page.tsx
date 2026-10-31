@@ -10,7 +10,7 @@ import { StatusDonut } from "@/components/admin/dashboard/status-donut";
 import { LatestLeads } from "@/components/admin/dashboard/latest-leads";
 import { DateRange } from "@/components/admin/dashboard/date-range";
 import { Table, Td, Th, Tr } from "@/components/admin/data-table";
-import { ArrowRight, ChartUp, ImageIcon, Inbox, Modules } from "@/components/ui/icons";
+import { AlertCircle, ArrowRight, ChartUp, ImageIcon, Inbox, Modules } from "@/components/ui/icons";
 
 export const instant = false;
 
@@ -56,6 +56,8 @@ export default async function DashboardPage({ searchParams }: PageProps<"/admin"
       />
 
       <div className="space-y-5 p-5 lg:p-8">
+        <NotificationsAlert {...stats.notifications} />
+
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard
             label="Заявки за период"
@@ -150,5 +152,53 @@ export default async function DashboardPage({ searchParams }: PageProps<"/admin"
         </div>
       </div>
     </>
+  );
+}
+
+/**
+ * Второй канал на случай, когда Telegram молчит: если о заявках некому
+ * сообщить или сообщение не дошло, это видно первым же экраном админки.
+ */
+function NotificationsAlert({
+  connected,
+  pendingLeads,
+}: {
+  connected: boolean;
+  pendingLeads: number;
+}) {
+  if (connected && pendingLeads === 0) return null;
+
+  const [text, href, cta] = connected
+    ? [
+        `Новых заявок без уведомления в Telegram: ${pendingLeads}. Бот повторяет отправку сам — но проверьте их здесь.`,
+        "/admin/leads?status=NEW&notified=false",
+        "Открыть заявки",
+      ]
+    : [
+        `Telegram не подключён — о новых заявках никто не узнает, пока не заглянет в админку.${
+          pendingLeads > 0 ? ` Ждут без уведомления: ${pendingLeads}.` : ""
+        }`,
+        "/admin/notifications",
+        "Подключить",
+      ];
+
+  return (
+    <div
+      role="alert"
+      className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-amber-200 bg-amber-50 px-4 py-3 text-[13px] text-amber-800"
+    >
+      <span className="flex items-start gap-2">
+        <AlertCircle className="mt-0.5 size-4 shrink-0" />
+        {text}
+      </span>
+      <Link
+        href={href}
+        prefetch={false}
+        className="inline-flex items-center gap-1.5 font-medium whitespace-nowrap hover:text-amber-950"
+      >
+        {cta}
+        <ArrowRight className="size-4" />
+      </Link>
+    </div>
   );
 }

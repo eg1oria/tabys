@@ -1,4 +1,4 @@
-import { Home, ImageIcon, Inbox, Layers, Sliders, Modules, User } from "@/components/ui/icons";
+import { Bell, Home, ImageIcon, Inbox, Layers, Sliders, Modules, User } from "@/components/ui/icons";
 
 type Icon = (props: React.SVGProps<SVGSVGElement>) => React.ReactElement;
 
@@ -27,6 +27,7 @@ export const navEntries: NavEntry[] = [
     ],
   },
   { href: "/admin/media", label: "Файлы", Icon: ImageIcon },
+  { href: "/admin/notifications", label: "Уведомления", Icon: Bell },
   { href: "/admin/profile", label: "Настройки", Icon: User },
 ];
 

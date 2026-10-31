@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getLeads } from "@/lib/api/leads";
-import { pageParam, qParam } from "@/lib/admin/search-params";
+import { oneOf, pageParam, qParam } from "@/lib/admin/search-params";
 import { formatDateTime } from "@/lib/admin/format";
 import {
   LEAD_STATUSES,
@@ -37,13 +37,22 @@ export default async function LeadsPage({
   // и страница падала в error boundary вместо списка.
   const q = qParam(params.q);
   const page = pageParam(params.page);
+  // Только «false»: «уведомлённые» отдельно никому не нужны, а ссылка
+  // с главной ведёт именно на недошедшие.
+  const notified = oneOf(params.notified, ["false"] as const);
 
-  const { data, meta } = await getLeads({ status, q, page });
+  const { data, meta } = await getLeads({
+    status,
+    q,
+    page,
+    notified: notified ? false : undefined,
+  });
 
   if (page && meta.total > 0 && page > meta.totalPages) {
     const search = new URLSearchParams();
     if (status) search.set("status", status);
     if (q) search.set("q", q);
+    if (notified) search.set("notified", notified);
     const query = search.toString();
     redirect(`/admin/leads${query ? `?${query}` : ""}`);
   }
@@ -82,13 +91,28 @@ export default async function LeadsPage({
                 ))}
               </select>
             </span>
+            <span className="w-[200px]">
+              <select
+                name="notified"
+                defaultValue={notified ?? ""}
+                aria-label="Уведомление в Telegram"
+                className={cn(
+                  fieldBase,
+                  "h-9 w-auto cursor-pointer pr-8",
+                  fieldBorder(false),
+                )}
+              >
+                <option value="">Все уведомления</option>
+                <option value="false">Не дошли в Telegram</option>
+              </select>
+            </span>
           </ListFilters>
 
           {data.length === 0 ? (
             <EmptyState
-              message={q || status ? "Ничего не найдено" : "Заявок пока нет"}
+              message={q || status || notified ? "Ничего не найдено" : "Заявок пока нет"}
               hint={
-                q || status
+                q || status || notified
                   ? "Попробуйте изменить фильтры."
                   : "Как только с сайта отправят форму, заявка появится здесь."
               }
@@ -143,6 +167,11 @@ export default async function LeadsPage({
                         <Badge tone={LEAD_STATUS_TONE[lead.status]}>
                           {LEAD_STATUS_LABEL[lead.status]}
                         </Badge>
+                        {lead.status === "NEW" && !lead.notifiedAt ? (
+                          <span className="mt-1 block text-[11.5px] text-amber-700">
+                            не дошла в Telegram
+                          </span>
+                        ) : null}
                       </Td>
                       <Td className="text-text-2">
                         {lead.assignedTo?.name ?? "—"}
@@ -154,7 +183,7 @@ export default async function LeadsPage({
 
               <Pagination
                 basePath="/admin/leads"
-                params={{ status, q }}
+                params={{ status, q, notified }}
                 meta={meta}
               />
             </>

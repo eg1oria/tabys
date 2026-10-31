@@ -218,6 +218,8 @@ export type AdminUserWhereInput = {
   auditLogs?: Prisma.AuditLogListRelationFilter
   uploadedMedia?: Prisma.MediaAssetListRelationFilter
   assignedLeads?: Prisma.LeadListRelationFilter
+  telegramChats?: Prisma.TelegramChatListRelationFilter
+  telegramCodes?: Prisma.TelegramLinkCodeListRelationFilter
 }
 
 export type AdminUserOrderByWithRelationInput = {
@@ -234,6 +236,8 @@ export type AdminUserOrderByWithRelationInput = {
   auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
   uploadedMedia?: Prisma.MediaAssetOrderByRelationAggregateInput
   assignedLeads?: Prisma.LeadOrderByRelationAggregateInput
+  telegramChats?: Prisma.TelegramChatOrderByRelationAggregateInput
+  telegramCodes?: Prisma.TelegramLinkCodeOrderByRelationAggregateInput
 }
 
 export type AdminUserWhereUniqueInput = Prisma.AtLeast<{
@@ -253,6 +257,8 @@ export type AdminUserWhereUniqueInput = Prisma.AtLeast<{
   auditLogs?: Prisma.AuditLogListRelationFilter
   uploadedMedia?: Prisma.MediaAssetListRelationFilter
   assignedLeads?: Prisma.LeadListRelationFilter
+  telegramChats?: Prisma.TelegramChatListRelationFilter
+  telegramCodes?: Prisma.TelegramLinkCodeListRelationFilter
 }, "id" | "email">
 
 export type AdminUserOrderByWithAggregationInput = {
@@ -299,6 +305,8 @@ export type AdminUserCreateInput = {
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   uploadedMedia?: Prisma.MediaAssetCreateNestedManyWithoutUploadedByInput
   assignedLeads?: Prisma.LeadCreateNestedManyWithoutAssignedToInput
+  telegramChats?: Prisma.TelegramChatCreateNestedManyWithoutAddedByInput
+  telegramCodes?: Prisma.TelegramLinkCodeCreateNestedManyWithoutCreatedByInput
 }
 
 export type AdminUserUncheckedCreateInput = {
@@ -315,6 +323,8 @@ export type AdminUserUncheckedCreateInput = {
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   uploadedMedia?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutUploadedByInput
   assignedLeads?: Prisma.LeadUncheckedCreateNestedManyWithoutAssignedToInput
+  telegramChats?: Prisma.TelegramChatUncheckedCreateNestedManyWithoutAddedByInput
+  telegramCodes?: Prisma.TelegramLinkCodeUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type AdminUserUpdateInput = {
@@ -331,6 +341,8 @@ export type AdminUserUpdateInput = {
   auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   uploadedMedia?: Prisma.MediaAssetUpdateManyWithoutUploadedByNestedInput
   assignedLeads?: Prisma.LeadUpdateManyWithoutAssignedToNestedInput
+  telegramChats?: Prisma.TelegramChatUpdateManyWithoutAddedByNestedInput
+  telegramCodes?: Prisma.TelegramLinkCodeUpdateManyWithoutCreatedByNestedInput
 }
 
 export type AdminUserUncheckedUpdateInput = {
@@ -347,6 +359,8 @@ export type AdminUserUncheckedUpdateInput = {
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   uploadedMedia?: Prisma.MediaAssetUncheckedUpdateManyWithoutUploadedByNestedInput
   assignedLeads?: Prisma.LeadUncheckedUpdateManyWithoutAssignedToNestedInput
+  telegramChats?: Prisma.TelegramChatUncheckedUpdateManyWithoutAddedByNestedInput
+  telegramCodes?: Prisma.TelegramLinkCodeUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type AdminUserCreateManyInput = {
@@ -497,6 +511,36 @@ export type AdminUserUpdateOneWithoutAssignedLeadsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AdminUserUpdateToOneWithWhereWithoutAssignedLeadsInput, Prisma.AdminUserUpdateWithoutAssignedLeadsInput>, Prisma.AdminUserUncheckedUpdateWithoutAssignedLeadsInput>
 }
 
+export type AdminUserCreateNestedOneWithoutTelegramChatsInput = {
+  create?: Prisma.XOR<Prisma.AdminUserCreateWithoutTelegramChatsInput, Prisma.AdminUserUncheckedCreateWithoutTelegramChatsInput>
+  connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutTelegramChatsInput
+  connect?: Prisma.AdminUserWhereUniqueInput
+}
+
+export type AdminUserUpdateOneWithoutTelegramChatsNestedInput = {
+  create?: Prisma.XOR<Prisma.AdminUserCreateWithoutTelegramChatsInput, Prisma.AdminUserUncheckedCreateWithoutTelegramChatsInput>
+  connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutTelegramChatsInput
+  upsert?: Prisma.AdminUserUpsertWithoutTelegramChatsInput
+  disconnect?: Prisma.AdminUserWhereInput | boolean
+  delete?: Prisma.AdminUserWhereInput | boolean
+  connect?: Prisma.AdminUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AdminUserUpdateToOneWithWhereWithoutTelegramChatsInput, Prisma.AdminUserUpdateWithoutTelegramChatsInput>, Prisma.AdminUserUncheckedUpdateWithoutTelegramChatsInput>
+}
+
+export type AdminUserCreateNestedOneWithoutTelegramCodesInput = {
+  create?: Prisma.XOR<Prisma.AdminUserCreateWithoutTelegramCodesInput, Prisma.AdminUserUncheckedCreateWithoutTelegramCodesInput>
+  connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutTelegramCodesInput
+  connect?: Prisma.AdminUserWhereUniqueInput
+}
+
+export type AdminUserUpdateOneRequiredWithoutTelegramCodesNestedInput = {
+  create?: Prisma.XOR<Prisma.AdminUserCreateWithoutTelegramCodesInput, Prisma.AdminUserUncheckedCreateWithoutTelegramCodesInput>
+  connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutTelegramCodesInput
+  upsert?: Prisma.AdminUserUpsertWithoutTelegramCodesInput
+  connect?: Prisma.AdminUserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AdminUserUpdateToOneWithWhereWithoutTelegramCodesInput, Prisma.AdminUserUpdateWithoutTelegramCodesInput>, Prisma.AdminUserUncheckedUpdateWithoutTelegramCodesInput>
+}
+
 export type AdminUserCreateNestedOneWithoutAuditLogsInput = {
   create?: Prisma.XOR<Prisma.AdminUserCreateWithoutAuditLogsInput, Prisma.AdminUserUncheckedCreateWithoutAuditLogsInput>
   connectOrCreate?: Prisma.AdminUserCreateOrConnectWithoutAuditLogsInput
@@ -526,6 +570,8 @@ export type AdminUserCreateWithoutRefreshTokensInput = {
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   uploadedMedia?: Prisma.MediaAssetCreateNestedManyWithoutUploadedByInput
   assignedLeads?: Prisma.LeadCreateNestedManyWithoutAssignedToInput
+  telegramChats?: Prisma.TelegramChatCreateNestedManyWithoutAddedByInput
+  telegramCodes?: Prisma.TelegramLinkCodeCreateNestedManyWithoutCreatedByInput
 }
 
 export type AdminUserUncheckedCreateWithoutRefreshTokensInput = {
@@ -541,6 +587,8 @@ export type AdminUserUncheckedCreateWithoutRefreshTokensInput = {
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   uploadedMedia?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutUploadedByInput
   assignedLeads?: Prisma.LeadUncheckedCreateNestedManyWithoutAssignedToInput
+  telegramChats?: Prisma.TelegramChatUncheckedCreateNestedManyWithoutAddedByInput
+  telegramCodes?: Prisma.TelegramLinkCodeUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type AdminUserCreateOrConnectWithoutRefreshTokensInput = {
@@ -572,6 +620,8 @@ export type AdminUserUpdateWithoutRefreshTokensInput = {
   auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   uploadedMedia?: Prisma.MediaAssetUpdateManyWithoutUploadedByNestedInput
   assignedLeads?: Prisma.LeadUpdateManyWithoutAssignedToNestedInput
+  telegramChats?: Prisma.TelegramChatUpdateManyWithoutAddedByNestedInput
+  telegramCodes?: Prisma.TelegramLinkCodeUpdateManyWithoutCreatedByNestedInput
 }
 
 export type AdminUserUncheckedUpdateWithoutRefreshTokensInput = {
@@ -587,6 +637,8 @@ export type AdminUserUncheckedUpdateWithoutRefreshTokensInput = {
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   uploadedMedia?: Prisma.MediaAssetUncheckedUpdateManyWithoutUploadedByNestedInput
   assignedLeads?: Prisma.LeadUncheckedUpdateManyWithoutAssignedToNestedInput
+  telegramChats?: Prisma.TelegramChatUncheckedUpdateManyWithoutAddedByNestedInput
+  telegramCodes?: Prisma.TelegramLinkCodeUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type AdminUserCreateWithoutUploadedMediaInput = {
@@ -602,6 +654,8 @@ export type AdminUserCreateWithoutUploadedMediaInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   assignedLeads?: Prisma.LeadCreateNestedManyWithoutAssignedToInput
+  telegramChats?: Prisma.TelegramChatCreateNestedManyWithoutAddedByInput
+  telegramCodes?: Prisma.TelegramLinkCodeCreateNestedManyWithoutCreatedByInput
 }
 
 export type AdminUserUncheckedCreateWithoutUploadedMediaInput = {
@@ -617,6 +671,8 @@ export type AdminUserUncheckedCreateWithoutUploadedMediaInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   assignedLeads?: Prisma.LeadUncheckedCreateNestedManyWithoutAssignedToInput
+  telegramChats?: Prisma.TelegramChatUncheckedCreateNestedManyWithoutAddedByInput
+  telegramCodes?: Prisma.TelegramLinkCodeUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type AdminUserCreateOrConnectWithoutUploadedMediaInput = {
@@ -648,6 +704,8 @@ export type AdminUserUpdateWithoutUploadedMediaInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   assignedLeads?: Prisma.LeadUpdateManyWithoutAssignedToNestedInput
+  telegramChats?: Prisma.TelegramChatUpdateManyWithoutAddedByNestedInput
+  telegramCodes?: Prisma.TelegramLinkCodeUpdateManyWithoutCreatedByNestedInput
 }
 
 export type AdminUserUncheckedUpdateWithoutUploadedMediaInput = {
@@ -663,6 +721,8 @@ export type AdminUserUncheckedUpdateWithoutUploadedMediaInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   assignedLeads?: Prisma.LeadUncheckedUpdateManyWithoutAssignedToNestedInput
+  telegramChats?: Prisma.TelegramChatUncheckedUpdateManyWithoutAddedByNestedInput
+  telegramCodes?: Prisma.TelegramLinkCodeUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type AdminUserCreateWithoutAssignedLeadsInput = {
@@ -678,6 +738,8 @@ export type AdminUserCreateWithoutAssignedLeadsInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   uploadedMedia?: Prisma.MediaAssetCreateNestedManyWithoutUploadedByInput
+  telegramChats?: Prisma.TelegramChatCreateNestedManyWithoutAddedByInput
+  telegramCodes?: Prisma.TelegramLinkCodeCreateNestedManyWithoutCreatedByInput
 }
 
 export type AdminUserUncheckedCreateWithoutAssignedLeadsInput = {
@@ -693,6 +755,8 @@ export type AdminUserUncheckedCreateWithoutAssignedLeadsInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   uploadedMedia?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutUploadedByInput
+  telegramChats?: Prisma.TelegramChatUncheckedCreateNestedManyWithoutAddedByInput
+  telegramCodes?: Prisma.TelegramLinkCodeUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type AdminUserCreateOrConnectWithoutAssignedLeadsInput = {
@@ -724,6 +788,8 @@ export type AdminUserUpdateWithoutAssignedLeadsInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   uploadedMedia?: Prisma.MediaAssetUpdateManyWithoutUploadedByNestedInput
+  telegramChats?: Prisma.TelegramChatUpdateManyWithoutAddedByNestedInput
+  telegramCodes?: Prisma.TelegramLinkCodeUpdateManyWithoutCreatedByNestedInput
 }
 
 export type AdminUserUncheckedUpdateWithoutAssignedLeadsInput = {
@@ -739,6 +805,176 @@ export type AdminUserUncheckedUpdateWithoutAssignedLeadsInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   uploadedMedia?: Prisma.MediaAssetUncheckedUpdateManyWithoutUploadedByNestedInput
+  telegramChats?: Prisma.TelegramChatUncheckedUpdateManyWithoutAddedByNestedInput
+  telegramCodes?: Prisma.TelegramLinkCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type AdminUserCreateWithoutTelegramChatsInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  name: string
+  role?: $Enums.AdminRole
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  uploadedMedia?: Prisma.MediaAssetCreateNestedManyWithoutUploadedByInput
+  assignedLeads?: Prisma.LeadCreateNestedManyWithoutAssignedToInput
+  telegramCodes?: Prisma.TelegramLinkCodeCreateNestedManyWithoutCreatedByInput
+}
+
+export type AdminUserUncheckedCreateWithoutTelegramChatsInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  name: string
+  role?: $Enums.AdminRole
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  uploadedMedia?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutUploadedByInput
+  assignedLeads?: Prisma.LeadUncheckedCreateNestedManyWithoutAssignedToInput
+  telegramCodes?: Prisma.TelegramLinkCodeUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type AdminUserCreateOrConnectWithoutTelegramChatsInput = {
+  where: Prisma.AdminUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.AdminUserCreateWithoutTelegramChatsInput, Prisma.AdminUserUncheckedCreateWithoutTelegramChatsInput>
+}
+
+export type AdminUserUpsertWithoutTelegramChatsInput = {
+  update: Prisma.XOR<Prisma.AdminUserUpdateWithoutTelegramChatsInput, Prisma.AdminUserUncheckedUpdateWithoutTelegramChatsInput>
+  create: Prisma.XOR<Prisma.AdminUserCreateWithoutTelegramChatsInput, Prisma.AdminUserUncheckedCreateWithoutTelegramChatsInput>
+  where?: Prisma.AdminUserWhereInput
+}
+
+export type AdminUserUpdateToOneWithWhereWithoutTelegramChatsInput = {
+  where?: Prisma.AdminUserWhereInput
+  data: Prisma.XOR<Prisma.AdminUserUpdateWithoutTelegramChatsInput, Prisma.AdminUserUncheckedUpdateWithoutTelegramChatsInput>
+}
+
+export type AdminUserUpdateWithoutTelegramChatsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  uploadedMedia?: Prisma.MediaAssetUpdateManyWithoutUploadedByNestedInput
+  assignedLeads?: Prisma.LeadUpdateManyWithoutAssignedToNestedInput
+  telegramCodes?: Prisma.TelegramLinkCodeUpdateManyWithoutCreatedByNestedInput
+}
+
+export type AdminUserUncheckedUpdateWithoutTelegramChatsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  uploadedMedia?: Prisma.MediaAssetUncheckedUpdateManyWithoutUploadedByNestedInput
+  assignedLeads?: Prisma.LeadUncheckedUpdateManyWithoutAssignedToNestedInput
+  telegramCodes?: Prisma.TelegramLinkCodeUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type AdminUserCreateWithoutTelegramCodesInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  name: string
+  role?: $Enums.AdminRole
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  uploadedMedia?: Prisma.MediaAssetCreateNestedManyWithoutUploadedByInput
+  assignedLeads?: Prisma.LeadCreateNestedManyWithoutAssignedToInput
+  telegramChats?: Prisma.TelegramChatCreateNestedManyWithoutAddedByInput
+}
+
+export type AdminUserUncheckedCreateWithoutTelegramCodesInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  name: string
+  role?: $Enums.AdminRole
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  uploadedMedia?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutUploadedByInput
+  assignedLeads?: Prisma.LeadUncheckedCreateNestedManyWithoutAssignedToInput
+  telegramChats?: Prisma.TelegramChatUncheckedCreateNestedManyWithoutAddedByInput
+}
+
+export type AdminUserCreateOrConnectWithoutTelegramCodesInput = {
+  where: Prisma.AdminUserWhereUniqueInput
+  create: Prisma.XOR<Prisma.AdminUserCreateWithoutTelegramCodesInput, Prisma.AdminUserUncheckedCreateWithoutTelegramCodesInput>
+}
+
+export type AdminUserUpsertWithoutTelegramCodesInput = {
+  update: Prisma.XOR<Prisma.AdminUserUpdateWithoutTelegramCodesInput, Prisma.AdminUserUncheckedUpdateWithoutTelegramCodesInput>
+  create: Prisma.XOR<Prisma.AdminUserCreateWithoutTelegramCodesInput, Prisma.AdminUserUncheckedCreateWithoutTelegramCodesInput>
+  where?: Prisma.AdminUserWhereInput
+}
+
+export type AdminUserUpdateToOneWithWhereWithoutTelegramCodesInput = {
+  where?: Prisma.AdminUserWhereInput
+  data: Prisma.XOR<Prisma.AdminUserUpdateWithoutTelegramCodesInput, Prisma.AdminUserUncheckedUpdateWithoutTelegramCodesInput>
+}
+
+export type AdminUserUpdateWithoutTelegramCodesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  uploadedMedia?: Prisma.MediaAssetUpdateManyWithoutUploadedByNestedInput
+  assignedLeads?: Prisma.LeadUpdateManyWithoutAssignedToNestedInput
+  telegramChats?: Prisma.TelegramChatUpdateManyWithoutAddedByNestedInput
+}
+
+export type AdminUserUncheckedUpdateWithoutTelegramCodesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumAdminRoleFieldUpdateOperationsInput | $Enums.AdminRole
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  uploadedMedia?: Prisma.MediaAssetUncheckedUpdateManyWithoutUploadedByNestedInput
+  assignedLeads?: Prisma.LeadUncheckedUpdateManyWithoutAssignedToNestedInput
+  telegramChats?: Prisma.TelegramChatUncheckedUpdateManyWithoutAddedByNestedInput
 }
 
 export type AdminUserCreateWithoutAuditLogsInput = {
@@ -754,6 +990,8 @@ export type AdminUserCreateWithoutAuditLogsInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
   uploadedMedia?: Prisma.MediaAssetCreateNestedManyWithoutUploadedByInput
   assignedLeads?: Prisma.LeadCreateNestedManyWithoutAssignedToInput
+  telegramChats?: Prisma.TelegramChatCreateNestedManyWithoutAddedByInput
+  telegramCodes?: Prisma.TelegramLinkCodeCreateNestedManyWithoutCreatedByInput
 }
 
 export type AdminUserUncheckedCreateWithoutAuditLogsInput = {
@@ -769,6 +1007,8 @@ export type AdminUserUncheckedCreateWithoutAuditLogsInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
   uploadedMedia?: Prisma.MediaAssetUncheckedCreateNestedManyWithoutUploadedByInput
   assignedLeads?: Prisma.LeadUncheckedCreateNestedManyWithoutAssignedToInput
+  telegramChats?: Prisma.TelegramChatUncheckedCreateNestedManyWithoutAddedByInput
+  telegramCodes?: Prisma.TelegramLinkCodeUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type AdminUserCreateOrConnectWithoutAuditLogsInput = {
@@ -800,6 +1040,8 @@ export type AdminUserUpdateWithoutAuditLogsInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
   uploadedMedia?: Prisma.MediaAssetUpdateManyWithoutUploadedByNestedInput
   assignedLeads?: Prisma.LeadUpdateManyWithoutAssignedToNestedInput
+  telegramChats?: Prisma.TelegramChatUpdateManyWithoutAddedByNestedInput
+  telegramCodes?: Prisma.TelegramLinkCodeUpdateManyWithoutCreatedByNestedInput
 }
 
 export type AdminUserUncheckedUpdateWithoutAuditLogsInput = {
@@ -815,6 +1057,8 @@ export type AdminUserUncheckedUpdateWithoutAuditLogsInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
   uploadedMedia?: Prisma.MediaAssetUncheckedUpdateManyWithoutUploadedByNestedInput
   assignedLeads?: Prisma.LeadUncheckedUpdateManyWithoutAssignedToNestedInput
+  telegramChats?: Prisma.TelegramChatUncheckedUpdateManyWithoutAddedByNestedInput
+  telegramCodes?: Prisma.TelegramLinkCodeUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 
@@ -827,6 +1071,8 @@ export type AdminUserCountOutputType = {
   auditLogs: number
   uploadedMedia: number
   assignedLeads: number
+  telegramChats: number
+  telegramCodes: number
 }
 
 export type AdminUserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -834,6 +1080,8 @@ export type AdminUserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensi
   auditLogs?: boolean | AdminUserCountOutputTypeCountAuditLogsArgs
   uploadedMedia?: boolean | AdminUserCountOutputTypeCountUploadedMediaArgs
   assignedLeads?: boolean | AdminUserCountOutputTypeCountAssignedLeadsArgs
+  telegramChats?: boolean | AdminUserCountOutputTypeCountTelegramChatsArgs
+  telegramCodes?: boolean | AdminUserCountOutputTypeCountTelegramCodesArgs
 }
 
 /**
@@ -874,6 +1122,20 @@ export type AdminUserCountOutputTypeCountAssignedLeadsArgs<ExtArgs extends runti
   where?: Prisma.LeadWhereInput
 }
 
+/**
+ * AdminUserCountOutputType without action
+ */
+export type AdminUserCountOutputTypeCountTelegramChatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TelegramChatWhereInput
+}
+
+/**
+ * AdminUserCountOutputType without action
+ */
+export type AdminUserCountOutputTypeCountTelegramCodesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TelegramLinkCodeWhereInput
+}
+
 
 export type AdminUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -889,6 +1151,8 @@ export type AdminUserSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   auditLogs?: boolean | Prisma.AdminUser$auditLogsArgs<ExtArgs>
   uploadedMedia?: boolean | Prisma.AdminUser$uploadedMediaArgs<ExtArgs>
   assignedLeads?: boolean | Prisma.AdminUser$assignedLeadsArgs<ExtArgs>
+  telegramChats?: boolean | Prisma.AdminUser$telegramChatsArgs<ExtArgs>
+  telegramCodes?: boolean | Prisma.AdminUser$telegramCodesArgs<ExtArgs>
   _count?: boolean | Prisma.AdminUserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["adminUser"]>
 
@@ -934,6 +1198,8 @@ export type AdminUserInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   auditLogs?: boolean | Prisma.AdminUser$auditLogsArgs<ExtArgs>
   uploadedMedia?: boolean | Prisma.AdminUser$uploadedMediaArgs<ExtArgs>
   assignedLeads?: boolean | Prisma.AdminUser$assignedLeadsArgs<ExtArgs>
+  telegramChats?: boolean | Prisma.AdminUser$telegramChatsArgs<ExtArgs>
+  telegramCodes?: boolean | Prisma.AdminUser$telegramCodesArgs<ExtArgs>
   _count?: boolean | Prisma.AdminUserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AdminUserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -946,6 +1212,8 @@ export type $AdminUserPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
     uploadedMedia: Prisma.$MediaAssetPayload<ExtArgs>[]
     assignedLeads: Prisma.$LeadPayload<ExtArgs>[]
+    telegramChats: Prisma.$TelegramChatPayload<ExtArgs>[]
+    telegramCodes: Prisma.$TelegramLinkCodePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1355,6 +1623,8 @@ export interface Prisma__AdminUserClient<T, Null = never, ExtArgs extends runtim
   auditLogs<T extends Prisma.AdminUser$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AdminUser$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   uploadedMedia<T extends Prisma.AdminUser$uploadedMediaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AdminUser$uploadedMediaArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MediaAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assignedLeads<T extends Prisma.AdminUser$assignedLeadsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AdminUser$assignedLeadsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  telegramChats<T extends Prisma.AdminUser$telegramChatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AdminUser$telegramChatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TelegramChatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  telegramCodes<T extends Prisma.AdminUser$telegramCodesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AdminUser$telegramCodesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TelegramLinkCodePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1879,6 +2149,54 @@ export type AdminUser$assignedLeadsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.LeadScalarFieldEnum | Prisma.LeadScalarFieldEnum[]
+}
+
+/**
+ * AdminUser.telegramChats
+ */
+export type AdminUser$telegramChatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TelegramChat
+   */
+  select?: Prisma.TelegramChatSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TelegramChat
+   */
+  omit?: Prisma.TelegramChatOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TelegramChatInclude<ExtArgs> | null
+  where?: Prisma.TelegramChatWhereInput
+  orderBy?: Prisma.TelegramChatOrderByWithRelationInput | Prisma.TelegramChatOrderByWithRelationInput[]
+  cursor?: Prisma.TelegramChatWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TelegramChatScalarFieldEnum | Prisma.TelegramChatScalarFieldEnum[]
+}
+
+/**
+ * AdminUser.telegramCodes
+ */
+export type AdminUser$telegramCodesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TelegramLinkCode
+   */
+  select?: Prisma.TelegramLinkCodeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TelegramLinkCode
+   */
+  omit?: Prisma.TelegramLinkCodeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TelegramLinkCodeInclude<ExtArgs> | null
+  where?: Prisma.TelegramLinkCodeWhereInput
+  orderBy?: Prisma.TelegramLinkCodeOrderByWithRelationInput | Prisma.TelegramLinkCodeOrderByWithRelationInput[]
+  cursor?: Prisma.TelegramLinkCodeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TelegramLinkCodeScalarFieldEnum | Prisma.TelegramLinkCodeScalarFieldEnum[]
 }
 
 /**

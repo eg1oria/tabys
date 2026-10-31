@@ -14,6 +14,8 @@ function prismaStub(days: { day: Date; count: number }[]) {
     product: { count: vi.fn().mockResolvedValue(0) },
     category: { count: vi.fn().mockResolvedValue(0), findMany: vi.fn().mockResolvedValue([]) },
     mediaAsset: { aggregate: vi.fn().mockResolvedValue(aggregate) },
+    telegramBot: { count: vi.fn().mockResolvedValue(0) },
+    telegramChat: { count: vi.fn().mockResolvedValue(0) },
     $queryRaw: vi.fn().mockResolvedValue(days),
   } as unknown as PrismaService;
 }

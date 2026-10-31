@@ -658,6 +658,9 @@ export type $ProductImagePayload<ExtArgs extends runtime.Types.Extensions.Intern
   name: "ProductImage"
   objects: {
     product: Prisma.$ProductPayload<ExtArgs>
+    /**
+     * Restrict: картинку из галереи нельзя удалить молча — сначала её убирают из товара.
+     */
     media: Prisma.$MediaAssetPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{

@@ -91,14 +91,8 @@ export class EnvConfig {
   @IsOptional()
   PUBLIC_URL = 'http://localhost:4000';
 
-  @IsString()
-  @IsOptional()
-  TELEGRAM_BOT_TOKEN?: string;
-
-  /** Несколько чатов через запятую — по одному на менеджера. */
-  @IsString()
-  @IsOptional()
-  TELEGRAM_CHAT_IDS?: string;
+  // Telegram в окружении не настраивается: бота и чаты подключают в
+  // админке (раздел «Уведомления»), они живут в базе.
 }
 
 /**

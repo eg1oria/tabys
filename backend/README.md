@@ -55,7 +55,7 @@ npm run start:dev             # http://localhost:4000
 
 ```
 prisma/
-  schema.prisma          схема (12 таблиц)
+  schema.prisma          схема (15 таблиц)
   seed-data/             перенос контента из frontend (сгенерирован, не перепечатан)
   seed*.ts               идемпотентный сид
 src/
@@ -69,7 +69,7 @@ src/
     products/            товары
     media/               загрузка картинок, sharp-производные
     leads/               приём заявок и инбокс
-    notifications/       Telegram
+    notifications/       Telegram: подключение бота из админки, повтор уведомлений
 ```
 
 Каждый ресурс — два контроллера: `public-*` и `admin-*`. Разделение видно в
@@ -109,6 +109,13 @@ GET|POST|PATCH|DELETE /admin/facets/values
 GET|POST|PATCH|DELETE /admin/media
 GET|PATCH             /admin/leads
 GET                   /admin/leads/:id/attachments/:attachmentId
+
+GET                   /admin/notifications/telegram
+PUT|DELETE            /admin/notifications/telegram/bot          (только OWNER)
+POST                  /admin/notifications/telegram/link
+POST                  /admin/notifications/telegram/link/:code/check
+DELETE                /admin/notifications/telegram/chats/:id    (только OWNER)
+POST                  /admin/notifications/telegram/test
 ```
 
 **Лимиты считаются по IP, а фронтенд ходит со своего сервера.** Админка
@@ -154,7 +161,18 @@ GET                   /admin/leads/:id/attachments/:attachmentId
 
 **Уведомление в Telegram — слушатель события, а не вызов внутри обработчика.**
 Ответ формы уходит сразу; лежащий Bot API не должен подвешивать отправку.
-Недоставленные уведомления находятся по `notifiedAt IS NULL`.
+Неудачу подхватывает повтор по таймеру (`LeadNotifier`, раз в минуту, пауза
+растёт до часа): новые заявки последних трёх дней с `notifiedAt IS NULL`
+отправляются снова. Попытку «захватывает» `UPDATE … WHERE notifyAttemptAt = <что
+видели>`, поэтому слушатель и повтор не шлют одну заявку дважды. Недошедшие
+заявки видны и на главной админки — это второй канал, если Telegram лежит.
+
+**Бот и чаты подключаются в админке, а не в `.env`.** Заказчик заводит своего
+бота в @BotFather и вставляет токен в разделе «Уведомления»; менеджер подключает
+свой чат ссылкой `t.me/<бот>?start=<код>`. Чат находится через `getUpdates`, пока
+админка ждёт нажатия «Start», — вебхук и доступ Telegram к серверу не нужны.
+Отсюда ограничение: бот должен служить только сайту (вебхук при подключении
+снимается). Токен хранится в базе и наружу из API не отдаётся.
 
 **Вложения заявок не раздаются статикой.** В них чертежи и ТЗ заказчиков —
 скачивание только через админский маршрут, под авторизацией, с

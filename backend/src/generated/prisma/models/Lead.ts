@@ -20,8 +20,18 @@ export type LeadModel = runtime.Types.Result.DefaultSelection<Prisma.$LeadPayloa
 
 export type AggregateLead = {
   _count: LeadCountAggregateOutputType | null
+  _avg: LeadAvgAggregateOutputType | null
+  _sum: LeadSumAggregateOutputType | null
   _min: LeadMinAggregateOutputType | null
   _max: LeadMaxAggregateOutputType | null
+}
+
+export type LeadAvgAggregateOutputType = {
+  notifyAttempts: number | null
+}
+
+export type LeadSumAggregateOutputType = {
+  notifyAttempts: number | null
 }
 
 export type LeadMinAggregateOutputType = {
@@ -38,6 +48,8 @@ export type LeadMinAggregateOutputType = {
   internalNote: string | null
   assignedToId: string | null
   notifiedAt: Date | null
+  notifyAttempts: number | null
+  notifyAttemptAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -56,6 +68,8 @@ export type LeadMaxAggregateOutputType = {
   internalNote: string | null
   assignedToId: string | null
   notifiedAt: Date | null
+  notifyAttempts: number | null
+  notifyAttemptAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -74,11 +88,21 @@ export type LeadCountAggregateOutputType = {
   internalNote: number
   assignedToId: number
   notifiedAt: number
+  notifyAttempts: number
+  notifyAttemptAt: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
+
+export type LeadAvgAggregateInputType = {
+  notifyAttempts?: true
+}
+
+export type LeadSumAggregateInputType = {
+  notifyAttempts?: true
+}
 
 export type LeadMinAggregateInputType = {
   id?: true
@@ -94,6 +118,8 @@ export type LeadMinAggregateInputType = {
   internalNote?: true
   assignedToId?: true
   notifiedAt?: true
+  notifyAttempts?: true
+  notifyAttemptAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -112,6 +138,8 @@ export type LeadMaxAggregateInputType = {
   internalNote?: true
   assignedToId?: true
   notifiedAt?: true
+  notifyAttempts?: true
+  notifyAttemptAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -130,6 +158,8 @@ export type LeadCountAggregateInputType = {
   internalNote?: true
   assignedToId?: true
   notifiedAt?: true
+  notifyAttempts?: true
+  notifyAttemptAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -173,6 +203,18 @@ export type LeadAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: LeadAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: LeadSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: LeadMinAggregateInputType
@@ -203,6 +245,8 @@ export type LeadGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   _count?: LeadCountAggregateInputType | true
+  _avg?: LeadAvgAggregateInputType
+  _sum?: LeadSumAggregateInputType
   _min?: LeadMinAggregateInputType
   _max?: LeadMaxAggregateInputType
 }
@@ -221,9 +265,13 @@ export type LeadGroupByOutputType = {
   internalNote: string | null
   assignedToId: string | null
   notifiedAt: Date | null
+  notifyAttempts: number
+  notifyAttemptAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: LeadCountAggregateOutputType | null
+  _avg: LeadAvgAggregateOutputType | null
+  _sum: LeadSumAggregateOutputType | null
   _min: LeadMinAggregateOutputType | null
   _max: LeadMaxAggregateOutputType | null
 }
@@ -260,6 +308,8 @@ export type LeadWhereInput = {
   internalNote?: Prisma.StringNullableFilter<"Lead"> | string | null
   assignedToId?: Prisma.StringNullableFilter<"Lead"> | string | null
   notifiedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  notifyAttempts?: Prisma.IntFilter<"Lead"> | number
+  notifyAttemptAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Lead"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Lead"> | Date | string
   assignedTo?: Prisma.XOR<Prisma.AdminUserNullableScalarRelationFilter, Prisma.AdminUserWhereInput> | null
@@ -280,6 +330,8 @@ export type LeadOrderByWithRelationInput = {
   internalNote?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedToId?: Prisma.SortOrderInput | Prisma.SortOrder
   notifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  notifyAttempts?: Prisma.SortOrder
+  notifyAttemptAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   assignedTo?: Prisma.AdminUserOrderByWithRelationInput
@@ -303,6 +355,8 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   internalNote?: Prisma.StringNullableFilter<"Lead"> | string | null
   assignedToId?: Prisma.StringNullableFilter<"Lead"> | string | null
   notifiedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  notifyAttempts?: Prisma.IntFilter<"Lead"> | number
+  notifyAttemptAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Lead"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Lead"> | Date | string
   assignedTo?: Prisma.XOR<Prisma.AdminUserNullableScalarRelationFilter, Prisma.AdminUserWhereInput> | null
@@ -323,11 +377,15 @@ export type LeadOrderByWithAggregationInput = {
   internalNote?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedToId?: Prisma.SortOrderInput | Prisma.SortOrder
   notifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  notifyAttempts?: Prisma.SortOrder
+  notifyAttemptAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.LeadCountOrderByAggregateInput
+  _avg?: Prisma.LeadAvgOrderByAggregateInput
   _max?: Prisma.LeadMaxOrderByAggregateInput
   _min?: Prisma.LeadMinOrderByAggregateInput
+  _sum?: Prisma.LeadSumOrderByAggregateInput
 }
 
 export type LeadScalarWhereWithAggregatesInput = {
@@ -347,6 +405,8 @@ export type LeadScalarWhereWithAggregatesInput = {
   internalNote?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   assignedToId?: Prisma.StringNullableWithAggregatesFilter<"Lead"> | string | null
   notifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
+  notifyAttempts?: Prisma.IntWithAggregatesFilter<"Lead"> | number
+  notifyAttemptAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lead"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Lead"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Lead"> | Date | string
 }
@@ -364,6 +424,8 @@ export type LeadCreateInput = {
   userAgent?: string | null
   internalNote?: string | null
   notifiedAt?: Date | string | null
+  notifyAttempts?: number
+  notifyAttemptAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedTo?: Prisma.AdminUserCreateNestedOneWithoutAssignedLeadsInput
@@ -384,6 +446,8 @@ export type LeadUncheckedCreateInput = {
   internalNote?: string | null
   assignedToId?: string | null
   notifiedAt?: Date | string | null
+  notifyAttempts?: number
+  notifyAttemptAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   attachments?: Prisma.LeadAttachmentUncheckedCreateNestedManyWithoutLeadInput
@@ -402,6 +466,8 @@ export type LeadUpdateInput = {
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notifyAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  notifyAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedTo?: Prisma.AdminUserUpdateOneWithoutAssignedLeadsNestedInput
@@ -422,6 +488,8 @@ export type LeadUncheckedUpdateInput = {
   internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notifyAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  notifyAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attachments?: Prisma.LeadAttachmentUncheckedUpdateManyWithoutLeadNestedInput
@@ -441,6 +509,8 @@ export type LeadCreateManyInput = {
   internalNote?: string | null
   assignedToId?: string | null
   notifiedAt?: Date | string | null
+  notifyAttempts?: number
+  notifyAttemptAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -458,6 +528,8 @@ export type LeadUpdateManyMutationInput = {
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notifyAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  notifyAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -476,6 +548,8 @@ export type LeadUncheckedUpdateManyInput = {
   internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notifyAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  notifyAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -504,8 +578,14 @@ export type LeadCountOrderByAggregateInput = {
   internalNote?: Prisma.SortOrder
   assignedToId?: Prisma.SortOrder
   notifiedAt?: Prisma.SortOrder
+  notifyAttempts?: Prisma.SortOrder
+  notifyAttemptAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type LeadAvgOrderByAggregateInput = {
+  notifyAttempts?: Prisma.SortOrder
 }
 
 export type LeadMaxOrderByAggregateInput = {
@@ -522,6 +602,8 @@ export type LeadMaxOrderByAggregateInput = {
   internalNote?: Prisma.SortOrder
   assignedToId?: Prisma.SortOrder
   notifiedAt?: Prisma.SortOrder
+  notifyAttempts?: Prisma.SortOrder
+  notifyAttemptAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -540,8 +622,14 @@ export type LeadMinOrderByAggregateInput = {
   internalNote?: Prisma.SortOrder
   assignedToId?: Prisma.SortOrder
   notifiedAt?: Prisma.SortOrder
+  notifyAttempts?: Prisma.SortOrder
+  notifyAttemptAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type LeadSumOrderByAggregateInput = {
+  notifyAttempts?: Prisma.SortOrder
 }
 
 export type LeadScalarRelationFilter = {
@@ -622,6 +710,8 @@ export type LeadCreateWithoutAssignedToInput = {
   userAgent?: string | null
   internalNote?: string | null
   notifiedAt?: Date | string | null
+  notifyAttempts?: number
+  notifyAttemptAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   attachments?: Prisma.LeadAttachmentCreateNestedManyWithoutLeadInput
@@ -640,6 +730,8 @@ export type LeadUncheckedCreateWithoutAssignedToInput = {
   userAgent?: string | null
   internalNote?: string | null
   notifiedAt?: Date | string | null
+  notifyAttempts?: number
+  notifyAttemptAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   attachments?: Prisma.LeadAttachmentUncheckedCreateNestedManyWithoutLeadInput
@@ -688,6 +780,8 @@ export type LeadScalarWhereInput = {
   internalNote?: Prisma.StringNullableFilter<"Lead"> | string | null
   assignedToId?: Prisma.StringNullableFilter<"Lead"> | string | null
   notifiedAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
+  notifyAttempts?: Prisma.IntFilter<"Lead"> | number
+  notifyAttemptAt?: Prisma.DateTimeNullableFilter<"Lead"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Lead"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Lead"> | Date | string
 }
@@ -705,6 +799,8 @@ export type LeadCreateWithoutAttachmentsInput = {
   userAgent?: string | null
   internalNote?: string | null
   notifiedAt?: Date | string | null
+  notifyAttempts?: number
+  notifyAttemptAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedTo?: Prisma.AdminUserCreateNestedOneWithoutAssignedLeadsInput
@@ -724,6 +820,8 @@ export type LeadUncheckedCreateWithoutAttachmentsInput = {
   internalNote?: string | null
   assignedToId?: string | null
   notifiedAt?: Date | string | null
+  notifyAttempts?: number
+  notifyAttemptAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -757,6 +855,8 @@ export type LeadUpdateWithoutAttachmentsInput = {
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notifyAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  notifyAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedTo?: Prisma.AdminUserUpdateOneWithoutAssignedLeadsNestedInput
@@ -776,6 +876,8 @@ export type LeadUncheckedUpdateWithoutAttachmentsInput = {
   internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notifyAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  notifyAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -793,6 +895,8 @@ export type LeadCreateManyAssignedToInput = {
   userAgent?: string | null
   internalNote?: string | null
   notifiedAt?: Date | string | null
+  notifyAttempts?: number
+  notifyAttemptAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -810,6 +914,8 @@ export type LeadUpdateWithoutAssignedToInput = {
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notifyAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  notifyAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attachments?: Prisma.LeadAttachmentUpdateManyWithoutLeadNestedInput
@@ -828,6 +934,8 @@ export type LeadUncheckedUpdateWithoutAssignedToInput = {
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notifyAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  notifyAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attachments?: Prisma.LeadAttachmentUncheckedUpdateManyWithoutLeadNestedInput
@@ -846,6 +954,8 @@ export type LeadUncheckedUpdateManyWithoutAssignedToInput = {
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   internalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notifyAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  notifyAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -895,6 +1005,8 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   internalNote?: boolean
   assignedToId?: boolean
   notifiedAt?: boolean
+  notifyAttempts?: boolean
+  notifyAttemptAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   assignedTo?: boolean | Prisma.Lead$assignedToArgs<ExtArgs>
@@ -916,6 +1028,8 @@ export type LeadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   internalNote?: boolean
   assignedToId?: boolean
   notifiedAt?: boolean
+  notifyAttempts?: boolean
+  notifyAttemptAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   assignedTo?: boolean | Prisma.Lead$assignedToArgs<ExtArgs>
@@ -935,6 +1049,8 @@ export type LeadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   internalNote?: boolean
   assignedToId?: boolean
   notifiedAt?: boolean
+  notifyAttempts?: boolean
+  notifyAttemptAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   assignedTo?: boolean | Prisma.Lead$assignedToArgs<ExtArgs>
@@ -954,11 +1070,13 @@ export type LeadSelectScalar = {
   internalNote?: boolean
   assignedToId?: boolean
   notifiedAt?: boolean
+  notifyAttempts?: boolean
+  notifyAttemptAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phone" | "phoneDigits" | "email" | "message" | "status" | "consentAt" | "ip" | "userAgent" | "internalNote" | "assignedToId" | "notifiedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
+export type LeadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phone" | "phoneDigits" | "email" | "message" | "status" | "consentAt" | "ip" | "userAgent" | "internalNote" | "assignedToId" | "notifiedAt" | "notifyAttempts" | "notifyAttemptAt" | "createdAt" | "updatedAt", ExtArgs["result"]["lead"]>
 export type LeadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedTo?: boolean | Prisma.Lead$assignedToArgs<ExtArgs>
   attachments?: boolean | Prisma.Lead$attachmentsArgs<ExtArgs>
@@ -1000,6 +1118,12 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     internalNote: string | null
     assignedToId: string | null
     notifiedAt: Date | null
+    /**
+     * Сколько раз пытались уведомить и когда последний раз: по ним ретрай
+     * считает паузу и не отправляет одну заявку дважды параллельно.
+     */
+    notifyAttempts: number
+    notifyAttemptAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["lead"]>
@@ -1440,6 +1564,8 @@ export interface LeadFieldRefs {
   readonly internalNote: Prisma.FieldRef<"Lead", 'String'>
   readonly assignedToId: Prisma.FieldRef<"Lead", 'String'>
   readonly notifiedAt: Prisma.FieldRef<"Lead", 'DateTime'>
+  readonly notifyAttempts: Prisma.FieldRef<"Lead", 'Int'>
+  readonly notifyAttemptAt: Prisma.FieldRef<"Lead", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Lead", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Lead", 'DateTime'>
 }

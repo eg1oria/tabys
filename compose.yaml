@@ -22,8 +22,6 @@ x-backend-env: &backend-env
   # и Caddy (/uploads) из внутренней сети. Им и доверяем X-Forwarded-For —
   # иначе лимит заявок по IP был бы общим на всех посетителей.
   TRUST_PROXY: uniquelocal
-  TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
-  TELEGRAM_CHAT_IDS: ${TELEGRAM_CHAT_IDS:-}
 
 services:
   db:

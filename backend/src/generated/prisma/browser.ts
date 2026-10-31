@@ -79,6 +79,21 @@ export type Lead = Prisma.LeadModel
  */
 export type LeadAttachment = Prisma.LeadAttachmentModel
 /**
+ * Model TelegramBot
+ * Бот заказчика, подключённый из админки. Строка одна (id = 1).
+ */
+export type TelegramBot = Prisma.TelegramBotModel
+/**
+ * Model TelegramChat
+ * Чат, куда бот шлёт заявки: менеджер или группа.
+ */
+export type TelegramChat = Prisma.TelegramChatModel
+/**
+ * Model TelegramLinkCode
+ * Одноразовый код из ссылки t.me/<бот>?start=<код>.
+ */
+export type TelegramLinkCode = Prisma.TelegramLinkCodeModel
+/**
  * Model AuditLog
  * 
  */

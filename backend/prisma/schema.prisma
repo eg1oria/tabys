@@ -48,6 +48,8 @@ model AdminUser {
   auditLogs     AuditLog[]
   uploadedMedia MediaAsset[]
   assignedLeads Lead[]
+  telegramChats TelegramChat[]
+  telegramCodes TelegramLinkCode[]
 }
 
 model RefreshToken {
@@ -227,25 +229,29 @@ model ProductImage {
 // ──────────────────────────── заявки ───────────────────────────
 
 model Lead {
-  id           String     @id @default(uuid(7))
-  name         String
+  id              String     @id @default(uuid(7))
+  name            String
   /// Как ввёл пользователь.
-  phone        String
+  phone           String
   /// Только цифры — для поиска и поиска дублей.
-  phoneDigits  String
-  email        String?
-  message      String?
-  status       LeadStatus @default(NEW)
+  phoneDigits     String
+  email           String?
+  message         String?
+  status          LeadStatus @default(NEW)
   /// Согласие на обработку — важна именно отметка времени, а не факт галочки.
-  consentAt    DateTime
-  ip           String?
-  userAgent    String?
-  internalNote String?
-  assignedToId String?
-  assignedTo   AdminUser? @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
-  notifiedAt   DateTime?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  consentAt       DateTime
+  ip              String?
+  userAgent       String?
+  internalNote    String?
+  assignedToId    String?
+  assignedTo      AdminUser? @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+  notifiedAt      DateTime?
+  /// Сколько раз пытались уведомить и когда последний раз: по ним ретрай
+  /// считает паузу и не отправляет одну заявку дважды параллельно.
+  notifyAttempts  Int        @default(0)
+  notifyAttemptAt DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 
   attachments LeadAttachment[]
 
@@ -266,6 +272,42 @@ model LeadAttachment {
   createdAt    DateTime @default(now())
 
   @@index([leadId])
+}
+
+// ───────────────────────── уведомления ─────────────────────────
+
+/// Бот заказчика, подключённый из админки. Строка одна (id = 1).
+model TelegramBot {
+  id            Int      @id @default(1)
+  /// Токен от @BotFather. Наружу API его не отдаёт — только username.
+  token         String
+  username      String
+  /// Следующий update_id для getUpdates: прочитанные апдейты не возвращаются.
+  updatesOffset BigInt   @default(0)
+  updatedAt     DateTime @updatedAt
+}
+
+/// Чат, куда бот шлёт заявки: менеджер или группа.
+model TelegramChat {
+  id          String     @id @default(uuid(7))
+  /// Telegram chat_id. Строкой: у групп он отрицательный и длиннее int32.
+  chatId      String     @unique
+  title       String
+  /// Последний отказ Telegram (бот заблокирован, удалён из группы) — видно в админке.
+  lastError   String?
+  lastErrorAt DateTime?
+  addedById   String?
+  addedBy     AdminUser? @relation(fields: [addedById], references: [id], onDelete: SetNull)
+  createdAt   DateTime   @default(now())
+}
+
+/// Одноразовый код из ссылки t.me/<бот>?start=<код>.
+model TelegramLinkCode {
+  code        String    @id
+  createdById String
+  createdBy   AdminUser @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
 }
 
 // ──────────────────────────── аудит ────────────────────────────

@@ -68,15 +68,4 @@ export class AppConfigService {
   get publicUrl(): string {
     return this.get('PUBLIC_URL').replace(/\/+$/, '');
   }
-
-  get telegramBotToken(): string | undefined {
-    return this.get('TELEGRAM_BOT_TOKEN');
-  }
-
-  get telegramChatIds(): string[] {
-    return (this.get('TELEGRAM_CHAT_IDS') ?? '')
-      .split(',')
-      .map((id) => id.trim())
-      .filter(Boolean);
-  }
 }

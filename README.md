@@ -103,7 +103,6 @@ docker compose up -d --build
 | `POSTGRES_PASSWORD` | да | пароль базы внутри compose |
 | `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` | да | не короче 32 символов, разные (`openssl rand -base64 48`) |
 | `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` | для сида | первый администратор |
-| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_IDS` | нет | уведомления о заявках |
 
 Остальное (адреса сервисов, `TRUST_PROXY`, `PUBLIC_URL`, `CORS_ORIGINS`)
 задано в `compose.yaml` и для этой схемы менять не нужно.

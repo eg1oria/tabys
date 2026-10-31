@@ -40,6 +40,9 @@ export class StatsService {
       media,
       topCategories,
       latestLeads,
+      telegramBots,
+      telegramChats,
+      unnotifiedLeads,
     ] = await Promise.all([
       this.prisma.lead.groupBy({
         by: ['status'],
@@ -84,6 +87,12 @@ export class StatsService {
           createdAt: true,
         },
       }),
+      this.prisma.telegramBot.count(),
+      this.prisma.telegramChat.count(),
+      // За всё время, а не за период: недошедшая заявка важна и месячной давности.
+      this.prisma.lead.count({
+        where: { status: LeadStatus.NEW, notifiedAt: null },
+      }),
     ]);
 
     const counts = Object.fromEntries(
@@ -116,6 +125,11 @@ export class StatsService {
         .map(({ _count, ...rest }) => ({ ...rest, products: _count.products }))
         .sort((a, b) => b.products - a.products),
       latestLeads,
+      // Главная админки предупреждает, если о заявках некому сообщить.
+      notifications: {
+        connected: telegramBots > 0 && telegramChats > 0,
+        pendingLeads: unnotifiedLeads,
+      },
     };
   }
 

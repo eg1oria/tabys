@@ -262,4 +262,32 @@ export type AdminStats = {
     Lead,
     "id" | "name" | "email" | "phone" | "message" | "status" | "createdAt"
   >[];
+  /** connected — есть бот и хоть один чат; pendingLeads — новые заявки без уведомления. */
+  notifications: { connected: boolean; pendingLeads: number };
+};
+
+// ──────────────────────── уведомления в Telegram ────────────────────────
+
+export type TelegramChat = {
+  id: string;
+  title: string;
+  /** Последний отказ Telegram: бот заблокирован, удалён из группы. */
+  lastError: string | null;
+  lastErrorAt: string | null;
+  createdAt: string;
+  addedBy: { name: string } | null;
+};
+
+/** Ответ /admin/notifications/telegram. Токена в нём нет и не будет. */
+export type TelegramStatus = {
+  bot: { username: string; url: string; updatedAt: string } | null;
+  chats: TelegramChat[];
+  pendingLeads: number;
+};
+
+export type TelegramLink = {
+  code: string;
+  url: string;
+  groupUrl: string;
+  expiresAt: string;
 };

@@ -159,6 +159,9 @@ export class LeadsService {
   async findAll(dto: QueryLeadsDto): Promise<Paginated<unknown>> {
     const where: Prisma.LeadWhereInput = {
       ...(dto.status ? { status: dto.status } : {}),
+      ...(dto.notified === undefined
+        ? {}
+        : { notifiedAt: dto.notified ? { not: null } : null }),
       ...(dto.q
         ? {
             OR: [
@@ -268,19 +271,5 @@ export class LeadsService {
       filename: attachment.originalName,
       bytes: attachment.bytes,
     };
-  }
-
-  async markNotified(leadId: string): Promise<void> {
-    await this.prisma.lead.update({
-      where: { id: leadId },
-      data: { notifiedAt: new Date() },
-    });
-  }
-
-  leadForNotification(leadId: string) {
-    return this.prisma.lead.findUnique({
-      where: { id: leadId },
-      include: { attachments: { select: { originalName: true, bytes: true } } },
-    });
   }
 }

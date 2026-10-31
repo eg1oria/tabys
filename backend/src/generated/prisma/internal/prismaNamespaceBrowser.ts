@@ -63,6 +63,9 @@ export const ModelName = {
   ProductImage: 'ProductImage',
   Lead: 'Lead',
   LeadAttachment: 'LeadAttachment',
+  TelegramBot: 'TelegramBot',
+  TelegramChat: 'TelegramChat',
+  TelegramLinkCode: 'TelegramLinkCode',
   AuditLog: 'AuditLog'
 } as const
 
@@ -234,6 +237,8 @@ export const LeadScalarFieldEnum = {
   internalNote: 'internalNote',
   assignedToId: 'assignedToId',
   notifiedAt: 'notifiedAt',
+  notifyAttempts: 'notifyAttempts',
+  notifyAttemptAt: 'notifyAttemptAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -252,6 +257,40 @@ export const LeadAttachmentScalarFieldEnum = {
 } as const
 
 export type LeadAttachmentScalarFieldEnum = (typeof LeadAttachmentScalarFieldEnum)[keyof typeof LeadAttachmentScalarFieldEnum]
+
+
+export const TelegramBotScalarFieldEnum = {
+  id: 'id',
+  token: 'token',
+  username: 'username',
+  updatesOffset: 'updatesOffset',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TelegramBotScalarFieldEnum = (typeof TelegramBotScalarFieldEnum)[keyof typeof TelegramBotScalarFieldEnum]
+
+
+export const TelegramChatScalarFieldEnum = {
+  id: 'id',
+  chatId: 'chatId',
+  title: 'title',
+  lastError: 'lastError',
+  lastErrorAt: 'lastErrorAt',
+  addedById: 'addedById',
+  createdAt: 'createdAt'
+} as const
+
+export type TelegramChatScalarFieldEnum = (typeof TelegramChatScalarFieldEnum)[keyof typeof TelegramChatScalarFieldEnum]
+
+
+export const TelegramLinkCodeScalarFieldEnum = {
+  code: 'code',
+  createdById: 'createdById',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+} as const
+
+export type TelegramLinkCodeScalarFieldEnum = (typeof TelegramLinkCodeScalarFieldEnum)[keyof typeof TelegramLinkCodeScalarFieldEnum]
 
 
 export const AuditLogScalarFieldEnum = {
