@@ -1,6 +1,7 @@
 import type { PrismaClient } from '../src/prisma/client.js';
 import { facetGroups } from './seed-data/facets.js';
 import { categorySeeds } from './seed-data/categories.js';
+import { slugify } from '../src/common/slug/transliterate.js';
 
 /** Ключ вида "type:tanks" -> id значения фасета. */
 export type FacetIndex = Map<string, string>;
@@ -105,7 +106,15 @@ export async function seedCategories(
 
     // items — типовые позиции. Становятся товарами с одним названием:
     // описания, характеристики и фото наполняет админ через API.
+    // Слаг — из названия, как это делает ProductsService; в одной
+    // категории одинаковых названий нет, но страхуемся суффиксом.
+    const usedSlugs = new Set<string>();
     for (const [itemOrder, title] of seed.items.entries()) {
+      const root = slugify(title) || 'item';
+      let slug = root;
+      for (let n = 2; usedSlugs.has(slug); n += 1) slug = `${root}-${n}`;
+      usedSlugs.add(slug);
+
       const existing = await prisma.product.findFirst({
         where: { categoryId: category.id, title },
         select: { id: true },
@@ -116,6 +125,7 @@ export async function seedCategories(
         data: {
           categoryId: category.id,
           title,
+          slug,
           sortOrder: itemOrder,
           status: 'PUBLISHED',
           priceOnRequest: true,

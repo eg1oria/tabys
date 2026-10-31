@@ -3,10 +3,13 @@ import { hasImage } from "@/lib/images";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  src: string;
+  /** Путь в /public или абсолютный адрес из медиатеки. Пусто — плейсхолдер. */
+  src: string | undefined;
   alt: string;
   /** Подпись в плейсхолдере, если фото ещё нет. */
   label?: string;
+  /** Крошечная превьюшка из медиатеки — показываем, пока грузится фото. */
+  blurDataUrl?: string | null;
   className?: string;
   imageClassName?: string;
   sizes?: string;
@@ -21,6 +24,7 @@ export function ImageSlot({
   src,
   alt,
   label,
+  blurDataUrl,
   className,
   imageClassName,
   sizes = "100vw",
@@ -39,6 +43,7 @@ export function ImageSlot({
           fill
           sizes={sizes}
           priority={priority}
+          {...(blurDataUrl ? { placeholder: "blur" as const, blurDataURL: blurDataUrl } : {})}
           className={cn("object-cover", imageClassName)}
         />
       </div>

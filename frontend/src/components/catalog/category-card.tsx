@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { ImageSlot } from "@/components/ui/image-slot";
 import { ArrowRight } from "@/components/ui/icons";
-import type { Category } from "@/lib/content/categories";
+import type { PublicCategory } from "@/lib/api/types";
+import { categoryHref } from "@/lib/catalog-urls";
 
 function plural(count: number) {
   const mod10 = count % 10;
@@ -10,17 +12,10 @@ function plural(count: number) {
   return "товаров";
 }
 
-export function CategoryCard({
-  category,
-  onSelect,
-}: {
-  category: Category;
-  onSelect: () => void;
-}) {
+export function CategoryCard({ category }: { category: PublicCategory }) {
   return (
-    <button
-      type="button"
-      onClick={onSelect}
+    <Link
+      href={categoryHref(category.slug)}
       className="group flex h-full flex-col rounded-card border border-line bg-white p-5 text-left transition-colors hover:border-accent"
     >
       <div className="flex items-start justify-between gap-3">
@@ -33,9 +28,10 @@ export function CategoryCard({
       </div>
 
       <ImageSlot
-        src={category.image}
-        alt={category.title}
+        src={category.image?.url}
+        alt={category.image?.alt || category.title}
         label={category.title}
+        blurDataUrl={category.image?.blurDataUrl}
         className="mt-4 aspect-[4/3] w-full rounded-card"
         imageClassName="transition-transform duration-500 group-hover:scale-[1.04]"
         sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
@@ -48,6 +44,6 @@ export function CategoryCard({
       <span className="mt-4 grid size-9 shrink-0 place-items-center self-end rounded-card border border-line text-accent transition-colors group-hover:border-accent group-hover:bg-accent group-hover:text-white">
         <ArrowRight className="size-4" />
       </span>
-    </button>
+    </Link>
   );
 }

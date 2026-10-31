@@ -49,8 +49,8 @@ describe('Каталог (e2e)', () => {
 
     await prisma.product.createMany({
       data: [
-        { categoryId: published.id, title: 'Товар 1', status: 'PUBLISHED', sortOrder: 0 },
-        { categoryId: published.id, title: 'Черновик', status: 'DRAFT', sortOrder: 1 },
+        { categoryId: published.id, title: 'Товар 1', slug: 'tovar-1', status: 'PUBLISHED', sortOrder: 0 },
+        { categoryId: published.id, title: 'Черновик', slug: 'chernovik', status: 'DRAFT', sortOrder: 1 },
       ],
     });
 
@@ -85,7 +85,7 @@ describe('Каталог (e2e)', () => {
     expect(res.body[0].slug).toBe('opublikovannaya');
   });
 
-  it('форма ответа совпадает с типом Category на фронтенде', async () => {
+  it('форма ответа совпадает с типом PublicCategory на фронтенде', async () => {
     const res = await request(app.getHttpServer()).get(`${base}/public/categories`).expect(200);
     expect(res.body[0]).toMatchObject({
       slug: 'opublikovannaya',
@@ -93,7 +93,8 @@ describe('Каталог (e2e)', () => {
       short: 'Опубликованная',
       description: 'Видна публично',
       count: 20,
-      material: ['aisi304'],
+      // Фасеты вложены: ключи групп задаёт редактор, в корне они затирали бы поля.
+      facets: { material: ['aisi304'] },
       highlights: ['первый пункт'],
     });
     // items — названия только опубликованных товаров.
@@ -123,7 +124,8 @@ describe('Каталог (e2e)', () => {
   it('публичный ответ не отдаёт админские поля', async () => {
     const res = await request(app.getHttpServer()).get(`${base}/public/categories`).expect(200);
     for (const row of res.body) {
-      for (const field of ['id', 'status', 'sortOrder', 'positionCount', 'createdAt', 'updatedAt', 'publishedAt', 'seoTitle']) {
+      // seoTitle/seoDescription — публичные: из них собираются метаданные страницы категории.
+      for (const field of ['id', 'status', 'sortOrder', 'positionCount', 'createdAt', 'updatedAt', 'publishedAt', 'imageId']) {
         expect(row, `утечка поля ${field}`).not.toHaveProperty(field);
       }
     }
@@ -217,10 +219,72 @@ describe('Каталог (e2e)', () => {
       .get(`${base}/public/products?facets=aisi304`)
       .expect(200);
     expect(hit.body.meta.total).toBe(1);
+    expect(hit.body.data[0]).toMatchObject({
+      title: 'Товар 1',
+      category: { slug: 'opublikovannaya' },
+      facets: { material: ['aisi304'] },
+    });
 
     const miss = await request(app.getHttpServer())
       .get(`${base}/public/products?facets=aisi316`)
       .expect(200);
     expect(miss.body.meta.total).toBe(0);
+  });
+
+  it('страница товара отдаётся по слагам категории и товара', async () => {
+    const res = await request(app.getHttpServer())
+      .get(`${base}/public/products/opublikovannaya/tovar-1`)
+      .expect(200);
+    expect(res.body).toMatchObject({
+      slug: 'tovar-1',
+      title: 'Товар 1',
+      category: { slug: 'opublikovannaya' },
+      images: [],
+    });
+    for (const field of ['id', 'status', 'categoryId', 'imageId', 'sortOrder']) {
+      expect(res.body, `утечка поля ${field}`).not.toHaveProperty(field);
+    }
+  });
+
+  it('черновик товара и товар чужой категории — 404', async () => {
+    await request(app.getHttpServer())
+      .get(`${base}/public/products/opublikovannaya/chernovik`)
+      .expect(404);
+    await request(app.getHttpServer())
+      .get(`${base}/public/products/chernovik/tovar-1`)
+      .expect(404);
+  });
+
+  it('товар снятой с публикации категории — 404', async () => {
+    await prisma.category.update({ where: { id: publishedId }, data: { status: 'DRAFT' } });
+    await request(app.getHttpServer())
+      .get(`${base}/public/products/opublikovannaya/tovar-1`)
+      .expect(404);
+    await prisma.category.update({ where: { id: publishedId }, data: { status: 'PUBLISHED' } });
+  });
+
+  it('новый товар получает слаг из названия, стёртый — собирается заново', async () => {
+    const created = await request(app.getHttpServer())
+      .post(`${base}/admin/products`)
+      .set(auth())
+      .send({ categoryId: publishedId, title: 'Насос центробежный' })
+      .expect(201);
+    expect(created.body.slug).toBe('nasos-centrobezhnyy');
+
+    await request(app.getHttpServer())
+      .patch(`${base}/admin/products/${created.body.id}`)
+      .set(auth())
+      .send({ slug: 'ruchnoy' })
+      .expect(200);
+
+    const cleared = await request(app.getHttpServer())
+      .patch(`${base}/admin/products/${created.body.id}`)
+      .set(auth())
+      .send({ slug: null })
+      .expect(200);
+    // Свой старый слаг не считается занятым — получаем его же, без «-2».
+    expect(cleared.body.slug).toBe('nasos-centrobezhnyy');
+
+    await prisma.product.delete({ where: { id: created.body.id } });
   });
 });

@@ -41,6 +41,29 @@ const PUBLIC_SELECT = {
   },
 } satisfies Prisma.ProductSelect;
 
+/**
+ * Страница товара: к списочным полям добавляются артикул и галерея.
+ * В списке их нет — карточке в сетке хватает главного фото.
+ */
+const PUBLIC_DETAIL_SELECT = {
+  ...PUBLIC_SELECT,
+  sku: true,
+  images: {
+    orderBy: { sortOrder: 'asc' },
+    select: {
+      media: {
+        select: {
+          storageKey: true,
+          alt: true,
+          width: true,
+          height: true,
+          blurDataUrl: true,
+        },
+      },
+    },
+  },
+} satisfies Prisma.ProductSelect;
+
 /** Шире публичного: форме правки нужны идентификаторы, а не только значения. */
 const ADMIN_SELECT = {
   ...PUBLIC_SELECT,
@@ -94,6 +117,10 @@ function csvCell(value: string): string {
 }
 
 type PublicRow = Prisma.ProductGetPayload<{ select: typeof PUBLIC_SELECT }>;
+type PublicDetailRow = Prisma.ProductGetPayload<{
+  select: typeof PUBLIC_DETAIL_SELECT;
+}>;
+type ImageRow = NonNullable<PublicRow['image']>;
 
 @Injectable()
 export class ProductsService {
@@ -102,6 +129,16 @@ export class ProductsService {
     private readonly config: AppConfigService,
     private readonly audit: AuditService,
   ) {}
+
+  private toPublicImage(image: ImageRow) {
+    return {
+      url: `${this.config.publicUrl}/uploads/${image.storageKey}`,
+      alt: image.alt,
+      width: image.width,
+      height: image.height,
+      blurDataUrl: image.blurDataUrl,
+    };
+  }
 
   private toPublic(row: PublicRow) {
     const facets: Record<string, string[]> = {};
@@ -118,16 +155,9 @@ export class ProductsService {
       priceFrom: row.priceFrom?.toString() ?? null,
       priceOnRequest: row.priceOnRequest,
       category: row.category,
-      image: row.image
-        ? {
-            url: `${this.config.publicUrl}/uploads/${row.image.storageKey}`,
-            alt: row.image.alt,
-            width: row.image.width,
-            height: row.image.height,
-            blurDataUrl: row.image.blurDataUrl,
-          }
-        : null,
-      ...facets,
+      image: row.image ? this.toPublicImage(row.image) : null,
+      // Вложенным объектом, как и у категорий: ключи групп задаёт редактор.
+      facets,
     };
   }
 
@@ -191,6 +221,35 @@ export class ProductsService {
       total,
       dto,
     );
+  }
+
+  /**
+   * Страница товара. Черновик и товар из снятой с публикации категории
+   * отдают 404 — как и в списке, наружу видно только опубликованное.
+   */
+  async findOnePublic(categorySlug: string, slug: string) {
+    const row = await this.prisma.product.findFirst({
+      where: {
+        slug,
+        status: PublishStatus.PUBLISHED,
+        category: { slug: categorySlug, status: PublishStatus.PUBLISHED },
+      },
+      select: PUBLIC_DETAIL_SELECT,
+    });
+    if (!row) throw new NotFoundException('Товар не найден');
+    return this.toPublicDetail(row);
+  }
+
+  private toPublicDetail(row: PublicDetailRow) {
+    const gallery = row.images.map(({ media }) => this.toPublicImage(media));
+    return {
+      ...this.toPublic(row),
+      sku: row.sku,
+      // Галерея пуста у товаров, где задано только главное фото, —
+      // тогда страница показывает его одно.
+      images:
+        gallery.length > 0 ? gallery : row.image ? [this.toPublicImage(row.image)] : [],
+    };
   }
 
   private async adminWhere(
@@ -349,7 +408,18 @@ export class ProductsService {
 
   async update(id: string, dto: UpdateProductDto, actor: AuthUser) {
     const before = await this.findOneAdmin(id);
-    const { facetValueIds, imageIds, ...rest } = dto;
+    const { facetValueIds, imageIds, slug, ...rest } = dto;
+
+    // Слаг — часть адреса страницы, без него товара на сайте нет.
+    // Стёртое в форме поле значит «собрать заново из названия».
+    const nextSlug =
+      slug === null
+        ? await this.freeSlug(
+            dto.categoryId ?? before.categoryId,
+            dto.title ?? before.title,
+            id,
+          )
+        : slug;
 
     await this.ensureFreeSku(dto.sku, id);
     const gallery = await this.checkedGallery(imageIds);
@@ -386,7 +456,11 @@ export class ProductsService {
         where: { id },
         // Главное фото всегда первое в галерее: иначе карточка на сайте
         // показывала бы картинку, которую редактор уже убрал.
-        data: gallery ? { ...rest, imageId: gallery[0] ?? null } : rest,
+        data: {
+          ...rest,
+          ...(nextSlug !== undefined ? { slug: nextSlug } : {}),
+          ...(gallery ? { imageId: gallery[0] ?? null } : {}),
+        },
         select: ADMIN_SELECT,
       });
     });
@@ -483,10 +557,18 @@ export class ProductsService {
     return unique;
   }
 
-  private freeSlug(categoryId: string, title: string): Promise<string> {
+  private freeSlug(
+    categoryId: string,
+    title: string,
+    selfId?: string,
+  ): Promise<string> {
     return uniqueSlug(title, async (candidate) => {
       const found = await this.prisma.product.findFirst({
-        where: { categoryId, slug: candidate },
+        where: {
+          categoryId,
+          slug: candidate,
+          ...(selfId ? { id: { not: selfId } } : {}),
+        },
         select: { id: true },
       });
       return found !== null;

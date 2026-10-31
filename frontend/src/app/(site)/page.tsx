@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Hero } from "@/components/home/hero";
 import { FeatureStrip } from "@/components/home/feature-strip";
 import { EquipmentGrid } from "@/components/home/equipment-grid";
@@ -14,7 +15,10 @@ export default function HomePage() {
     <>
       <Hero />
       <FeatureStrip />
-      <EquipmentGrid />
+      {/* Без бэкенда на сборке блок дорисуется по запросу — до тех пор его нет. */}
+      <Suspense>
+        <EquipmentGrid />
+      </Suspense>
       <TzBlock />
       <Solutions />
       <Lines />

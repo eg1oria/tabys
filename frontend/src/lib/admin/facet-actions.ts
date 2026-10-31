@@ -1,7 +1,8 @@
 "use server";
 
-import { refresh } from "next/cache";
+import { refresh, updateTag } from "next/cache";
 import { apiMutate } from "../api/server";
+import { CATALOG_TAG } from "../api/public";
 import { formError, toFormState, withValues, type FormState } from "./form-state";
 import { NOT_A_NUMBER, collectValues, nullableInt, optionalText, text } from "./form-values";
 
@@ -44,6 +45,7 @@ export async function createFacetValue(
     return fail(toFormState(error, FIELDS));
   }
 
+  updateTag(CATALOG_TAG);
   refresh();
   return { status: "success", errors: {} };
 }
@@ -72,6 +74,7 @@ export async function updateFacetValue(
     return fail(toFormState(error, ["label", "sortOrder"]));
   }
 
+  updateTag(CATALOG_TAG);
   refresh();
   return { status: "success", errors: {} };
 }
@@ -90,6 +93,7 @@ export async function deleteFacetValue(
     return toFormState(error);
   }
 
+  updateTag(CATALOG_TAG);
   refresh();
   return { status: "success", errors: {} };
 }

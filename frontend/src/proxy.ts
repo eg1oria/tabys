@@ -1,8 +1,11 @@
 import { NextResponse, type NextProxy, type ProxyConfig } from "next/server";
 
 /**
- * Оптимистичная проверка сессии перед рендером админки. В Next 16
- * middleware называется proxy (node_modules/next/dist/docs/01-app/
+ * Два дела, оба без запросов к бэкенду:
+ *   — старые адреса каталога /oborudovanie?cat=<слаг> → страница категории;
+ *   — оптимистичная проверка сессии перед рендером админки.
+ *
+ * В Next 16 middleware называется proxy (node_modules/next/dist/docs/01-app/
  * 01-getting-started/16-proxy.md).
  *
  * Здесь намеренно нет ни одного запроса к бэкенду: доки прямо пишут, что
@@ -19,8 +22,24 @@ import { NextResponse, type NextProxy, type ProxyConfig } from "next/server";
 const ACCESS_COOKIE = "tabys_at";
 const REFRESH_COOKIE = "tabys_rt";
 
+/**
+ * До отдельных страниц категория открывалась параметром ?cat= — такие
+ * ссылки уже в поиске, закладках и старом sitemap. 308 переносит их вес
+ * на новый адрес. Слаг не проверяем: несуществующий получит 404 там.
+ */
+function legacyCatalogRedirect(url: URL): NextResponse | null {
+  const cat = url.searchParams.get("cat");
+  if (!cat || !/^[a-z0-9-]+$/.test(cat)) return null;
+  const target = new URL(`/oborudovanie/${cat}`, url);
+  return NextResponse.redirect(target, 308);
+}
+
 export const proxy: NextProxy = (request) => {
   const { pathname, search, searchParams } = request.nextUrl;
+
+  if (pathname === "/oborudovanie") {
+    return legacyCatalogRedirect(request.nextUrl) ?? NextResponse.next();
+  }
   const hasAccess = request.cookies.has(ACCESS_COOKIE);
   const hasRefresh = request.cookies.has(REFRESH_COOKIE);
 
@@ -55,9 +74,9 @@ export const proxy: NextProxy = (request) => {
 };
 
 /**
- * Только страницы админки. /api/admin/* сюда не входит осознанно: при
+ * Оглавление каталога и страницы админки. /api/admin/* сюда не входит осознанно: при
  * совпадении matcher'а Next буферизует тело запроса и молча обрезает его
  * на 10 МБ, а через эти маршруты идёт загрузка картинок до 10 МБ.
  * Авторизацию они проверяют сами.
  */
-export const config: ProxyConfig = { matcher: "/admin/:path*" };
+export const config: ProxyConfig = { matcher: ["/oborudovanie", "/admin/:path*"] };

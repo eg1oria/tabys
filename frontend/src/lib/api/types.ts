@@ -70,6 +70,73 @@ export type Lead = {
   updatedAt: string;
 };
 
+// ──────────────────── публичный каталог (витрина сайта) ────────────────────
+
+/**
+ * Ответы /public/* — то, из чего рендерится сайт. Собираются мапперами
+ * backend/src/modules/{categories/categories.mapper.ts,products/products.service.ts}.
+ */
+
+/** Картинка из медиатеки: url уже абсолютный, собирать ничего не нужно. */
+export type PublicImage = {
+  url: string;
+  alt: string;
+  width: number | null;
+  height: number | null;
+  blurDataUrl: string | null;
+};
+
+/** Ключ группы фасетов -> значения. Группы и значения задаёт админка. */
+export type Facets = Record<string, string[]>;
+
+export type PublicCategory = {
+  slug: string;
+  title: string;
+  /** Короткое имя для боковой панели каталога. */
+  short: string;
+  description: string;
+  /** Витринное число позиций: positionCount, иначе число опубликованных товаров. */
+  count: number;
+  image: PublicImage | null;
+  /** Пункты крупной карточки на главной. */
+  highlights: string[];
+  /** Названия опубликованных товаров категории. */
+  items: string[];
+  facets: Facets;
+  /** Для <title> и description; пусто — берутся название и описание. */
+  seoTitle: string | null;
+  seoDescription: string | null;
+};
+
+export type PublicProduct = {
+  /** Адрес страницы: /oborudovanie/<category.slug>/<slug>. */
+  slug: string;
+  title: string;
+  description: string | null;
+  specs: Record<string, string> | null;
+  /** Decimal сериализуется строкой — число тут потеряло бы точность. */
+  priceFrom: string | null;
+  priceOnRequest: boolean;
+  image: PublicImage | null;
+  category: { slug: string; title: string };
+  facets: Facets;
+};
+
+/** Страница товара: к полям из списка добавляются артикул и галерея. */
+export type PublicProductDetail = PublicProduct & {
+  sku: string | null;
+  /** По порядку, первое — главное фото. Пусто — фото ещё нет. */
+  images: PublicImage[];
+};
+
+/** Группа фильтров каталога. Пришла на место хардкода filterGroups. */
+export type PublicFacetGroup = {
+  key: string;
+  title: string;
+  singleSelect: boolean;
+  options: { value: string; label: string }[];
+};
+
 // ───────────────────────────── каталог ─────────────────────────────
 
 /** Картинка в админских ответах приходит без url — его собирает uploadUrl(). */
@@ -119,7 +186,8 @@ export type AdminProductImage = {
 export type AdminProduct = {
   id: string;
   categoryId: string;
-  slug: string | null;
+  /** Обязателен с миграции product_slug_required: из него строится адрес страницы. */
+  slug: string;
   sku: string | null;
   title: string;
   description: string | null;

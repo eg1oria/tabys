@@ -32,7 +32,9 @@ export class CreateProductDto {
   @MaxLength(300)
   title!: string;
 
-  @ApiPropertyOptional({ description: 'Не передан — транслитерируется из title' })
+  @ApiPropertyOptional({
+    description: 'Не передан — транслитерируется из title; null при правке — собрать заново',
+  })
   @notNull()
   @IsString()
   @MaxLength(80)

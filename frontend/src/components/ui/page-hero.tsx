@@ -4,27 +4,37 @@ import { ImageSlot } from "./image-slot";
 import { company } from "@/lib/content/company";
 import { Pin } from "./icons";
 
+type Crumb = { label: string; href: string };
+
 type Props = {
+  /** Текущая страница — последняя, некликабельная крошка. */
   breadcrumb: string;
+  /** Крошки между «Главной» и текущей страницей. */
+  trail?: Crumb[];
   title: string;
   /** Вторая строка заголовка — подсвечивается акцентом. */
   titleAccent?: string;
   description: string;
+  /** Путь в /public или адрес из медиатеки. */
   image?: string;
+  imageBlur?: string | null;
 };
 
 export function PageHero({
   breadcrumb,
+  trail = [],
   title,
   titleAccent,
   description,
   image = "/images/hero-dark.jpg",
+  imageBlur,
 }: Props) {
   return (
     <section className="relative isolate overflow-hidden bg-ink text-white">
       <ImageSlot
         src={image}
         alt=""
+        blurDataUrl={imageBlur}
         className="absolute inset-0 -z-10"
         imageClassName="opacity-45"
         sizes="100vw"
@@ -40,8 +50,18 @@ export function PageHero({
           <Link href="/" className="transition-colors hover:text-white">
             Главная
           </Link>
+          {trail.map((crumb) => (
+            <span key={crumb.href}>
+              <span className="px-2 text-white/30">/</span>
+              <Link href={crumb.href} className="transition-colors hover:text-white">
+                {crumb.label}
+              </Link>
+            </span>
+          ))}
           <span className="px-2 text-white/30">/</span>
-          <span className="text-white/90">{breadcrumb}</span>
+          <span aria-current="page" className="text-white/90">
+            {breadcrumb}
+          </span>
         </nav>
 
         <h1 className="display-title max-w-4xl text-[clamp(1.625rem,6.5vw,4rem)] leading-[1.03]">

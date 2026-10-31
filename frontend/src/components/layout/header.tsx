@@ -7,7 +7,7 @@ import { Logo } from "./logo";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, Close, Menu, Phone, Search } from "@/components/ui/icons";
-import { nav } from "@/lib/content/nav";
+import type { NavItem } from "@/lib/content/nav";
 import { company, primaryPhone } from "@/lib/content/company";
 import { cn } from "@/lib/utils";
 
@@ -17,7 +17,7 @@ function isActive(pathname: string, href: string) {
   return pathname === base || pathname.startsWith(`${base}/`);
 }
 
-export function Header() {
+export function Header({ nav }: { nav: NavItem[] }) {
   const pathname = usePathname();
   const router = useRouter();
   const [openMenu, setOpenMenu] = useState(false);
@@ -85,7 +85,7 @@ export function Header() {
 
         <nav aria-label="Основная навигация" className="ml-auto hidden items-center gap-1 xl:flex">
           {nav.map((item) =>
-            item.children ? (
+            item.children?.length ? (
               <div key={item.href} className="relative">
                 <button
                   type="button"
@@ -218,7 +218,7 @@ export function Header() {
                   >
                     {item.label}
                   </Link>
-                  {item.children ? (
+                  {item.children?.length ? (
                     <div className="-mt-1 flex flex-wrap gap-x-4 gap-y-2 pb-4">
                       {item.children.slice(0, 6).map((child) => (
                         <Link

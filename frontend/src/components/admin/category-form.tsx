@@ -7,6 +7,7 @@ import { SubmitButton } from "./submit-button";
 import { saveCategory } from "@/lib/admin/catalog-actions";
 import { FORM_ERROR, initialFormState, str } from "@/lib/admin/form-state";
 import type { AdminCategory } from "@/lib/api/types";
+import { categoryHref } from "@/lib/catalog-urls";
 
 /**
  * Выбор картинки и значений фильтров приходит готовой разметкой из
@@ -51,7 +52,7 @@ export function CategoryForm({
             error={errors.slug}
             hint={
               category
-                ? "Слаг уже в ссылках каталога — меняйте только осознанно."
+                ? `Адрес страницы: ${categoryHref(category.slug)} — он уже в ссылках и поиске, меняйте только осознанно.`
                 : "Оставьте пустым — соберётся из названия."
             }
           >

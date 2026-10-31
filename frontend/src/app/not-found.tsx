@@ -1,13 +1,11 @@
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
+import { SiteChrome } from "@/components/layout/site-chrome";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 
 /** 404 живёт в корне app/, вне группы (site), поэтому чром рендерим явно. */
 export default function NotFound() {
   return (
-    <>
-      <Header />
+    <SiteChrome>
       <section className="flex-1 bg-white py-24 lg:py-32">
         <Container>
           <div className="mx-auto max-w-lg text-center">
@@ -30,7 +28,6 @@ export default function NotFound() {
           </div>
         </Container>
       </section>
-      <Footer />
-    </>
+    </SiteChrome>
   );
 }

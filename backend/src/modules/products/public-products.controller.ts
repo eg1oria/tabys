@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../auth/decorators/public.decorator.js';
 import { ProductsService } from './products.service.js';
@@ -14,5 +14,11 @@ export class PublicProductsController {
   @ApiOperation({ summary: 'Опубликованные товары с фильтрами и поиском' })
   findAll(@Query() dto: QueryProductsDto) {
     return this.products.findAllPublic(dto);
+  }
+
+  @Get(':category/:slug')
+  @ApiOperation({ summary: 'Товар по слагам категории и товара — для страницы товара' })
+  findOne(@Param('category') category: string, @Param('slug') slug: string) {
+    return this.products.findOnePublic(category, slug);
   }
 }

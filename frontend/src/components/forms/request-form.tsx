@@ -16,7 +16,11 @@ function FieldError({ message }: { message?: string }) {
   return <p className="mt-1.5 text-[12px] text-red-600">{message}</p>;
 }
 
-export function RequestForm() {
+/**
+ * defaultMessage — заготовка сообщения, например название товара со страницы
+ * товара: заявка сразу приходит с контекстом, посетителю не нужно его писать.
+ */
+export function RequestForm({ defaultMessage }: { defaultMessage?: string } = {}) {
   const [state, formAction, isPending] = useActionState(submitRequest, initialRequestState);
   const [fileName, setFileName] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -141,6 +145,7 @@ export function RequestForm() {
           id="message"
           name="message"
           rows={5}
+          defaultValue={defaultMessage}
           placeholder="Сообщение&#10;(Опишите задачу, интересующее оборудование или прикрепите ТЗ)"
           aria-invalid={Boolean(errors.message)}
           className={cn(

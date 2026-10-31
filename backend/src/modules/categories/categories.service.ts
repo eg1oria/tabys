@@ -37,6 +37,8 @@ const PUBLIC_SELECT = {
   description: true,
   highlights: true,
   positionCount: true,
+  seoTitle: true,
+  seoDescription: true,
   image: { select: IMAGE_SELECT },
   facetValues: FACET_SELECT,
   products: {
@@ -56,8 +58,6 @@ const ADMIN_SELECT = {
   ...PUBLIC_SELECT,
   id: true,
   imageId: true,
-  seoTitle: true,
-  seoDescription: true,
   facetValues: {
     select: {
       facetValueId: true,

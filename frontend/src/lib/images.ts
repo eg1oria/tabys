@@ -1,7 +1,10 @@
 /**
- * Фотографии, которые уже лежат в /public/images.
+ * Фотографии, которые уже лежат в /public/images (вёрстка страниц, не каталог).
  * Остальные слоты рендерятся аккуратным плейсхолдером — см. <ImageSlot>.
  * Когда появится новое фото, достаточно положить файл и добавить путь сюда.
+ *
+ * Картинки каталога сюда не попадают: их адрес приходит из медиатеки
+ * абсолютным (PUBLIC_URL бэкенда), и проверять его по списку нечего.
  */
 const available = new Set([
   "/images/hero-main.jpg",
@@ -23,5 +26,6 @@ const available = new Set([
 ]);
 
 export function hasImage(src: string | undefined): src is string {
-  return Boolean(src) && available.has(src as string);
+  if (!src) return false;
+  return src.startsWith("http://") || src.startsWith("https://") || available.has(src);
 }

@@ -2,32 +2,34 @@
 
 import { useState } from "react";
 import { ChevronDown } from "@/components/ui/icons";
-import { filterGroups, type FilterGroup } from "@/lib/content/categories";
+import type { PublicFacetGroup } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
-export type Filters = Record<FilterGroup["key"], string[]>;
+/** Ключ группы фасетов -> отмеченные значения. Группы приходят из админки. */
+export type Filters = Record<string, string[]>;
 
-export const emptyFilters: Filters = {
-  type: [],
-  volume: [],
-  productivity: [],
-  material: [],
-  application: [],
-};
+export function emptyFilters(groups: PublicFacetGroup[]): Filters {
+  return Object.fromEntries(groups.map((group) => [group.key, []]));
+}
 
 export function FilterPanel({
+  groups,
   filters,
   onToggle,
   onReset,
   resultCount,
 }: {
+  groups: PublicFacetGroup[];
   filters: Filters;
-  onToggle: (key: FilterGroup["key"], value: string) => void;
+  onToggle: (key: string, value: string) => void;
   onReset: () => void;
   resultCount: number;
 }) {
-  const [open, setOpen] = useState<string[]>(["type"]);
+  // Первая группа раскрыта — остальные под кликом, как в макете.
+  const [open, setOpen] = useState<string[]>(groups.slice(0, 1).map((g) => g.key));
   const activeCount = Object.values(filters).reduce((n, list) => n + list.length, 0);
+
+  if (groups.length === 0) return null;
 
   return (
     <div className="mt-8 border-t border-line pt-7">
@@ -47,8 +49,9 @@ export function FilterPanel({
       </div>
 
       <div className="mt-4">
-        {filterGroups.map((group) => {
+        {groups.map((group) => {
           const isOpen = open.includes(group.key);
+          const selected = filters[group.key] ?? [];
           return (
             <div key={group.key} className="border-b border-line">
               <button
@@ -65,8 +68,8 @@ export function FilterPanel({
               >
                 <span>
                   {group.title}
-                  {filters[group.key].length > 0 ? (
-                    <span className="ml-2 text-accent">{filters[group.key].length}</span>
+                  {selected.length > 0 ? (
+                    <span className="ml-2 text-accent">{selected.length}</span>
                   ) : null}
                 </span>
                 <ChevronDown
@@ -77,7 +80,7 @@ export function FilterPanel({
               {isOpen ? (
                 <ul className="space-y-2.5 pb-4">
                   {group.options.map((option) => {
-                    const checked = filters[group.key].includes(option.value);
+                    const checked = selected.includes(option.value);
                     return (
                       <li key={option.value}>
                         <label className="flex cursor-pointer items-start gap-2.5 text-[13px] text-text-2 transition-colors hover:text-ink">

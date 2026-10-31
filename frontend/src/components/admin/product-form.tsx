@@ -16,6 +16,7 @@ import { ProductGallery, type GalleryItem } from "./catalog/product-gallery";
 import { deleteProduct, saveProduct } from "@/lib/admin/catalog-actions";
 import { FORM_ERROR, initialFormState, str } from "@/lib/admin/form-state";
 import type { AdminProduct } from "@/lib/api/types";
+import { productHref } from "@/lib/catalog-urls";
 import type { PickableImage } from "./image-picker";
 
 /**
@@ -154,9 +155,26 @@ export function ProductForm({
             htmlFor="slug"
             error={errors.slug}
             hint={
-              product
-                ? "Уже может стоять в ссылках."
-                : "Пусто — соберём из названия."
+              product ? (
+                <>
+                  Страница на сайте:{" "}
+                  {product.status === "PUBLISHED" ? (
+                    <a
+                      href={productHref(product.category.slug, product.slug)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-accent hover:underline"
+                    >
+                      {productHref(product.category.slug, product.slug)}
+                    </a>
+                  ) : (
+                    <>{productHref(product.category.slug, product.slug)} (черновик — не видна)</>
+                  )}
+                  . Смена адреса ломает старые ссылки; пустое поле — соберём из названия.
+                </>
+              ) : (
+                "Пусто — соберём из названия."
+              )
             }
           >
             <TextInput

@@ -1,0 +1,4 @@
+# Секреты прод-окружения (compose.yaml). Шаблон — .env.example.
+/.env
+# Резервные копии deploy/backup.sh
+/backups/

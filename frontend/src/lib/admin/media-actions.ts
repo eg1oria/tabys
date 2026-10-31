@@ -1,7 +1,8 @@
 "use server";
 
-import { refresh } from "next/cache";
+import { refresh, updateTag } from "next/cache";
 import { apiMutate } from "../api/server";
+import { CATALOG_TAG } from "../api/public";
 import { toFormState, type FormState } from "./form-state";
 import type { MediaAsset } from "../api/types";
 
@@ -15,6 +16,7 @@ export async function updateMediaAlt(_prev: FormState, formData: FormData): Prom
     return toFormState(error, ["alt"]);
   }
 
+  updateTag(CATALOG_TAG);
   refresh();
   return { status: "success", errors: {} };
 }
@@ -29,6 +31,7 @@ export async function deleteMedia(_prev: FormState, formData: FormData): Promise
     return toFormState(error);
   }
 
+  updateTag(CATALOG_TAG);
   refresh();
   return { status: "success", errors: {} };
 }

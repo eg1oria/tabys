@@ -21,7 +21,7 @@ export function Seals() {
               оборудования, в том числе Grundfos и других серий.
             </p>
             <Link
-              href="/oborudovanie?cat=torcevye-uplotneniya"
+              href="/oborudovanie/torcevye-uplotneniya"
               className="group mt-7 inline-flex items-center gap-2 text-[13px] font-medium text-accent"
             >
               Перейти в каталог

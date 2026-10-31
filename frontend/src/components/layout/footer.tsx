@@ -5,11 +5,10 @@ import { Logo } from "./logo";
 import { Socials } from "./socials";
 import { Mail, Phone, Pin } from "@/components/ui/icons";
 import { COPYRIGHT_YEAR, company, primaryPhone } from "@/lib/content/company";
-import { categories } from "@/lib/content/categories";
+import type { NavLink } from "@/lib/content/nav";
 
-const footerCatalog = categories.slice(0, 12);
-
-export function Footer() {
+/** catalog — опубликованные категории из админки, их передаёт layout. */
+export function Footer({ catalog }: { catalog: NavLink[] }) {
   return (
     <footer className="bg-ink text-white">
       <Container className="grid gap-12 py-14 lg:grid-cols-12 lg:gap-8 lg:py-16">
@@ -23,13 +22,13 @@ export function Footer() {
         <div className="lg:col-span-5">
           <h2 className="section-label text-white/40">Каталог</h2>
           <ul className="mt-5 grid gap-x-8 gap-y-2.5 sm:grid-cols-2 xl:grid-cols-3">
-            {footerCatalog.map((category) => (
-              <li key={category.slug}>
+            {catalog.slice(0, 12).map((link) => (
+              <li key={link.href}>
                 <Link
-                  href={`/oborudovanie?cat=${category.slug}`}
+                  href={link.href}
                   className="text-[13px] leading-snug text-white/70 transition-colors hover:text-accent"
                 >
-                  {category.title}
+                  {link.label}
                 </Link>
               </li>
             ))}

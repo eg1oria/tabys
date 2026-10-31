@@ -5,6 +5,9 @@ import type { NextConfig } from "next";
 const apiOrigin = new URL(process.env.API_ORIGIN ?? "http://localhost:4000");
 
 const nextConfig: NextConfig = {
+  // Самодостаточная сборка для Docker: server.js и только нужные модули
+  // (frontend/Dockerfile). На next dev не влияет.
+  output: "standalone",
   experimental: {
     agentFeedback: true,
     serverActions: {
@@ -25,6 +28,11 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   reactCompiler: true,
   images: {
+    // С 16-й версии оптимизатор не ходит на локальные адреса (защита от SSRF),
+    // а в dev бэкенд как раз на localhost — без этого фото каталога на сайте
+    // отдавали 400. В проде бэкенд на публичном домене, флаг там выключен.
+    // Доступ всё равно ограничен remotePatterns ниже: только /uploads бэкенда.
+    dangerouslyAllowLocalIP: process.env.NODE_ENV !== "production",
     remotePatterns: [
       {
         protocol: apiOrigin.protocol.replace(":", "") as "http" | "https",

@@ -19,6 +19,8 @@ export type PublicCategoryRow = {
   description: string;
   highlights: string[];
   positionCount: number | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
   image: ImageRow;
   facetValues: FacetRow[];
   products: { title: string }[];
@@ -26,8 +28,9 @@ export type PublicCategoryRow = {
 };
 
 /**
- * Форма ответа повторяет тип Category на фронтенде: фасеты раскладываются
- * в поля type/volume/productivity/material/application рядом с остальными.
+ * Форма ответа повторяет тип PublicCategory на фронтенде. Фасеты лежат
+ * во вложенном facets, а не в корне: ключи групп задаёт редактор, и группа
+ * с ключом вида title или count затирала бы одноимённое поле категории.
  *
  * count — именно positionCount ?? фактическое число товаров: витринные числа
  * у трёх категорий расходятся с реальным списком (у торцевых уплотнений
@@ -54,9 +57,13 @@ export function toPublicCategory(row: PublicCategoryRow, mediaBaseUrl: string) {
           blurDataUrl: row.image.blurDataUrl,
         }
       : null,
-    highlights: row.highlights.length > 0 ? row.highlights : undefined,
+    highlights: row.highlights,
     items: row.products.map((p) => p.title),
-    ...facets,
+    facets,
+    // Для <title> и description страницы категории; пусто — берутся
+    // название и описание.
+    seoTitle: row.seoTitle,
+    seoDescription: row.seoDescription,
   };
 }
 

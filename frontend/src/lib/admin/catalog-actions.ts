@@ -1,8 +1,9 @@
 "use server";
 
-import { refresh } from "next/cache";
+import { refresh, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { apiMutate } from "../api/server";
+import { CATALOG_TAG } from "../api/public";
 import { formError, safeNext, toFormState, withValues, type FormState } from "./form-state";
 import {
   NOT_A_NUMBER,
@@ -73,6 +74,10 @@ export async function saveCategory(prev: FormState, formData: FormData): Promise
     return fail(toFormState(error, CATEGORY_FIELDS));
   }
 
+  // Витрина сайта читает каталог из кеша — сбрасываем его, чтобы правка
+  // была видна посетителю сразу, а не через час (cacheLife в lib/api/public.ts).
+  updateTag(CATALOG_TAG);
+
   // redirect бросает исключение — вызывать его внутри try нельзя,
   // иначе его перехватит catch выше и покажет как ошибку формы.
   if (created) redirect(`/admin/catalog/categories/${created.id}`);
@@ -98,6 +103,7 @@ export async function setCategoryStatus(
     return toFormState(error);
   }
 
+  updateTag(CATALOG_TAG);
   refresh();
   return { status: "success", errors: {} };
 }
@@ -113,6 +119,7 @@ export async function deleteCategory(_prev: FormState, formData: FormData): Prom
     return toFormState(error);
   }
 
+  updateTag(CATALOG_TAG);
   redirect("/admin/catalog/categories");
 }
 
@@ -130,6 +137,7 @@ export async function reorderCategories(
     return toFormState(error);
   }
 
+  updateTag(CATALOG_TAG);
   refresh();
   return { status: "success", errors: {} };
 }
@@ -190,6 +198,7 @@ export async function saveProduct(prev: FormState, formData: FormData): Promise<
     return fail(toFormState(error, PRODUCT_FIELDS));
   }
 
+  updateTag(CATALOG_TAG);
   // Созданный товар открываем в той же панели — фильтры списка сохраняются.
   if (created) {
     const back = returnTo(formData, "/admin/catalog/products");
@@ -214,6 +223,7 @@ export async function setProductStatus(_prev: FormState, formData: FormData): Pr
     return toFormState(error);
   }
 
+  updateTag(CATALOG_TAG);
   refresh();
   return { status: "success", errors: {} };
 }
@@ -228,6 +238,7 @@ export async function deleteProduct(_prev: FormState, formData: FormData): Promi
     return toFormState(error);
   }
 
+  updateTag(CATALOG_TAG);
   redirect(returnTo(formData, "/admin/catalog/products"));
 }
 
@@ -241,6 +252,7 @@ export async function reorderProducts(_prev: FormState, formData: FormData): Pro
     return toFormState(error);
   }
 
+  updateTag(CATALOG_TAG);
   refresh();
   return { status: "success", errors: {} };
 }

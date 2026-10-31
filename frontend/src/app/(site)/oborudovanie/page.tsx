@@ -4,6 +4,7 @@ import { PageHero } from "@/components/ui/page-hero";
 import { Container } from "@/components/ui/container";
 import { CatalogBrowser } from "@/components/catalog/catalog-browser";
 import { CtaBand } from "@/components/home/cta-band";
+import { getCategories, getFacetGroups } from "@/lib/api/public";
 
 export const metadata: Metadata = {
   title: "Каталог оборудования",
@@ -21,11 +22,21 @@ export default function CatalogPage() {
         description="Проектируем и производим оборудование для пищевой промышленности из нержавеющей стали. Подберём решение под вашу технологическую задачу."
       />
       <Suspense fallback={<CatalogSkeleton />}>
-        <CatalogBrowser />
+        <Catalog />
       </Suspense>
       <CtaBand />
     </>
   );
+}
+
+/**
+ * Под Suspense: CatalogBrowser читает ?q= через useSearchParams, а каталог
+ * при недоступном на сборке бэкенде дорисовывается по запросу.
+ * Старые адреса ?cat=<слаг> уводит на страницу категории proxy.ts.
+ */
+async function Catalog() {
+  const [categories, facetGroups] = await Promise.all([getCategories(), getFacetGroups()]);
+  return <CatalogBrowser categories={categories} facetGroups={facetGroups} />;
 }
 
 function CatalogSkeleton() {

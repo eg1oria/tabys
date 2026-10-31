@@ -17,7 +17,7 @@
 
 ## Запуск
 
-Нужны Node 24+ и PostgreSQL 16+.
+Нужны Node 24+ (`.nvmrc` в корне: `nvm use`) и PostgreSQL 16+. Прод — `../README.md`, раздел «Деплой».
 
 ```bash
 npm install

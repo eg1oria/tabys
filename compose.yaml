@@ -1,0 +1,116 @@
+# Прод-окружение на одном сервере: docker compose up -d --build
+# Порядок запуска: db → migrate (миграции, одноразово) → backend → frontend → caddy.
+# Переменные — в .env рядом с этим файлом (шаблон: .env.example).
+# Подробности — README.md, раздел «Деплой».
+
+name: tabys
+
+x-restart: &restart
+  restart: unless-stopped
+
+x-backend-env: &backend-env
+  NODE_ENV: production
+  DATABASE_URL: postgresql://tabys:${POSTGRES_PASSWORD:?задайте POSTGRES_PASSWORD в .env}@db:5432/tabys?schema=public
+  JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?задайте JWT_ACCESS_SECRET в .env}
+  JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?задайте JWT_REFRESH_SECRET в .env}
+  UPLOAD_DIR: /app/uploads
+  # Адрес, под которым браузер видит /uploads: из него бэкенд собирает
+  # ссылки на картинки каталога. Caddy проксирует /uploads на бэкенд.
+  PUBLIC_URL: ${SITE_URL:?задайте SITE_URL в .env}
+  CORS_ORIGINS: ${SITE_URL}
+  # Бэкенд снаружи не виден: к нему ходят только Next (заявки, админка)
+  # и Caddy (/uploads) из внутренней сети. Им и доверяем X-Forwarded-For —
+  # иначе лимит заявок по IP был бы общим на всех посетителей.
+  TRUST_PROXY: uniquelocal
+  TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+  TELEGRAM_CHAT_IDS: ${TELEGRAM_CHAT_IDS:-}
+
+services:
+  db:
+    <<: *restart
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: tabys
+      POSTGRES_USER: tabys
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?задайте POSTGRES_PASSWORD в .env}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tabys -d tabys"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Миграции перед каждым запуском. Он же — для сида и разовых команд:
+  #   docker compose run --rm migrate npm run db:seed
+  migrate:
+    build:
+      context: ./backend
+      target: tools
+    environment:
+      <<: *backend-env
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-}
+    volumes:
+      - uploads:/app/uploads
+      # Сид переносит фото категорий из frontend/public (prisma/seed-media.ts).
+      - ./frontend/public:/frontend/public:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  backend:
+    <<: *restart
+    build:
+      context: ./backend
+      target: runtime
+    environment: *backend-env
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  frontend:
+    <<: *restart
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_SITE_URL: ${SITE_URL}
+        API_ORIGIN: ${SITE_URL}
+    environment:
+      API_URL: http://backend:4000/api/v1
+      # Ссылки на картинки в админке и images.remotePatterns: снаружи
+      # /uploads живёт на том же домене, что и сайт.
+      API_ORIGIN: ${SITE_URL}
+      NEXT_PUBLIC_SITE_URL: ${SITE_URL}
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  caddy:
+    <<: *restart
+    image: caddy:2.10-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN:?задайте DOMAIN в .env}
+      ACME_EMAIL: ${ACME_EMAIL:?задайте ACME_EMAIL в .env — на неё Let's Encrypt пишет об истечении сертификата}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      frontend:
+        condition: service_healthy
+
+volumes:
+  db-data:
+  uploads:
+  caddy-data:
+  caddy-config:

@@ -3,12 +3,21 @@ import { Container } from "@/components/ui/container";
 import { SectionHeader } from "@/components/ui/section-header";
 import { ImageSlot } from "@/components/ui/image-slot";
 import { ArrowRight, Check } from "@/components/ui/icons";
-import { categories } from "@/lib/content/categories";
+import { getCategories } from "@/lib/api/public";
+import { categoryHref } from "@/lib/catalog-urls";
 
-const [featured, ...rest] = categories;
-const secondary = rest.slice(0, 5);
+/**
+ * Первые шесть опубликованных категорий в порядке из админки: первая —
+ * крупной карточкой с пунктами highlights, остальные — сеткой.
+ * На главной стоит под <Suspense>: см. «Сборка от бэкенда не зависит»
+ * в lib/api/public.ts.
+ */
+export async function EquipmentGrid() {
+  const [featured, ...rest] = await getCategories();
+  // Бэкенд недоступен — блок не рисуем, а не показываем пустую сетку.
+  if (!featured) return null;
+  const secondary = rest.slice(0, 5);
 
-export function EquipmentGrid() {
   return (
     <section className="bg-muted py-16 lg:py-24">
       <Container>
@@ -37,16 +46,13 @@ export function EquipmentGrid() {
         <div className="grid gap-4 lg:grid-cols-12">
           {/* Крупная карточка */}
           <Link
-            href={`/oborudovanie?cat=${featured.slug}`}
+            href={categoryHref(featured.slug)}
             className="group relative flex flex-col overflow-hidden rounded-card bg-ink p-7 text-white lg:col-span-4"
           >
-            <h3 className="display-title text-[1.5rem] leading-tight">
-              Ёмкости
-              <br />и резервуары
-            </h3>
+            <h3 className="display-title text-[1.5rem] leading-tight">{featured.title}</h3>
 
             <ul className="mt-6 space-y-2.5">
-              {featured.highlights?.map((point) => (
+              {featured.highlights.map((point) => (
                 <li key={point} className="flex items-start gap-2.5 text-[13px] text-white/70">
                   <Check className="mt-0.5 size-3.5 shrink-0 text-accent" />
                   {point}
@@ -55,9 +61,10 @@ export function EquipmentGrid() {
             </ul>
 
             <ImageSlot
-              src={featured.image}
-              alt={featured.title}
+              src={featured.image?.url}
+              alt={featured.image?.alt || featured.title}
               label={featured.title}
+              blurDataUrl={featured.image?.blurDataUrl}
               className="mt-7 aspect-[4/3] w-full rounded-card"
               imageClassName="transition-transform duration-500 group-hover:scale-[1.04]"
               sizes="(max-width: 1024px) 100vw, 33vw"
@@ -73,7 +80,7 @@ export function EquipmentGrid() {
             {secondary.map((category, i) => (
               <Link
                 key={category.slug}
-                href={`/oborudovanie?cat=${category.slug}`}
+                href={categoryHref(category.slug)}
                 className={`group flex flex-col rounded-card border border-line bg-white p-5 transition-colors hover:border-accent ${
                   i < 2 ? "sm:col-span-3" : "sm:col-span-2"
                 }`}
@@ -88,9 +95,10 @@ export function EquipmentGrid() {
                 </div>
 
                 <ImageSlot
-                  src={category.image}
-                  alt={category.title}
+                  src={category.image?.url}
+                  alt={category.image?.alt || category.title}
                   label={category.title}
+                  blurDataUrl={category.image?.blurDataUrl}
                   className="mt-4 aspect-[4/3] w-full rounded-card"
                   imageClassName="transition-transform duration-500 group-hover:scale-[1.04]"
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"

@@ -184,7 +184,8 @@ model Product {
   categoryId  String
   category    Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   title       String
-  slug        String?
+  /// Часть адреса /oborudovanie/<категория>/<товар>, уникален в категории.
+  slug        String
   /// Артикул: редактор вводит сам, поэтому проверяем уникальность в сервисе.
   sku         String?       @unique
   description String?

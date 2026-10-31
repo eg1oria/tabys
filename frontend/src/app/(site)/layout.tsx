@@ -1,5 +1,4 @@
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
+import { SiteChrome } from "@/components/layout/site-chrome";
 
 /**
  * Чром публичного сайта. Вынесен из корневого layout, потому что рядом
@@ -8,10 +7,8 @@ import { Footer } from "@/components/layout/footer";
  */
 export default function SiteLayout({ children }: LayoutProps<"/">) {
   return (
-    <>
-      <Header />
+    <SiteChrome>
       <main className="flex-1">{children}</main>
-      <Footer />
-    </>
+    </SiteChrome>
   );
 }
