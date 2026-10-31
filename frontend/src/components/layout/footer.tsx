@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { cacheLife } from "next/cache";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { Logo } from "./logo";
 import { Socials } from "./socials";
 import { Mail, Phone, Pin } from "@/components/ui/icons";
-import { COPYRIGHT_YEAR, company, primaryPhone } from "@/lib/content/company";
+import { company, primaryPhone } from "@/lib/content/company";
 import type { NavLink } from "@/lib/content/nav";
 
 /** catalog — опубликованные категории из админки, их передаёт layout. */
@@ -71,7 +72,7 @@ export function Footer({ catalog }: { catalog: NavLink[] }) {
       <div className="border-t border-white/10">
         <Container className="flex flex-col gap-3 py-5 text-[12px] text-white/40 sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {COPYRIGHT_YEAR} {company.legalName}. Все права защищены.
+            © <CopyrightYear /> {company.legalName}. Все права защищены.
           </p>
           <div className="flex flex-wrap items-center gap-5">
             <Link
@@ -88,4 +89,17 @@ export function Footer({ catalog }: { catalog: NavLink[] }) {
       </div>
     </footer>
   );
+}
+
+/**
+ * Текущий год без константы, которую надо помнить менять в январе.
+ * Голый new Date() при cacheComponents ломает пререндер, а внутри
+ * "use cache" — можно: год запекается в статическую оболочку и
+ * пересчитывается раз в сутки (профиль days), так что после Нового года
+ * подвал обновится сам в течение дня.
+ */
+async function CopyrightYear() {
+  "use cache";
+  cacheLife("days");
+  return new Date().getFullYear();
 }

@@ -14,12 +14,6 @@ export const SITE_URL = (() => {
   return "http://localhost:3000";
 })();
 
-/**
- * Год в подвале — константа, а не new Date().getFullYear():
- * при включённом cacheComponents синхронный вызов даты ломает пререндер.
- */
-export const COPYRIGHT_YEAR = 2026;
-
 export type Phone = {
   label: string;
   display: string;
@@ -43,8 +37,13 @@ export const company = {
   ] satisfies Phone[],
   whatsapp: "https://wa.me/77072671237",
   telegram: "https://t.me/+77072671237",
-  instagram: "https://instagram.com/",
-  youtube: "https://youtube.com/",
+  /**
+   * Аккаунтов пока нет: null — иконка не показывается. Раньше здесь стояли
+   * голые instagram.com и youtube.com — посетитель попадал на главную
+   * соцсети, а не к компании. Появится аккаунт — впишите полный адрес.
+   */
+  instagram: null as string | null,
+  youtube: null as string | null,
 } as const;
 
 export const primaryPhone = company.phones[0];

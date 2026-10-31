@@ -2,12 +2,13 @@ import { company } from "@/lib/content/company";
 import { Instagram, Telegram, WhatsApp, YouTube } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 
+/** Только заполненные: ссылка без аккаунта хуже, чем никакой. */
 const links = [
   { label: "WhatsApp", href: company.whatsapp, Icon: WhatsApp },
   { label: "Telegram", href: company.telegram, Icon: Telegram },
   { label: "Instagram", href: company.instagram, Icon: Instagram },
   { label: "YouTube", href: company.youtube, Icon: YouTube },
-];
+].filter((link): link is typeof link & { href: string } => Boolean(link.href));
 
 export function Socials({ className }: { className?: string }) {
   return (
