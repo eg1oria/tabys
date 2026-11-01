@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LoginForm } from "./login-form";
 import { safeNext } from "@/lib/admin/form-state";
+import { LogoMark } from "@/components/layout/logo-mark";
 
 /**
  * Страница читает данные под авторизацией на каждый запрос: кешировать
@@ -19,7 +20,8 @@ export default async function LoginPage({ searchParams }: PageProps<"/admin/logi
   return (
     <div className="flex flex-1 items-center justify-center px-4 py-16">
       <div className="w-full max-w-[380px]">
-        <div className="text-center">
+        <div className="flex flex-col items-center text-center">
+          <LogoMark className="mb-3 size-11" />
           <span className="block font-display text-[22px] font-extrabold tracking-[0.02em] text-ink">
             ТАБЫС
           </span>

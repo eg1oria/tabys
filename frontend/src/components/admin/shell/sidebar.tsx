@@ -4,6 +4,7 @@ import { AdminNav } from "./nav";
 import { LeadsBadge } from "./leads-badge";
 import { SidebarShell } from "./sidebar-state";
 import { SidebarLogout } from "./user-menu";
+import { LogoMark } from "@/components/layout/logo-mark";
 import { apiRead } from "@/lib/api/server";
 import type { CurrentUser } from "@/lib/api/types";
 
@@ -31,12 +32,7 @@ export function Sidebar() {
         prefetch={false}
         className="flex items-center gap-3 border-b border-white/10 px-5 py-5"
       >
-        <span
-          aria-hidden
-          className="grid size-9 shrink-0 place-items-center rounded-card bg-accent font-display text-[13px] font-extrabold text-white"
-        >
-          TT
-        </span>
+        <LogoMark className="size-9" />
         <span className="min-w-0">
           <span className="block font-display text-[14px] leading-tight font-extrabold tracking-[0.02em] text-white">
             ТАБЫС
