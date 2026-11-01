@@ -12,7 +12,7 @@ import weldingPhoto from "@/assets/images/welding.jpg";
 export const metadata: Metadata = pageMetadata({
   title: "О компании",
   description:
-    "Tabys Consulting — собственное производство оборудования из нержавеющей стали для пищевой промышленности в Алматы. Проектирование, изготовление по ТЗ, комплектация линий и сервис.",
+    "Табыс Consulting — собственное производство оборудования из нержавеющей стали для пищевой промышленности в Алматы. Проектирование, изготовление по ТЗ, комплектация линий и сервис.",
   path: "/o-kompanii",
 });
 
@@ -22,7 +22,7 @@ export default function AboutPage() {
       <PageHero
         breadcrumb="О компании"
         title="О компании"
-        titleAccent="Tabys Consulting"
+        titleAccent="Табыс Consulting"
         description="Производим оборудование для пищевых производств в Казахстане — от отдельных ёмкостей до комплексных линий под ключ."
       />
 
@@ -37,7 +37,7 @@ export default function AboutPage() {
               </h2>
               <div className="mt-6 space-y-4 text-[14.5px] leading-relaxed text-text-2">
                 <p>
-                  Tabys Consulting проектирует и производит оборудование из нержавеющей
+                  Табыс Consulting проектирует и производит оборудование из нержавеющей
                   стали для переработки молока, производства сыра, творога, кисломолочных
                   продуктов и напитков.
                 </p>
@@ -57,7 +57,7 @@ export default function AboutPage() {
             <div className="lg:col-span-6">
               <ImageSlot
                 src={weldingPhoto}
-                alt="Производство оборудования Tabys Consulting"
+                alt="Производство оборудования Табыс Consulting"
                 className="aspect-[4/3] w-full rounded-card"
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />

@@ -19,7 +19,7 @@ export function WhyUs() {
           <h2 className="display-title max-w-2xl text-[clamp(1.75rem,5vw,3.25rem)] leading-[1.04]">
             Почему
             <br />
-            Tabys Consulting
+            Табыс Consulting
             <span
               aria-hidden
               className="ml-5 hidden h-[6px] w-[72px] align-middle bg-accent lg:inline-block"

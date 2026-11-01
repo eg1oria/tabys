@@ -14,7 +14,7 @@ export const defaultOgImages = [
     url: ogImage.src,
     width: ogImage.width,
     height: ogImage.height,
-    alt: "Tabys Consulting — оборудование для пищевых производств, собственный цех в Алматы",
+    alt: "Табыс Consulting — оборудование для пищевых производств, собственный цех в Алматы",
   },
 ];
 

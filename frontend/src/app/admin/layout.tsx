@@ -13,7 +13,7 @@ import type { Metadata } from "next";
 export const instant = false;
 
 export const metadata: Metadata = {
-  title: { default: "Админка", template: "%s — админка Tabys" },
+  title: { default: "Админка", template: "%s — админка Табыс" },
   // Админка не должна попадать в поиск ни при какой конфигурации сервера.
   robots: { index: false, follow: false },
 };

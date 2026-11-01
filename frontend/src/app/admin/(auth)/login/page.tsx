@@ -21,7 +21,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/admin/logi
       <div className="w-full max-w-[380px]">
         <div className="text-center">
           <span className="block font-display text-[22px] font-extrabold tracking-[0.02em] text-ink">
-            TABYS
+            ТАБЫС
           </span>
           <span className="mt-1 block font-display text-[10px] font-semibold tracking-[0.42em] text-text-2">
             CONSULTING

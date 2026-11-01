@@ -15,12 +15,12 @@ import heroMainPhoto from "@/assets/images/hero-main.jpg";
 
 export const metadata: Metadata = pageMetadata({
   title: "Контакты",
-  description: `Контакты Tabys Consulting: ${company.address}. Телефоны, email и форма заявки на подбор оборудования для пищевой промышленности.`,
+  description: `Контакты Табыс Consulting: ${company.address}. Телефоны, email и форма заявки на подбор оборудования для пищевой промышленности.`,
   path: "/kontakty",
 });
 
 const gallery = [
-  { src: heroMainPhoto, alt: "Производственный цех Tabys Consulting" },
+  { src: heroMainPhoto, alt: "Производственный цех Табыс Consulting" },
   { src: catCipPhoto, alt: "Участок сборки оборудования" },
   { src: catVacuumPhoto, alt: "Готовое оборудование перед отгрузкой" },
 ];
@@ -31,7 +31,7 @@ export default function ContactsPage() {
       <PageHero
         breadcrumb="Контакты"
         title="Контакты"
-        titleAccent="Tabys Consulting"
+        titleAccent="Табыс Consulting"
         description="Свяжитесь с нами удобным способом. Мы проконсультируем по оборудованию, поможем подобрать решение и рассчитаем проект под вашу задачу."
       />
 
@@ -108,7 +108,7 @@ export default function ContactsPage() {
               </div>
               <p className="mt-5 max-w-xl text-[13px] leading-relaxed text-text-2">
                 Территория производства находится в {company.addressShort}. Въезд для
-                транспорта со стороны улицы — ориентируйтесь на вывеску Tabys Consulting.
+                транспорта со стороны улицы — ориентируйтесь на вывеску Табыс Consulting.
               </p>
             </div>
           </div>

@@ -39,7 +39,7 @@ export function Sidebar() {
         </span>
         <span className="min-w-0">
           <span className="block font-display text-[14px] leading-tight font-extrabold tracking-[0.02em] text-white">
-            TABYS
+            ТАБЫС
           </span>
           <span className="block font-display text-[9px] leading-tight font-semibold tracking-[0.3em] text-white/45">
             CONSULTING

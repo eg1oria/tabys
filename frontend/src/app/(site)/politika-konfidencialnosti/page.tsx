@@ -7,7 +7,7 @@ import { company } from "@/lib/content/company";
 export const metadata: Metadata = pageMetadata({
   title: "Политика конфиденциальности",
   description:
-    "Политика в отношении обработки персональных данных пользователей сайта Tabys Consulting.",
+    "Политика в отношении обработки персональных данных пользователей сайта Табыс Consulting.",
   robots: { index: false, follow: true },
   path: "/politika-konfidencialnosti",
 });

@@ -21,8 +21,8 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Tabys Consulting — оборудование для пищевой промышленности",
-    template: "%s — Tabys Consulting",
+    default: "Табыс Consulting — оборудование для пищевой промышленности",
+    template: "%s — Табыс Consulting",
   },
   description:
     "Проектируем, производим и комплектуем оборудование из нержавеющей стали для пищевых производств. Собственное производство в Алматы, работаем по всему Казахстану.",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   openGraph: {
     ...baseOpenGraph,
     url: "/",
-    title: "Tabys Consulting — оборудование для пищевой промышленности",
+    title: "Табыс Consulting — оборудование для пищевой промышленности",
     description:
       "От отдельных единиц оборудования до комплексных производственных линий. Изготовление по техническому заданию.",
   },

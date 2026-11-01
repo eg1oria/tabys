@@ -66,7 +66,7 @@ export const advantages = [
   { title: "Сервис и поддержка", description: "Обслуживание после запуска" },
 ];
 
-/** Блок «Почему Tabys Consulting». */
+/** Блок «Почему Табыс Consulting». */
 export const whyUs = [
   {
     title: "Собственное производство",

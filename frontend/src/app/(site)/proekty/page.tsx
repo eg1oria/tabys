@@ -11,7 +11,7 @@ import { projects } from "@/lib/content/projects";
 export const metadata: Metadata = pageMetadata({
   title: "Проекты",
   description:
-    "Реализованные проекты Tabys Consulting: комплексы переработки молока, сыроварни под ключ, линии пастеризации и розлива в Казахстане.",
+    "Реализованные проекты Табыс Consulting: комплексы переработки молока, сыроварни под ключ, линии пастеризации и розлива в Казахстане.",
   path: "/proekty",
 });
 

@@ -11,7 +11,7 @@ export function Logo({
   return (
     <Link
       href="/"
-      aria-label="Tabys Consulting — на главную"
+      aria-label="Табыс Consulting — на главную"
       className={cn("group block shrink-0 leading-none", className)}
     >
       <span
@@ -20,7 +20,7 @@ export function Logo({
           tone === "light" ? "text-white" : "text-ink",
         )}
       >
-        TABYS
+        ТАБЫС
       </span>
       <span
         className={cn(

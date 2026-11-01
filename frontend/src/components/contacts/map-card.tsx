@@ -27,7 +27,7 @@ export function MapCard() {
         <Pin className="mt-0.5 size-5 shrink-0 text-accent" />
         <div>
           <p className="font-display text-[13px] font-bold uppercase tracking-[0.04em]">
-            Tabys Consulting
+            Табыс Consulting
           </p>
           <p className="mt-1 text-[13px] text-text-2">{company.addressShort}</p>
         </div>

@@ -21,8 +21,8 @@ export type Phone = {
 };
 
 export const company = {
-  name: "TABYS CONSULTING",
-  shortName: "Tabys Consulting",
+  name: "ТАБЫС CONSULTING",
+  shortName: "Табыс Consulting",
   legalName: "ТОО «Табыс Consulting»",
   tagline: "Производство оборудования\nдля пищевой промышленности",
   city: "Алматы, Казахстан",
