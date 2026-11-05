@@ -32,6 +32,7 @@ const ACTION_LABEL: Record<string, string> = {
   "product.unpublish": "снял товар с публикации",
   "product.reorder": "переставил товары",
   "product.delete": "удалил товар",
+  "product.priceIncrease": "поднял цены всех товаров",
   "facetValue.create": "добавил значение параметра",
   "facetValue.update": "изменил значение параметра",
   "facetValue.delete": "удалил значение параметра",
@@ -134,6 +135,9 @@ const FIELD_LABEL: Record<string, string> = {
   chatsKept: "чаты сохранены",
   order: "порядок",
   value: "значение",
+  factor: "множитель",
+  roundTo: "округление до",
+  products: "товаров",
 };
 
 /** Служебное и производное: в журнале только шум. */
