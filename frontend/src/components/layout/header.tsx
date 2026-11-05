@@ -8,7 +8,8 @@ import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, Close, Menu, Phone, Search } from "@/components/ui/icons";
 import type { NavItem } from "@/lib/content/nav";
-import { company, primaryPhone } from "@/lib/content/company";
+import { phoneHref, primaryPhone } from "@/lib/content/company";
+import type { Contacts } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
 function isActive(pathname: string, href: string) {
@@ -17,7 +18,8 @@ function isActive(pathname: string, href: string) {
   return pathname === base || pathname.startsWith(`${base}/`);
 }
 
-export function Header({ nav }: { nav: NavItem[] }) {
+export function Header({ nav, contacts }: { nav: NavItem[]; contacts: Contacts }) {
+  const mainPhone = primaryPhone(contacts);
   const pathname = usePathname();
   const router = useRouter();
   const [openMenu, setOpenMenu] = useState(false);
@@ -158,11 +160,11 @@ export function Header({ nav }: { nav: NavItem[] }) {
           </button>
 
           <a
-            href={primaryPhone.href}
+            href={phoneHref(mainPhone)}
             className="hidden items-center gap-2 whitespace-nowrap border-l border-white/15 pl-4 text-[13px] text-white/90 transition-colors hover:text-white 2xl:inline-flex"
           >
             <Phone className="size-4 text-accent" />
-            {primaryPhone.display}
+            {mainPhone.display}
           </a>
 
           <span className="hidden sm:block">
@@ -236,18 +238,18 @@ export function Header({ nav }: { nav: NavItem[] }) {
             </nav>
 
             <div className="mt-8 space-y-3">
-              {company.phones.map((phone) => (
+              {contacts.phones.map((phone) => (
                 <a
-                  key={phone.href}
-                  href={phone.href}
+                  key={phone.digits}
+                  href={phoneHref(phone)}
                   className="flex items-baseline gap-3 text-white"
                 >
                   <span className="text-[15px]">{phone.display}</span>
                   <span className="text-xs text-white/45">{phone.label}</span>
                 </a>
               ))}
-              <a href={`mailto:${company.email}`} className="block text-[15px] text-white/80">
-                {company.email}
+              <a href={`mailto:${contacts.email}`} className="block text-[15px] text-white/80">
+                {contacts.email}
               </a>
             </div>
 

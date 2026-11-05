@@ -308,3 +308,27 @@ export type TelegramLink = {
   groupUrl: string;
   expiresAt: string;
 };
+
+// ───────────────────────────── контакты ─────────────────────────────
+
+export type ContactPhone = {
+  label: string;
+  /** Цифры с кодом страны: 77072671237. */
+  digits: string;
+  /** +7 (707) 267-12-37. */
+  display: string;
+};
+
+/** Контакты компании — /public/contacts и /admin/contacts. */
+export type Contacts = {
+  address: string;
+  addressShort: string;
+  mapUrl: string;
+  email: string;
+  /** Первый — главный: он в шапке и на кнопках «позвонить». */
+  phones: ContactPhone[];
+  whatsapp: string | null;
+  telegram: string | null;
+  instagram: string | null;
+  youtube: string | null;
+};

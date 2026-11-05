@@ -12,6 +12,7 @@ export const AUDIT_ENTITIES = [
   'AdminUser',
   'TelegramBot',
   'TelegramChat',
+  'SiteContacts',
 ] as const;
 
 export class QueryAuditDto extends PaginationDto {

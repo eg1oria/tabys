@@ -10,10 +10,15 @@ import { ProductCard, priceLabel } from "@/components/catalog/product-card";
 import { ProductGallery } from "@/components/catalog/product-gallery";
 import { RequestForm } from "@/components/forms/request-form";
 import { JsonLd, breadcrumbList } from "@/components/seo/json-ld";
-import { buildTimeProductSlugs, getCategoryProducts, getProduct } from "@/lib/api/public";
+import {
+  buildTimeProductSlugs,
+  getCategoryProducts,
+  getContacts,
+  getProduct,
+} from "@/lib/api/public";
 import type { PublicProductDetail } from "@/lib/api/types";
 import { BUILD_PLACEHOLDER, categoryHref, productHref } from "@/lib/catalog-urls";
-import { SITE_URL, company, primaryPhone } from "@/lib/content/company";
+import { SITE_URL, company, phoneHref, primaryPhone } from "@/lib/content/company";
 
 type Props = PageProps<"/oborudovanie/[category]/[product]">;
 
@@ -71,15 +76,17 @@ export default async function ProductPage({ params }: Props) {
   const { category: categorySlug, product: slug } = await params;
   if (isPlaceholder(categorySlug, slug)) notFound();
 
-  const [product, siblings] = await Promise.all([
+  const [product, siblings, contacts] = await Promise.all([
     getProduct(categorySlug, slug),
     getCategoryProducts(categorySlug),
+    getContacts(),
   ]);
   if (!product) notFound();
 
   const url = productHref(product.category.slug, product.slug);
   const specs = product.specs;
   const others = siblings.filter((p) => p.slug !== product.slug).slice(0, 3);
+  const mainPhone = primaryPhone(contacts);
   const price = product.priceOnRequest || !product.priceFrom ? null : product.priceFrom;
 
   return (
@@ -171,9 +178,9 @@ export default async function ProductPage({ params }: Props) {
                 <Button href="#zayavka" arrow>
                   Запросить расчёт
                 </Button>
-                <Button href={primaryPhone.href} variant="outline">
+                <Button href={phoneHref(mainPhone)} variant="outline">
                   <Phone className="size-4" />
-                  {primaryPhone.display}
+                  {mainPhone.display}
                 </Button>
               </div>
             </div>

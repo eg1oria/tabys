@@ -66,7 +66,8 @@ export const ModelName = {
   TelegramBot: 'TelegramBot',
   TelegramChat: 'TelegramChat',
   TelegramLinkCode: 'TelegramLinkCode',
-  AuditLog: 'AuditLog'
+  AuditLog: 'AuditLog',
+  SiteContacts: 'SiteContacts'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -308,6 +309,23 @@ export const AuditLogScalarFieldEnum = {
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
 
 
+export const SiteContactsScalarFieldEnum = {
+  id: 'id',
+  address: 'address',
+  addressShort: 'addressShort',
+  mapUrl: 'mapUrl',
+  email: 'email',
+  phones: 'phones',
+  whatsapp: 'whatsapp',
+  telegram: 'telegram',
+  instagram: 'instagram',
+  youtube: 'youtube',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteContactsScalarFieldEnum = (typeof SiteContactsScalarFieldEnum)[keyof typeof SiteContactsScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -322,6 +340,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {

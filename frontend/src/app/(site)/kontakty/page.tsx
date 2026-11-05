@@ -8,16 +8,19 @@ import { MapCard } from "@/components/contacts/map-card";
 import { ContactCards } from "@/components/contacts/contact-cards";
 import { Schedule } from "@/components/contacts/schedule";
 import { RequestForm } from "@/components/forms/request-form";
-import { company } from "@/lib/content/company";
+import { getContacts } from "@/lib/api/public";
 import catCipPhoto from "@/assets/images/cat-cip.jpg";
 import catVacuumPhoto from "@/assets/images/cat-vacuum.jpg";
 import heroMainPhoto from "@/assets/images/hero-main.jpg";
 
-export const metadata: Metadata = pageMetadata({
-  title: "Контакты",
-  description: `Контакты Табыс Consulting: ${company.address}. Телефоны, email и форма заявки на подбор оборудования для пищевой промышленности.`,
-  path: "/kontakty",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  const { address } = await getContacts();
+  return pageMetadata({
+    title: "Контакты",
+    description: `Контакты Табыс Consulting: ${address}. Телефоны, email и форма заявки на подбор оборудования для пищевой промышленности.`,
+    path: "/kontakty",
+  });
+}
 
 const gallery = [
   { src: heroMainPhoto, alt: "Производственный цех Табыс Consulting" },
@@ -25,7 +28,8 @@ const gallery = [
   { src: catVacuumPhoto, alt: "Готовое оборудование перед отгрузкой" },
 ];
 
-export default function ContactsPage() {
+export default async function ContactsPage() {
+  const { addressShort } = await getContacts();
   return (
     <>
       <PageHero
@@ -107,7 +111,7 @@ export default function ContactsPage() {
                 ))}
               </div>
               <p className="mt-5 max-w-xl text-[13px] leading-relaxed text-text-2">
-                Территория производства находится в {company.addressShort}. Въезд для
+                Территория производства находится в {addressShort}. Въезд для
                 транспорта со стороны улицы — ориентируйтесь на вывеску Табыс Consulting.
               </p>
             </div>

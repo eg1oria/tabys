@@ -1,7 +1,9 @@
 import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 import { apiUrl, searchString } from "./url";
+import { defaultContacts } from "../content/company";
 import type {
+  Contacts,
   Paginated,
   PublicCategory,
   PublicFacetGroup,
@@ -150,4 +152,35 @@ export async function buildTimeCategorySlugs(): Promise<string[]> {
 export async function buildTimeProductSlugs(categorySlug: string): Promise<string[]> {
   const result = await allProducts(categorySlug);
   return result.status === "ok" ? result.data.map((product) => product.slug) : [];
+}
+
+export const CONTACTS_TAG = "contacts";
+
+/**
+ * Контакты компании из админки. Нужны в шапке и подвале каждой страницы,
+ * поэтому, в отличие от каталога, никогда не бросают и не становятся
+ * «дыркой»: без бэкенда — контакты из кода, и через минуту новая попытка.
+ * Срок сбойной записи нарочно не короче пяти минут по expire: короткий
+ * кеш выпал бы из пререндера, и каждой странице понадобился бы Suspense.
+ */
+export async function getContacts(): Promise<Contacts> {
+  "use cache";
+  cacheTag(CONTACTS_TAG);
+  try {
+    const response = await fetch(apiUrl("/public/contacts"), {
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!response.ok) throw new Error(`ответ ${response.status}`);
+    const data = (await response.json()) as Contacts;
+    if (!Array.isArray(data.phones) || data.phones.length === 0) {
+      throw new Error("в ответе нет телефонов");
+    }
+    cacheLife("hours");
+    return data;
+  } catch (error) {
+    console.error(`Контакты недоступны, показываем из кода — ${String(error)}`);
+    cacheLife({ stale: 60, revalidate: 60, expire: 3600 });
+    return defaultContacts;
+  }
 }

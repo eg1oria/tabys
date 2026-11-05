@@ -98,3 +98,10 @@ export type TelegramLinkCode = Prisma.TelegramLinkCodeModel
  * 
  */
 export type AuditLog = Prisma.AuditLogModel
+/**
+ * Model SiteContacts
+ * Контакты компании для сайта: шапка, подвал, страница «Контакты».
+ * Правятся из админки, строка одна (id = 1). Пока бэкенд недоступен,
+ * сайт показывает значения из frontend/src/lib/content/company.ts.
+ */
+export type SiteContacts = Prisma.SiteContactsModel

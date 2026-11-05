@@ -412,7 +412,8 @@ export const ModelName = {
   TelegramBot: 'TelegramBot',
   TelegramChat: 'TelegramChat',
   TelegramLinkCode: 'TelegramLinkCode',
-  AuditLog: 'AuditLog'
+  AuditLog: 'AuditLog',
+  SiteContacts: 'SiteContacts'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -428,7 +429,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "adminUser" | "refreshToken" | "mediaAsset" | "facetGroup" | "facetValue" | "categoryFacetValue" | "productFacetValue" | "category" | "product" | "productImage" | "lead" | "leadAttachment" | "telegramBot" | "telegramChat" | "telegramLinkCode" | "auditLog"
+    modelProps: "adminUser" | "refreshToken" | "mediaAsset" | "facetGroup" | "facetValue" | "categoryFacetValue" | "productFacetValue" | "category" | "product" | "productImage" | "lead" | "leadAttachment" | "telegramBot" | "telegramChat" | "telegramLinkCode" | "auditLog" | "siteContacts"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1616,6 +1617,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SiteContacts: {
+      payload: Prisma.$SiteContactsPayload<ExtArgs>
+      fields: Prisma.SiteContactsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SiteContactsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteContactsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SiteContactsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteContactsPayload>
+        }
+        findFirst: {
+          args: Prisma.SiteContactsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteContactsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SiteContactsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteContactsPayload>
+        }
+        findMany: {
+          args: Prisma.SiteContactsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteContactsPayload>[]
+        }
+        create: {
+          args: Prisma.SiteContactsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteContactsPayload>
+        }
+        createMany: {
+          args: Prisma.SiteContactsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SiteContactsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteContactsPayload>[]
+        }
+        delete: {
+          args: Prisma.SiteContactsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteContactsPayload>
+        }
+        update: {
+          args: Prisma.SiteContactsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteContactsPayload>
+        }
+        deleteMany: {
+          args: Prisma.SiteContactsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SiteContactsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SiteContactsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteContactsPayload>[]
+        }
+        upsert: {
+          args: Prisma.SiteContactsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteContactsPayload>
+        }
+        aggregate: {
+          args: Prisma.SiteContactsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSiteContacts>
+        }
+        groupBy: {
+          args: Prisma.SiteContactsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SiteContactsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SiteContactsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SiteContactsCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1878,6 +1953,23 @@ export const AuditLogScalarFieldEnum = {
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
 
 
+export const SiteContactsScalarFieldEnum = {
+  id: 'id',
+  address: 'address',
+  addressShort: 'addressShort',
+  mapUrl: 'mapUrl',
+  email: 'email',
+  phones: 'phones',
+  whatsapp: 'whatsapp',
+  telegram: 'telegram',
+  instagram: 'instagram',
+  youtube: 'youtube',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteContactsScalarFieldEnum = (typeof SiteContactsScalarFieldEnum)[keyof typeof SiteContactsScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1892,6 +1984,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -2238,6 +2337,7 @@ export type GlobalOmitConfig = {
   telegramChat?: Prisma.TelegramChatOmit
   telegramLinkCode?: Prisma.TelegramLinkCodeOmit
   auditLog?: Prisma.AuditLogOmit
+  siteContacts?: Prisma.SiteContactsOmit
 }
 
 /* Types for Logging */

@@ -2,10 +2,11 @@ import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { ImageSlot } from "@/components/ui/image-slot";
 import { WhatsApp } from "@/components/ui/icons";
-import { company } from "@/lib/content/company";
+import { getContacts } from "@/lib/api/public";
 import heroDarkPhoto from "@/assets/images/hero-dark.jpg";
 
-export function CtaBand() {
+export async function CtaBand() {
+  const { whatsapp } = await getContacts();
   return (
     <section className="relative isolate overflow-hidden bg-ink text-white">
       <ImageSlot
@@ -38,15 +39,17 @@ export function CtaBand() {
             <Button href="/kontakty" size="lg" arrow>
               Отправить ТЗ
             </Button>
-            <a
-              href={company.whatsapp}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="inline-flex h-[52px] items-center gap-2.5 rounded-card border border-white/25 px-7 text-sm font-medium text-white transition-colors hover:border-white/60 hover:bg-white/10"
-            >
-              Связаться в WhatsApp
-              <WhatsApp className="size-[18px]" />
-            </a>
+            {whatsapp ? (
+              <a
+                href={whatsapp}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex h-[52px] items-center gap-2.5 rounded-card border border-white/25 px-7 text-sm font-medium text-white transition-colors hover:border-white/60 hover:bg-white/10"
+              >
+                Связаться в WhatsApp
+                <WhatsApp className="size-[18px]" />
+              </a>
+            ) : null}
           </div>
         </div>
       </Container>

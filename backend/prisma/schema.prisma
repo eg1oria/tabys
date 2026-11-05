@@ -327,3 +327,24 @@ model AuditLog {
   @@index([entity, entityId])
   @@index([createdAt])
 }
+
+/// Контакты компании для сайта: шапка, подвал, страница «Контакты».
+/// Правятся из админки, строка одна (id = 1). Пока бэкенд недоступен,
+/// сайт показывает значения из frontend/src/lib/content/company.ts.
+model SiteContacts {
+  id           Int      @id @default(1)
+  /// Полный адрес: подвал, карточка на «Контактах», политика.
+  address      String
+  /// Короткий адрес — на карте и в тексте про проезд.
+  addressShort String
+  /// Ссылка «Построить маршрут» (2ГИС, Яндекс).
+  mapUrl       String
+  email        String
+  /// [{ label, digits }] — порядок как на сайте, первый номер главный.
+  phones       Json
+  whatsapp     String?
+  telegram     String?
+  instagram    String?
+  youtube      String?
+  updatedAt    DateTime @updatedAt
+}

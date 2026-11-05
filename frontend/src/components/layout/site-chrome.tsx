@@ -1,7 +1,8 @@
 import { Suspense } from "react";
 import { Header } from "./header";
 import { Footer } from "./footer";
-import { getCategories } from "@/lib/api/public";
+import { getCategories, getContacts } from "@/lib/api/public";
+import type { Contacts } from "@/lib/api/types";
 import { categoryHref } from "@/lib/catalog-urls";
 import { buildNav, type NavLink } from "@/lib/content/nav";
 
@@ -13,16 +14,20 @@ import { buildNav, type NavLink } from "@/lib/content/nav";
  * Под Suspense, потому что без бэкенда на сборке список дорисовывается по
  * запросу. Заглушка — та же шапка без подменю и подвал без списка, так что
  * навигация работает с первого байта.
+ *
+ * Контакты — вне Suspense: getContacts не бросает и пререндерится всегда,
+ * так что телефон и адрес в заглушке уже настоящие.
  */
-export function SiteChrome({ children }: { children: React.ReactNode }) {
+export async function SiteChrome({ children }: { children: React.ReactNode }) {
+  const contacts = await getContacts();
   return (
     <>
-      <Suspense fallback={<Header nav={buildNav([])} />}>
-        <HeaderWithCatalog />
+      <Suspense fallback={<Header nav={buildNav([])} contacts={contacts} />}>
+        <HeaderWithCatalog contacts={contacts} />
       </Suspense>
       {children}
-      <Suspense fallback={<Footer catalog={[]} />}>
-        <FooterWithCatalog />
+      <Suspense fallback={<Footer catalog={[]} contacts={contacts} />}>
+        <FooterWithCatalog contacts={contacts} />
       </Suspense>
     </>
   );
@@ -35,10 +40,10 @@ async function catalogLinks(): Promise<NavLink[]> {
   }));
 }
 
-async function HeaderWithCatalog() {
-  return <Header nav={buildNav(await catalogLinks())} />;
+async function HeaderWithCatalog({ contacts }: { contacts: Contacts }) {
+  return <Header nav={buildNav(await catalogLinks())} contacts={contacts} />;
 }
 
-async function FooterWithCatalog() {
-  return <Footer catalog={await catalogLinks()} />;
+async function FooterWithCatalog({ contacts }: { contacts: Contacts }) {
+  return <Footer catalog={await catalogLinks()} contacts={contacts} />;
 }

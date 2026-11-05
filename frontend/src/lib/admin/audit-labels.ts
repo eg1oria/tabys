@@ -13,6 +13,7 @@ export const AUDIT_ENTITY_LABEL: Record<string, string> = {
   AdminUser: "Администраторы",
   TelegramBot: "Бот Telegram",
   TelegramChat: "Чаты Telegram",
+  SiteContacts: "Контакты",
 };
 
 export const AUDIT_ENTITIES = Object.keys(AUDIT_ENTITY_LABEL);
@@ -44,6 +45,7 @@ const ACTION_LABEL: Record<string, string> = {
   "telegram.bot.remove": "отключил бота Telegram",
   "telegram.chat.add": "подключил чат Telegram",
   "telegram.chat.remove": "отключил чат Telegram",
+  "contacts.update": "изменил контакты на сайте",
 };
 
 export function actionLabel(action: string): string {
@@ -64,6 +66,7 @@ export function entityHref(
   if (entity === "Category") return `/admin/catalog/categories/${id}`;
   if (entity === "Product") return `/admin/catalog/products/${id}`;
   if (entity === "Lead") return `/admin/leads/${id}`;
+  if (entity === "SiteContacts") return "/admin/contacts";
   return null;
 }
 

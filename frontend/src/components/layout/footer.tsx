@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "./logo";
 import { Socials } from "./socials";
 import { Mail, Phone, Pin } from "@/components/ui/icons";
-import { company, primaryPhone } from "@/lib/content/company";
+import { company, phoneHref, primaryPhone } from "@/lib/content/company";
+import type { Contacts } from "@/lib/api/types";
 import type { NavLink } from "@/lib/content/nav";
 
-/** catalog — опубликованные категории из админки, их передаёт layout. */
-export function Footer({ catalog }: { catalog: NavLink[] }) {
+/** catalog и contacts — из админки, их передаёт layout. */
+export function Footer({ catalog, contacts }: { catalog: NavLink[]; contacts: Contacts }) {
+  const mainPhone = primaryPhone(contacts);
   return (
     <footer className="bg-ink text-white">
       <Container className="grid gap-12 py-14 lg:grid-cols-12 lg:gap-8 lg:py-16">
@@ -41,21 +43,21 @@ export function Footer({ catalog }: { catalog: NavLink[] }) {
           <ul className="mt-5 space-y-3.5 text-[13px] text-white/70">
             <li className="flex gap-3">
               <Pin className="mt-0.5 size-4 shrink-0 text-accent" />
-              <span>{company.address}</span>
+              <span>{contacts.address}</span>
             </li>
             <li className="flex gap-3">
               <Phone className="mt-0.5 size-4 shrink-0 text-accent" />
-              <a href={primaryPhone.href} className="transition-colors hover:text-accent">
-                {primaryPhone.display}
+              <a href={phoneHref(mainPhone)} className="transition-colors hover:text-accent">
+                {mainPhone.display}
               </a>
             </li>
             <li className="flex gap-3">
               <Mail className="mt-0.5 size-4 shrink-0 text-accent" />
               <a
-                href={`mailto:${company.email}`}
+                href={`mailto:${contacts.email}`}
                 className="transition-colors hover:text-accent"
               >
-                {company.email}
+                {contacts.email}
               </a>
             </li>
           </ul>
@@ -64,7 +66,7 @@ export function Footer({ catalog }: { catalog: NavLink[] }) {
             <Button href="/kontakty" arrow>
               Обсудить проект
             </Button>
-            <Socials />
+            <Socials contacts={contacts} />
           </div>
         </div>
       </Container>

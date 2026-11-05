@@ -22,6 +22,7 @@ import { UsersModule } from './modules/users/users.module.js';
 import { NotificationsModule } from './modules/notifications/notifications.module.js';
 import { StatsModule } from './modules/stats/stats.module.js';
 import { HousekeepingModule } from './modules/housekeeping/housekeeping.module.js';
+import { ContactsModule } from './modules/contacts/contacts.module.js';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { HousekeepingModule } from './modules/housekeeping/housekeeping.module.j
     NotificationsModule,
     StatsModule,
     HousekeepingModule,
+    ContactsModule,
     HealthModule,
   ],
   providers: [
