@@ -129,3 +129,8 @@ export type AuditLog = Prisma.AuditLogModel
  * сайт показывает значения из frontend/src/lib/content/company.ts.
  */
 export type SiteContacts = Prisma.SiteContactsModel
+/**
+ * Model Project
+ * Реализованный проект — страница «Проекты» и блок на главной.
+ */
+export type Project = Prisma.ProjectModel

@@ -67,7 +67,8 @@ export const ModelName = {
   TelegramChat: 'TelegramChat',
   TelegramLinkCode: 'TelegramLinkCode',
   AuditLog: 'AuditLog',
-  SiteContacts: 'SiteContacts'
+  SiteContacts: 'SiteContacts',
+  Project: 'Project'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -324,6 +325,23 @@ export const SiteContactsScalarFieldEnum = {
 } as const
 
 export type SiteContactsScalarFieldEnum = (typeof SiteContactsScalarFieldEnum)[keyof typeof SiteContactsScalarFieldEnum]
+
+
+export const ProjectScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  subtitle: 'subtitle',
+  location: 'location',
+  year: 'year',
+  scope: 'scope',
+  imageId: 'imageId',
+  status: 'status',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
 
 
 export const SortOrder = {

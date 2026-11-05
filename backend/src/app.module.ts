@@ -23,6 +23,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { StatsModule } from './modules/stats/stats.module.js';
 import { HousekeepingModule } from './modules/housekeeping/housekeeping.module.js';
 import { ContactsModule } from './modules/contacts/contacts.module.js';
+import { ProjectsModule } from './modules/projects/projects.module.js';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { ContactsModule } from './modules/contacts/contacts.module.js';
     StatsModule,
     HousekeepingModule,
     ContactsModule,
+    ProjectsModule,
     HealthModule,
   ],
   providers: [

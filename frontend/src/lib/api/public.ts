@@ -9,6 +9,7 @@ import type {
   PublicFacetGroup,
   PublicProduct,
   PublicProductDetail,
+  PublicProject,
 } from "./types";
 
 /**
@@ -137,6 +138,11 @@ export function getProduct(category: string, slug: string): Promise<PublicProduc
   return one<PublicProductDetail>(
     `/public/products/${encodeURIComponent(category)}/${encodeURIComponent(slug)}`,
   );
+}
+
+/** Опубликованные проекты в порядке, заданном в админке. */
+export function getProjects(): Promise<PublicProject[]> {
+  return list<PublicProject>("/public/projects");
 }
 
 /**

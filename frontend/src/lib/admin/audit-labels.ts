@@ -14,6 +14,7 @@ export const AUDIT_ENTITY_LABEL: Record<string, string> = {
   TelegramBot: "Бот Telegram",
   TelegramChat: "Чаты Telegram",
   SiteContacts: "Контакты",
+  Project: "Проекты",
 };
 
 export const AUDIT_ENTITIES = Object.keys(AUDIT_ENTITY_LABEL);
@@ -46,6 +47,12 @@ const ACTION_LABEL: Record<string, string> = {
   "telegram.chat.add": "подключил чат Telegram",
   "telegram.chat.remove": "отключил чат Telegram",
   "contacts.update": "изменил контакты на сайте",
+  "project.create": "добавил проект",
+  "project.update": "изменил проект",
+  "project.publish": "опубликовал проект",
+  "project.unpublish": "снял проект с публикации",
+  "project.reorder": "переставил проекты",
+  "project.delete": "удалил проект",
 };
 
 export function actionLabel(action: string): string {
@@ -67,6 +74,7 @@ export function entityHref(
   if (entity === "Product") return `/admin/catalog/products/${id}`;
   if (entity === "Lead") return `/admin/leads/${id}`;
   if (entity === "SiteContacts") return "/admin/contacts";
+  if (entity === "Project") return `/admin/projects/${id}`;
   return null;
 }
 

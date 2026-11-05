@@ -15,11 +15,13 @@ function usageDescription(count: {
   categories: number;
   products: number;
   productImages: number;
+  projects: number;
 }): string {
   return [
     count.categories > 0 ? `обложки категорий: ${count.categories}` : '',
     count.products > 0 ? `обложки товаров: ${count.products}` : '',
     count.productImages > 0 ? `галереи товаров: ${count.productImages}` : '',
+    count.projects > 0 ? `проекты: ${count.projects}` : '',
   ]
     .filter(Boolean)
     .join(', ');
@@ -117,7 +119,9 @@ export class MediaService {
     const asset = await this.prisma.mediaAsset.findUnique({
       where: { id },
       include: {
-        _count: { select: { categories: true, products: true, productImages: true } },
+        _count: {
+          select: { categories: true, products: true, productImages: true, projects: true },
+        },
       },
     });
     if (!asset) throw new NotFoundException('Файл не найден');

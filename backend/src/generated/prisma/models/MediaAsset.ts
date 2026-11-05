@@ -280,6 +280,7 @@ export type MediaAssetWhereInput = {
   categories?: Prisma.CategoryListRelationFilter
   products?: Prisma.ProductListRelationFilter
   productImages?: Prisma.ProductImageListRelationFilter
+  projects?: Prisma.ProjectListRelationFilter
 }
 
 export type MediaAssetOrderByWithRelationInput = {
@@ -299,6 +300,7 @@ export type MediaAssetOrderByWithRelationInput = {
   categories?: Prisma.CategoryOrderByRelationAggregateInput
   products?: Prisma.ProductOrderByRelationAggregateInput
   productImages?: Prisma.ProductImageOrderByRelationAggregateInput
+  projects?: Prisma.ProjectOrderByRelationAggregateInput
 }
 
 export type MediaAssetWhereUniqueInput = Prisma.AtLeast<{
@@ -321,6 +323,7 @@ export type MediaAssetWhereUniqueInput = Prisma.AtLeast<{
   categories?: Prisma.CategoryListRelationFilter
   products?: Prisma.ProductListRelationFilter
   productImages?: Prisma.ProductImageListRelationFilter
+  projects?: Prisma.ProjectListRelationFilter
 }, "id" | "storageKey">
 
 export type MediaAssetOrderByWithAggregationInput = {
@@ -377,6 +380,7 @@ export type MediaAssetCreateInput = {
   categories?: Prisma.CategoryCreateNestedManyWithoutImageInput
   products?: Prisma.ProductCreateNestedManyWithoutImageInput
   productImages?: Prisma.ProductImageCreateNestedManyWithoutMediaInput
+  projects?: Prisma.ProjectCreateNestedManyWithoutImageInput
 }
 
 export type MediaAssetUncheckedCreateInput = {
@@ -395,6 +399,7 @@ export type MediaAssetUncheckedCreateInput = {
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutImageInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutImageInput
   productImages?: Prisma.ProductImageUncheckedCreateNestedManyWithoutMediaInput
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutImageInput
 }
 
 export type MediaAssetUpdateInput = {
@@ -413,6 +418,7 @@ export type MediaAssetUpdateInput = {
   categories?: Prisma.CategoryUpdateManyWithoutImageNestedInput
   products?: Prisma.ProductUpdateManyWithoutImageNestedInput
   productImages?: Prisma.ProductImageUpdateManyWithoutMediaNestedInput
+  projects?: Prisma.ProjectUpdateManyWithoutImageNestedInput
 }
 
 export type MediaAssetUncheckedUpdateInput = {
@@ -431,6 +437,7 @@ export type MediaAssetUncheckedUpdateInput = {
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutImageNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutImageNestedInput
   productImages?: Prisma.ProductImageUncheckedUpdateManyWithoutMediaNestedInput
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutImageNestedInput
 }
 
 export type MediaAssetCreateManyInput = {
@@ -656,6 +663,22 @@ export type MediaAssetUpdateOneRequiredWithoutProductImagesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.MediaAssetUpdateToOneWithWhereWithoutProductImagesInput, Prisma.MediaAssetUpdateWithoutProductImagesInput>, Prisma.MediaAssetUncheckedUpdateWithoutProductImagesInput>
 }
 
+export type MediaAssetCreateNestedOneWithoutProjectsInput = {
+  create?: Prisma.XOR<Prisma.MediaAssetCreateWithoutProjectsInput, Prisma.MediaAssetUncheckedCreateWithoutProjectsInput>
+  connectOrCreate?: Prisma.MediaAssetCreateOrConnectWithoutProjectsInput
+  connect?: Prisma.MediaAssetWhereUniqueInput
+}
+
+export type MediaAssetUpdateOneWithoutProjectsNestedInput = {
+  create?: Prisma.XOR<Prisma.MediaAssetCreateWithoutProjectsInput, Prisma.MediaAssetUncheckedCreateWithoutProjectsInput>
+  connectOrCreate?: Prisma.MediaAssetCreateOrConnectWithoutProjectsInput
+  upsert?: Prisma.MediaAssetUpsertWithoutProjectsInput
+  disconnect?: Prisma.MediaAssetWhereInput | boolean
+  delete?: Prisma.MediaAssetWhereInput | boolean
+  connect?: Prisma.MediaAssetWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MediaAssetUpdateToOneWithWhereWithoutProjectsInput, Prisma.MediaAssetUpdateWithoutProjectsInput>, Prisma.MediaAssetUncheckedUpdateWithoutProjectsInput>
+}
+
 export type MediaAssetCreateWithoutUploadedByInput = {
   id?: string
   storageKey: string
@@ -671,6 +694,7 @@ export type MediaAssetCreateWithoutUploadedByInput = {
   categories?: Prisma.CategoryCreateNestedManyWithoutImageInput
   products?: Prisma.ProductCreateNestedManyWithoutImageInput
   productImages?: Prisma.ProductImageCreateNestedManyWithoutMediaInput
+  projects?: Prisma.ProjectCreateNestedManyWithoutImageInput
 }
 
 export type MediaAssetUncheckedCreateWithoutUploadedByInput = {
@@ -688,6 +712,7 @@ export type MediaAssetUncheckedCreateWithoutUploadedByInput = {
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutImageInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutImageInput
   productImages?: Prisma.ProductImageUncheckedCreateNestedManyWithoutMediaInput
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutImageInput
 }
 
 export type MediaAssetCreateOrConnectWithoutUploadedByInput = {
@@ -749,6 +774,7 @@ export type MediaAssetCreateWithoutCategoriesInput = {
   uploadedBy?: Prisma.AdminUserCreateNestedOneWithoutUploadedMediaInput
   products?: Prisma.ProductCreateNestedManyWithoutImageInput
   productImages?: Prisma.ProductImageCreateNestedManyWithoutMediaInput
+  projects?: Prisma.ProjectCreateNestedManyWithoutImageInput
 }
 
 export type MediaAssetUncheckedCreateWithoutCategoriesInput = {
@@ -766,6 +792,7 @@ export type MediaAssetUncheckedCreateWithoutCategoriesInput = {
   uploadedById?: string | null
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutImageInput
   productImages?: Prisma.ProductImageUncheckedCreateNestedManyWithoutMediaInput
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutImageInput
 }
 
 export type MediaAssetCreateOrConnectWithoutCategoriesInput = {
@@ -799,6 +826,7 @@ export type MediaAssetUpdateWithoutCategoriesInput = {
   uploadedBy?: Prisma.AdminUserUpdateOneWithoutUploadedMediaNestedInput
   products?: Prisma.ProductUpdateManyWithoutImageNestedInput
   productImages?: Prisma.ProductImageUpdateManyWithoutMediaNestedInput
+  projects?: Prisma.ProjectUpdateManyWithoutImageNestedInput
 }
 
 export type MediaAssetUncheckedUpdateWithoutCategoriesInput = {
@@ -816,6 +844,7 @@ export type MediaAssetUncheckedUpdateWithoutCategoriesInput = {
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   products?: Prisma.ProductUncheckedUpdateManyWithoutImageNestedInput
   productImages?: Prisma.ProductImageUncheckedUpdateManyWithoutMediaNestedInput
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutImageNestedInput
 }
 
 export type MediaAssetCreateWithoutProductsInput = {
@@ -833,6 +862,7 @@ export type MediaAssetCreateWithoutProductsInput = {
   uploadedBy?: Prisma.AdminUserCreateNestedOneWithoutUploadedMediaInput
   categories?: Prisma.CategoryCreateNestedManyWithoutImageInput
   productImages?: Prisma.ProductImageCreateNestedManyWithoutMediaInput
+  projects?: Prisma.ProjectCreateNestedManyWithoutImageInput
 }
 
 export type MediaAssetUncheckedCreateWithoutProductsInput = {
@@ -850,6 +880,7 @@ export type MediaAssetUncheckedCreateWithoutProductsInput = {
   uploadedById?: string | null
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutImageInput
   productImages?: Prisma.ProductImageUncheckedCreateNestedManyWithoutMediaInput
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutImageInput
 }
 
 export type MediaAssetCreateOrConnectWithoutProductsInput = {
@@ -883,6 +914,7 @@ export type MediaAssetUpdateWithoutProductsInput = {
   uploadedBy?: Prisma.AdminUserUpdateOneWithoutUploadedMediaNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutImageNestedInput
   productImages?: Prisma.ProductImageUpdateManyWithoutMediaNestedInput
+  projects?: Prisma.ProjectUpdateManyWithoutImageNestedInput
 }
 
 export type MediaAssetUncheckedUpdateWithoutProductsInput = {
@@ -900,6 +932,7 @@ export type MediaAssetUncheckedUpdateWithoutProductsInput = {
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutImageNestedInput
   productImages?: Prisma.ProductImageUncheckedUpdateManyWithoutMediaNestedInput
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutImageNestedInput
 }
 
 export type MediaAssetCreateWithoutProductImagesInput = {
@@ -917,6 +950,7 @@ export type MediaAssetCreateWithoutProductImagesInput = {
   uploadedBy?: Prisma.AdminUserCreateNestedOneWithoutUploadedMediaInput
   categories?: Prisma.CategoryCreateNestedManyWithoutImageInput
   products?: Prisma.ProductCreateNestedManyWithoutImageInput
+  projects?: Prisma.ProjectCreateNestedManyWithoutImageInput
 }
 
 export type MediaAssetUncheckedCreateWithoutProductImagesInput = {
@@ -934,6 +968,7 @@ export type MediaAssetUncheckedCreateWithoutProductImagesInput = {
   uploadedById?: string | null
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutImageInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutImageInput
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutImageInput
 }
 
 export type MediaAssetCreateOrConnectWithoutProductImagesInput = {
@@ -967,6 +1002,7 @@ export type MediaAssetUpdateWithoutProductImagesInput = {
   uploadedBy?: Prisma.AdminUserUpdateOneWithoutUploadedMediaNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutImageNestedInput
   products?: Prisma.ProductUpdateManyWithoutImageNestedInput
+  projects?: Prisma.ProjectUpdateManyWithoutImageNestedInput
 }
 
 export type MediaAssetUncheckedUpdateWithoutProductImagesInput = {
@@ -984,6 +1020,95 @@ export type MediaAssetUncheckedUpdateWithoutProductImagesInput = {
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutImageNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutImageNestedInput
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutImageNestedInput
+}
+
+export type MediaAssetCreateWithoutProjectsInput = {
+  id?: string
+  storageKey: string
+  originalName: string
+  mimeType: string
+  bytes: number
+  width?: number | null
+  height?: number | null
+  blurDataUrl?: string | null
+  derivatives?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  alt?: string
+  createdAt?: Date | string
+  uploadedBy?: Prisma.AdminUserCreateNestedOneWithoutUploadedMediaInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutImageInput
+  products?: Prisma.ProductCreateNestedManyWithoutImageInput
+  productImages?: Prisma.ProductImageCreateNestedManyWithoutMediaInput
+}
+
+export type MediaAssetUncheckedCreateWithoutProjectsInput = {
+  id?: string
+  storageKey: string
+  originalName: string
+  mimeType: string
+  bytes: number
+  width?: number | null
+  height?: number | null
+  blurDataUrl?: string | null
+  derivatives?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  alt?: string
+  createdAt?: Date | string
+  uploadedById?: string | null
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutImageInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutImageInput
+  productImages?: Prisma.ProductImageUncheckedCreateNestedManyWithoutMediaInput
+}
+
+export type MediaAssetCreateOrConnectWithoutProjectsInput = {
+  where: Prisma.MediaAssetWhereUniqueInput
+  create: Prisma.XOR<Prisma.MediaAssetCreateWithoutProjectsInput, Prisma.MediaAssetUncheckedCreateWithoutProjectsInput>
+}
+
+export type MediaAssetUpsertWithoutProjectsInput = {
+  update: Prisma.XOR<Prisma.MediaAssetUpdateWithoutProjectsInput, Prisma.MediaAssetUncheckedUpdateWithoutProjectsInput>
+  create: Prisma.XOR<Prisma.MediaAssetCreateWithoutProjectsInput, Prisma.MediaAssetUncheckedCreateWithoutProjectsInput>
+  where?: Prisma.MediaAssetWhereInput
+}
+
+export type MediaAssetUpdateToOneWithWhereWithoutProjectsInput = {
+  where?: Prisma.MediaAssetWhereInput
+  data: Prisma.XOR<Prisma.MediaAssetUpdateWithoutProjectsInput, Prisma.MediaAssetUncheckedUpdateWithoutProjectsInput>
+}
+
+export type MediaAssetUpdateWithoutProjectsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  storageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  originalName?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  bytes?: Prisma.IntFieldUpdateOperationsInput | number
+  width?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  height?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  blurDataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  derivatives?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  alt?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  uploadedBy?: Prisma.AdminUserUpdateOneWithoutUploadedMediaNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutImageNestedInput
+  products?: Prisma.ProductUpdateManyWithoutImageNestedInput
+  productImages?: Prisma.ProductImageUpdateManyWithoutMediaNestedInput
+}
+
+export type MediaAssetUncheckedUpdateWithoutProjectsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  storageKey?: Prisma.StringFieldUpdateOperationsInput | string
+  originalName?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  bytes?: Prisma.IntFieldUpdateOperationsInput | number
+  width?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  height?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  blurDataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  derivatives?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  alt?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutImageNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutImageNestedInput
+  productImages?: Prisma.ProductImageUncheckedUpdateManyWithoutMediaNestedInput
 }
 
 export type MediaAssetCreateManyUploadedByInput = {
@@ -1015,6 +1140,7 @@ export type MediaAssetUpdateWithoutUploadedByInput = {
   categories?: Prisma.CategoryUpdateManyWithoutImageNestedInput
   products?: Prisma.ProductUpdateManyWithoutImageNestedInput
   productImages?: Prisma.ProductImageUpdateManyWithoutMediaNestedInput
+  projects?: Prisma.ProjectUpdateManyWithoutImageNestedInput
 }
 
 export type MediaAssetUncheckedUpdateWithoutUploadedByInput = {
@@ -1032,6 +1158,7 @@ export type MediaAssetUncheckedUpdateWithoutUploadedByInput = {
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutImageNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutImageNestedInput
   productImages?: Prisma.ProductImageUncheckedUpdateManyWithoutMediaNestedInput
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutImageNestedInput
 }
 
 export type MediaAssetUncheckedUpdateManyWithoutUploadedByInput = {
@@ -1057,12 +1184,14 @@ export type MediaAssetCountOutputType = {
   categories: number
   products: number
   productImages: number
+  projects: number
 }
 
 export type MediaAssetCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   categories?: boolean | MediaAssetCountOutputTypeCountCategoriesArgs
   products?: boolean | MediaAssetCountOutputTypeCountProductsArgs
   productImages?: boolean | MediaAssetCountOutputTypeCountProductImagesArgs
+  projects?: boolean | MediaAssetCountOutputTypeCountProjectsArgs
 }
 
 /**
@@ -1096,6 +1225,13 @@ export type MediaAssetCountOutputTypeCountProductImagesArgs<ExtArgs extends runt
   where?: Prisma.ProductImageWhereInput
 }
 
+/**
+ * MediaAssetCountOutputType without action
+ */
+export type MediaAssetCountOutputTypeCountProjectsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectWhereInput
+}
+
 
 export type MediaAssetSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1114,6 +1250,7 @@ export type MediaAssetSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   categories?: boolean | Prisma.MediaAsset$categoriesArgs<ExtArgs>
   products?: boolean | Prisma.MediaAsset$productsArgs<ExtArgs>
   productImages?: boolean | Prisma.MediaAsset$productImagesArgs<ExtArgs>
+  projects?: boolean | Prisma.MediaAsset$projectsArgs<ExtArgs>
   _count?: boolean | Prisma.MediaAssetCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["mediaAsset"]>
 
@@ -1170,6 +1307,7 @@ export type MediaAssetInclude<ExtArgs extends runtime.Types.Extensions.InternalA
   categories?: boolean | Prisma.MediaAsset$categoriesArgs<ExtArgs>
   products?: boolean | Prisma.MediaAsset$productsArgs<ExtArgs>
   productImages?: boolean | Prisma.MediaAsset$productImagesArgs<ExtArgs>
+  projects?: boolean | Prisma.MediaAsset$projectsArgs<ExtArgs>
   _count?: boolean | Prisma.MediaAssetCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type MediaAssetIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1186,6 +1324,7 @@ export type $MediaAssetPayload<ExtArgs extends runtime.Types.Extensions.Internal
     categories: Prisma.$CategoryPayload<ExtArgs>[]
     products: Prisma.$ProductPayload<ExtArgs>[]
     productImages: Prisma.$ProductImagePayload<ExtArgs>[]
+    projects: Prisma.$ProjectPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1607,6 +1746,7 @@ export interface Prisma__MediaAssetClient<T, Null = never, ExtArgs extends runti
   categories<T extends Prisma.MediaAsset$categoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MediaAsset$categoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   products<T extends Prisma.MediaAsset$productsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MediaAsset$productsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   productImages<T extends Prisma.MediaAsset$productImagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MediaAsset$productImagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  projects<T extends Prisma.MediaAsset$projectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MediaAsset$projectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2137,6 +2277,30 @@ export type MediaAsset$productImagesArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.ProductImageScalarFieldEnum | Prisma.ProductImageScalarFieldEnum[]
+}
+
+/**
+ * MediaAsset.projects
+ */
+export type MediaAsset$projectsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Project
+   */
+  select?: Prisma.ProjectSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Project
+   */
+  omit?: Prisma.ProjectOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectInclude<ExtArgs> | null
+  where?: Prisma.ProjectWhereInput
+  orderBy?: Prisma.ProjectOrderByWithRelationInput | Prisma.ProjectOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectScalarFieldEnum | Prisma.ProjectScalarFieldEnum[]
 }
 
 /**

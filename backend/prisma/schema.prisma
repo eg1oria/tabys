@@ -94,6 +94,7 @@ model MediaAsset {
   categories    Category[]
   products      Product[]
   productImages ProductImage[]
+  projects      Project[]
 
   @@index([createdAt])
 }
@@ -347,4 +348,26 @@ model SiteContacts {
   instagram    String?
   youtube      String?
   updatedAt    DateTime @updatedAt
+}
+
+/// Реализованный проект — страница «Проекты» и блок на главной.
+model Project {
+  id        String        @id @default(uuid(7))
+  title     String
+  /// Строка под названием: город или что сделано.
+  subtitle  String        @default("")
+  /// Регион или город — в подписи над названием.
+  location  String        @default("")
+  /// Год строкой: бывает «2023–2024».
+  year      String        @default("")
+  /// Что поставили и сделали — пункты списка, по порядку.
+  scope     String[]
+  imageId   String?
+  image     MediaAsset?   @relation(fields: [imageId], references: [id], onDelete: SetNull)
+  status    PublishStatus @default(DRAFT)
+  sortOrder Int           @default(0)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([status, sortOrder])
 }

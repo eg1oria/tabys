@@ -332,3 +332,31 @@ export type Contacts = {
   instagram: string | null;
   youtube: string | null;
 };
+
+// ───────────────────────────── проекты ─────────────────────────────
+
+/** Проект для сайта — /public/projects. */
+export type PublicProject = {
+  id: string;
+  title: string;
+  subtitle: string;
+  location: string;
+  year: string;
+  scope: string[];
+  image: PublicImage | null;
+};
+
+export type AdminProject = {
+  id: string;
+  title: string;
+  subtitle: string;
+  location: string;
+  year: string;
+  scope: string[];
+  imageId: string | null;
+  image: AdminImage | null;
+  status: PublishStatus;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+};

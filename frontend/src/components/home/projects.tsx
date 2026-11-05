@@ -3,9 +3,13 @@ import { Container } from "@/components/ui/container";
 import { SectionHeader } from "@/components/ui/section-header";
 import { ImageSlot } from "@/components/ui/image-slot";
 import { ArrowRight } from "@/components/ui/icons";
-import { projects } from "@/lib/content/projects";
+import { getProjects } from "@/lib/api/public";
 
-export function Projects() {
+/** Первые три проекта из админки; нет ни одного — блока нет. */
+export async function Projects() {
+  const projects = (await getProjects()).slice(0, 3);
+  if (projects.length === 0) return null;
+
   return (
     <section className="bg-muted py-16 lg:py-24">
       <Container>
@@ -33,14 +37,15 @@ export function Projects() {
 
         <ul className="grid gap-4 md:grid-cols-3">
           {projects.map((project) => (
-            <li key={project.slug}>
+            <li key={project.id}>
               <Link
                 href="/proekty"
                 className="group relative block aspect-[4/3] overflow-hidden rounded-card"
               >
                 <ImageSlot
-                  src={project.image}
-                  alt={project.title}
+                  src={project.image?.url}
+                  alt={project.image?.alt || project.title}
+                  blurDataUrl={project.image?.blurDataUrl}
                   label={project.title}
                   className="absolute inset-0"
                   imageClassName="transition-transform duration-500 group-hover:scale-[1.05]"
@@ -54,7 +59,9 @@ export function Projects() {
                   <h3 className="font-display text-[15px] font-bold uppercase leading-[1.3] tracking-[0.01em] text-white">
                     {project.title}
                   </h3>
-                  <p className="mt-2 text-[12px] text-white/65">{project.subtitle}</p>
+                  {project.subtitle ? (
+                    <p className="mt-2 text-[12px] text-white/65">{project.subtitle}</p>
+                  ) : null}
                 </div>
               </Link>
             </li>

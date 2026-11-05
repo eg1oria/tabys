@@ -22,7 +22,9 @@ export default function HomePage() {
       <TzBlock />
       <Solutions />
       <Lines />
-      <Projects />
+      <Suspense>
+        <Projects />
+      </Suspense>
       <Seals />
       <WhyUs />
       <CtaBand />
