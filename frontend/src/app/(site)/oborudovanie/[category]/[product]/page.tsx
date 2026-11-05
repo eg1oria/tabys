@@ -133,10 +133,13 @@ export default async function ProductPage({ params }: Props) {
             </span>
           </nav>
 
-          <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:gap-12">
+          {/* На десктопе характеристики стоят в левой колонке под фото, а
+              описание справа занимает обе строки; на мобильном — по порядку:
+              фото, описание, характеристики. */}
+          <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:grid-rows-[auto_1fr] lg:gap-x-12 lg:gap-y-10">
             <ProductGallery images={product.images} title={product.title} />
 
-            <div>
+            <div className="lg:row-span-2">
               <SectionLabel>
                 <Link href={categoryHref(product.category.slug)} className="hover:underline">
                   {product.category.title}
@@ -173,23 +176,23 @@ export default async function ProductPage({ params }: Props) {
                   {primaryPhone.display}
                 </Button>
               </div>
-
-              {specs.length > 0 ? (
-                <div className="mt-10">
-                  <h2 className="font-display text-[15px] font-bold uppercase tracking-[0.02em]">
-                    Характеристики
-                  </h2>
-                  <dl className="mt-4 divide-y divide-line border-y border-line">
-                    {specs.map(({ key, value }) => (
-                      <div key={key} className="grid grid-cols-2 gap-4 py-3 text-[13.5px]">
-                        <dt className="text-text-2">{key}</dt>
-                        <dd className="font-medium">{value}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                </div>
-              ) : null}
             </div>
+
+            {specs.length > 0 ? (
+              <div className="lg:col-start-1 lg:row-start-2 lg:self-start">
+                <h2 className="font-display text-[15px] font-bold uppercase tracking-[0.02em]">
+                  Характеристики
+                </h2>
+                <dl className="mt-4 divide-y divide-line border-y border-line">
+                  {specs.map(({ key, value }) => (
+                    <div key={key} className="grid grid-cols-2 gap-4 py-3 text-[13.5px]">
+                      <dt className="text-text-2">{key}</dt>
+                      <dd className="font-medium">{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            ) : null}
           </div>
         </Container>
       </section>
