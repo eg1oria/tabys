@@ -126,6 +126,7 @@ describe('toPublicCategory', () => {
     description: '',
     highlights: [],
     positionCount: 20,
+    priceFrom: null,
     seoTitle: null,
     seoDescription: null,
     image: {

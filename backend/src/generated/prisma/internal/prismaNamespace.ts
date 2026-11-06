@@ -1899,6 +1899,7 @@ export const CategoryScalarFieldEnum = {
   description: 'description',
   highlights: 'highlights',
   positionCount: 'positionCount',
+  priceFrom: 'priceFrom',
   imageId: 'imageId',
   status: 'status',
   sortOrder: 'sortOrder',
@@ -2194,20 +2195,6 @@ export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
 
 
 /**
- * Reference to a field of type 'PublishStatus'
- */
-export type EnumPublishStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PublishStatus'>
-    
-
-
-/**
- * Reference to a field of type 'PublishStatus[]'
- */
-export type ListEnumPublishStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PublishStatus[]'>
-    
-
-
-/**
  * Reference to a field of type 'Decimal'
  */
 export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
@@ -2218,6 +2205,20 @@ export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
  * Reference to a field of type 'Decimal[]'
  */
 export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+    
+
+
+/**
+ * Reference to a field of type 'PublishStatus'
+ */
+export type EnumPublishStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PublishStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'PublishStatus[]'
+ */
+export type ListEnumPublishStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PublishStatus[]'>
     
 
 

@@ -181,6 +181,7 @@ export const CategoryScalarFieldEnum = {
   description: 'description',
   highlights: 'highlights',
   positionCount: 'positionCount',
+  priceFrom: 'priceFrom',
   imageId: 'imageId',
   status: 'status',
   sortOrder: 'sortOrder',

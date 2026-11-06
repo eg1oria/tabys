@@ -29,7 +29,7 @@ import {
 } from "./form-values";
 import type { AdminCategory, AdminProduct } from "../api/types";
 
-const CATEGORY_FIELDS = ["title", "slug", "short", "description", "positionCount"] as const;
+const CATEGORY_FIELDS = ["title", "slug", "short", "description", "positionCount", "priceFrom"] as const;
 const PRODUCT_FIELDS = ["title", "slug", "sku", "description", "priceFrom", "categoryId"] as const;
 
 /** Куда вернуться после сохранения или удаления: список с теми же фильтрами. */
@@ -47,11 +47,13 @@ export async function saveCategory(prev: FormState, formData: FormData): Promise
   const fail = (state: FormState) => withValues(state, prev, values);
 
   const positionCount = nullableInt(formData, "positionCount");
+  const priceFrom = nullableAmount(formData, "priceFrom");
 
   const errors: Record<string, string> = {};
   if (title.length < 2) errors.title = "Название не короче двух символов";
   if (description === "") errors.description = "Опишите категорию";
   if (positionCount === NOT_A_NUMBER) errors.positionCount = "Количество — целое число";
+  if (priceFrom === NOT_A_NUMBER) errors.priceFrom = "Цена — число, например 1 200 000";
   if (Object.keys(errors).length > 0) return fail({ status: "error", errors });
 
   const body = omitUndefined({
@@ -61,6 +63,7 @@ export async function saveCategory(prev: FormState, formData: FormData): Promise
     short: optionalText(formData, "short"),
     highlights: lines(formData, "highlights"),
     positionCount,
+    priceFrom,
     imageId: nullableText(formData, "imageId"),
     facetValueIds: strings(formData, "facetValueIds"),
     seoTitle: clearableText(formData, "seoTitle"),

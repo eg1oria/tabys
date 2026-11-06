@@ -12,7 +12,17 @@ function plural(count: number) {
   return "товаров";
 }
 
+/** Decimal приходит строкой; «1538000.00» → «от 1 538 000 ₸». */
+function priceLabel(priceFrom: string | null): string | null {
+  if (!priceFrom) return null;
+  const amount = Number(priceFrom);
+  if (!Number.isFinite(amount) || amount <= 0) return null;
+  return `от ${amount.toLocaleString("ru-RU")} ₸`;
+}
+
 export function CategoryCard({ category }: { category: PublicCategory }) {
+  const price = priceLabel(category.priceFrom);
+
   return (
     <Link
       href={categoryHref(category.slug)}
@@ -41,9 +51,16 @@ export function CategoryCard({ category }: { category: PublicCategory }) {
         {category.description}
       </p>
 
-      <span className="mt-4 grid size-9 shrink-0 place-items-center self-end rounded-card border border-line text-accent transition-colors group-hover:border-accent group-hover:bg-accent group-hover:text-white">
-        <ArrowRight className="size-4" />
-      </span>
+      <div className="mt-4 flex items-center justify-between gap-3">
+        {price ? (
+          <p className="text-[13px] font-semibold text-accent">{price}</p>
+        ) : (
+          <span />
+        )}
+        <span className="grid size-9 shrink-0 place-items-center rounded-card border border-line text-accent transition-colors group-hover:border-accent group-hover:bg-accent group-hover:text-white">
+          <ArrowRight className="size-4" />
+        </span>
+      </div>
     </Link>
   );
 }

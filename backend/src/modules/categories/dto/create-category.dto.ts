@@ -3,6 +3,7 @@ import {
   ArrayMaxSize,
   IsArray,
   IsInt,
+  IsNumber,
   IsOptional,
   IsString,
   Matches,
@@ -11,6 +12,7 @@ import {
   MinLength,
   ValidateIf,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 /** Пустое поле формы приходит как null — это «очистить», а не «не передано». */
 const notNull = () => ValidateIf((_: unknown, value: unknown) => value !== null);
@@ -60,6 +62,13 @@ export class CreateCategoryDto {
   @Min(0)
   @IsOptional()
   positionCount?: number | null;
+
+  @ApiPropertyOptional({ description: 'Цена «от» на карточке. Пусто — без цены.' })
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  @IsOptional()
+  priceFrom?: number | null;
 
   @ApiPropertyOptional({ description: 'id загруженного изображения' })
   @notNull()

@@ -28,11 +28,13 @@ export type AggregateCategory = {
 
 export type CategoryAvgAggregateOutputType = {
   positionCount: number | null
+  priceFrom: runtime.Decimal | null
   sortOrder: number | null
 }
 
 export type CategorySumAggregateOutputType = {
   positionCount: number | null
+  priceFrom: runtime.Decimal | null
   sortOrder: number | null
 }
 
@@ -43,6 +45,7 @@ export type CategoryMinAggregateOutputType = {
   short: string | null
   description: string | null
   positionCount: number | null
+  priceFrom: runtime.Decimal | null
   imageId: string | null
   status: $Enums.PublishStatus | null
   sortOrder: number | null
@@ -60,6 +63,7 @@ export type CategoryMaxAggregateOutputType = {
   short: string | null
   description: string | null
   positionCount: number | null
+  priceFrom: runtime.Decimal | null
   imageId: string | null
   status: $Enums.PublishStatus | null
   sortOrder: number | null
@@ -78,6 +82,7 @@ export type CategoryCountAggregateOutputType = {
   description: number
   highlights: number
   positionCount: number
+  priceFrom: number
   imageId: number
   status: number
   sortOrder: number
@@ -92,11 +97,13 @@ export type CategoryCountAggregateOutputType = {
 
 export type CategoryAvgAggregateInputType = {
   positionCount?: true
+  priceFrom?: true
   sortOrder?: true
 }
 
 export type CategorySumAggregateInputType = {
   positionCount?: true
+  priceFrom?: true
   sortOrder?: true
 }
 
@@ -107,6 +114,7 @@ export type CategoryMinAggregateInputType = {
   short?: true
   description?: true
   positionCount?: true
+  priceFrom?: true
   imageId?: true
   status?: true
   sortOrder?: true
@@ -124,6 +132,7 @@ export type CategoryMaxAggregateInputType = {
   short?: true
   description?: true
   positionCount?: true
+  priceFrom?: true
   imageId?: true
   status?: true
   sortOrder?: true
@@ -142,6 +151,7 @@ export type CategoryCountAggregateInputType = {
   description?: true
   highlights?: true
   positionCount?: true
+  priceFrom?: true
   imageId?: true
   status?: true
   sortOrder?: true
@@ -247,6 +257,7 @@ export type CategoryGroupByOutputType = {
   description: string
   highlights: string[]
   positionCount: number | null
+  priceFrom: runtime.Decimal | null
   imageId: string | null
   status: $Enums.PublishStatus
   sortOrder: number
@@ -288,6 +299,7 @@ export type CategoryWhereInput = {
   description?: Prisma.StringFilter<"Category"> | string
   highlights?: Prisma.StringNullableListFilter<"Category">
   positionCount?: Prisma.IntNullableFilter<"Category"> | number | null
+  priceFrom?: Prisma.DecimalNullableFilter<"Category"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   imageId?: Prisma.StringNullableFilter<"Category"> | string | null
   status?: Prisma.EnumPublishStatusFilter<"Category"> | $Enums.PublishStatus
   sortOrder?: Prisma.IntFilter<"Category"> | number
@@ -309,6 +321,7 @@ export type CategoryOrderByWithRelationInput = {
   description?: Prisma.SortOrder
   highlights?: Prisma.SortOrder
   positionCount?: Prisma.SortOrderInput | Prisma.SortOrder
+  priceFrom?: Prisma.SortOrderInput | Prisma.SortOrder
   imageId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
@@ -333,6 +346,7 @@ export type CategoryWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringFilter<"Category"> | string
   highlights?: Prisma.StringNullableListFilter<"Category">
   positionCount?: Prisma.IntNullableFilter<"Category"> | number | null
+  priceFrom?: Prisma.DecimalNullableFilter<"Category"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   imageId?: Prisma.StringNullableFilter<"Category"> | string | null
   status?: Prisma.EnumPublishStatusFilter<"Category"> | $Enums.PublishStatus
   sortOrder?: Prisma.IntFilter<"Category"> | number
@@ -354,6 +368,7 @@ export type CategoryOrderByWithAggregationInput = {
   description?: Prisma.SortOrder
   highlights?: Prisma.SortOrder
   positionCount?: Prisma.SortOrderInput | Prisma.SortOrder
+  priceFrom?: Prisma.SortOrderInput | Prisma.SortOrder
   imageId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
@@ -380,6 +395,7 @@ export type CategoryScalarWhereWithAggregatesInput = {
   description?: Prisma.StringWithAggregatesFilter<"Category"> | string
   highlights?: Prisma.StringNullableListFilter<"Category">
   positionCount?: Prisma.IntNullableWithAggregatesFilter<"Category"> | number | null
+  priceFrom?: Prisma.DecimalNullableWithAggregatesFilter<"Category"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   imageId?: Prisma.StringNullableWithAggregatesFilter<"Category"> | string | null
   status?: Prisma.EnumPublishStatusWithAggregatesFilter<"Category"> | $Enums.PublishStatus
   sortOrder?: Prisma.IntWithAggregatesFilter<"Category"> | number
@@ -398,6 +414,7 @@ export type CategoryCreateInput = {
   description: string
   highlights?: Prisma.CategoryCreatehighlightsInput | string[]
   positionCount?: number | null
+  priceFrom?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: $Enums.PublishStatus
   sortOrder?: number
   seoTitle?: string | null
@@ -418,6 +435,7 @@ export type CategoryUncheckedCreateInput = {
   description: string
   highlights?: Prisma.CategoryCreatehighlightsInput | string[]
   positionCount?: number | null
+  priceFrom?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   imageId?: string | null
   status?: $Enums.PublishStatus
   sortOrder?: number
@@ -438,6 +456,7 @@ export type CategoryUpdateInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   highlights?: Prisma.CategoryUpdatehighlightsInput | string[]
   positionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  priceFrom?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: Prisma.EnumPublishStatusFieldUpdateOperationsInput | $Enums.PublishStatus
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   seoTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -458,6 +477,7 @@ export type CategoryUncheckedUpdateInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   highlights?: Prisma.CategoryUpdatehighlightsInput | string[]
   positionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  priceFrom?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   imageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPublishStatusFieldUpdateOperationsInput | $Enums.PublishStatus
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -478,6 +498,7 @@ export type CategoryCreateManyInput = {
   description: string
   highlights?: Prisma.CategoryCreatehighlightsInput | string[]
   positionCount?: number | null
+  priceFrom?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   imageId?: string | null
   status?: $Enums.PublishStatus
   sortOrder?: number
@@ -496,6 +517,7 @@ export type CategoryUpdateManyMutationInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   highlights?: Prisma.CategoryUpdatehighlightsInput | string[]
   positionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  priceFrom?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: Prisma.EnumPublishStatusFieldUpdateOperationsInput | $Enums.PublishStatus
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   seoTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -513,6 +535,7 @@ export type CategoryUncheckedUpdateManyInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   highlights?: Prisma.CategoryUpdatehighlightsInput | string[]
   positionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  priceFrom?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   imageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPublishStatusFieldUpdateOperationsInput | $Enums.PublishStatus
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -554,6 +577,7 @@ export type CategoryCountOrderByAggregateInput = {
   description?: Prisma.SortOrder
   highlights?: Prisma.SortOrder
   positionCount?: Prisma.SortOrder
+  priceFrom?: Prisma.SortOrder
   imageId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
@@ -566,6 +590,7 @@ export type CategoryCountOrderByAggregateInput = {
 
 export type CategoryAvgOrderByAggregateInput = {
   positionCount?: Prisma.SortOrder
+  priceFrom?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
 }
 
@@ -576,6 +601,7 @@ export type CategoryMaxOrderByAggregateInput = {
   short?: Prisma.SortOrder
   description?: Prisma.SortOrder
   positionCount?: Prisma.SortOrder
+  priceFrom?: Prisma.SortOrder
   imageId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
@@ -593,6 +619,7 @@ export type CategoryMinOrderByAggregateInput = {
   short?: Prisma.SortOrder
   description?: Prisma.SortOrder
   positionCount?: Prisma.SortOrder
+  priceFrom?: Prisma.SortOrder
   imageId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
@@ -605,6 +632,7 @@ export type CategoryMinOrderByAggregateInput = {
 
 export type CategorySumOrderByAggregateInput = {
   positionCount?: Prisma.SortOrder
+  priceFrom?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
 }
 
@@ -673,6 +701,14 @@ export type CategoryUpdatehighlightsInput = {
   push?: string | string[]
 }
 
+export type NullableDecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
 export type EnumPublishStatusFieldUpdateOperationsInput = {
   set?: $Enums.PublishStatus
 }
@@ -699,6 +735,7 @@ export type CategoryCreateWithoutImageInput = {
   description: string
   highlights?: Prisma.CategoryCreatehighlightsInput | string[]
   positionCount?: number | null
+  priceFrom?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: $Enums.PublishStatus
   sortOrder?: number
   seoTitle?: string | null
@@ -718,6 +755,7 @@ export type CategoryUncheckedCreateWithoutImageInput = {
   description: string
   highlights?: Prisma.CategoryCreatehighlightsInput | string[]
   positionCount?: number | null
+  priceFrom?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: $Enums.PublishStatus
   sortOrder?: number
   seoTitle?: string | null
@@ -766,6 +804,7 @@ export type CategoryScalarWhereInput = {
   description?: Prisma.StringFilter<"Category"> | string
   highlights?: Prisma.StringNullableListFilter<"Category">
   positionCount?: Prisma.IntNullableFilter<"Category"> | number | null
+  priceFrom?: Prisma.DecimalNullableFilter<"Category"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   imageId?: Prisma.StringNullableFilter<"Category"> | string | null
   status?: Prisma.EnumPublishStatusFilter<"Category"> | $Enums.PublishStatus
   sortOrder?: Prisma.IntFilter<"Category"> | number
@@ -784,6 +823,7 @@ export type CategoryCreateWithoutFacetValuesInput = {
   description: string
   highlights?: Prisma.CategoryCreatehighlightsInput | string[]
   positionCount?: number | null
+  priceFrom?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: $Enums.PublishStatus
   sortOrder?: number
   seoTitle?: string | null
@@ -803,6 +843,7 @@ export type CategoryUncheckedCreateWithoutFacetValuesInput = {
   description: string
   highlights?: Prisma.CategoryCreatehighlightsInput | string[]
   positionCount?: number | null
+  priceFrom?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   imageId?: string | null
   status?: $Enums.PublishStatus
   sortOrder?: number
@@ -838,6 +879,7 @@ export type CategoryUpdateWithoutFacetValuesInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   highlights?: Prisma.CategoryUpdatehighlightsInput | string[]
   positionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  priceFrom?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: Prisma.EnumPublishStatusFieldUpdateOperationsInput | $Enums.PublishStatus
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   seoTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -857,6 +899,7 @@ export type CategoryUncheckedUpdateWithoutFacetValuesInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   highlights?: Prisma.CategoryUpdatehighlightsInput | string[]
   positionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  priceFrom?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   imageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPublishStatusFieldUpdateOperationsInput | $Enums.PublishStatus
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -876,6 +919,7 @@ export type CategoryCreateWithoutProductsInput = {
   description: string
   highlights?: Prisma.CategoryCreatehighlightsInput | string[]
   positionCount?: number | null
+  priceFrom?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: $Enums.PublishStatus
   sortOrder?: number
   seoTitle?: string | null
@@ -895,6 +939,7 @@ export type CategoryUncheckedCreateWithoutProductsInput = {
   description: string
   highlights?: Prisma.CategoryCreatehighlightsInput | string[]
   positionCount?: number | null
+  priceFrom?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   imageId?: string | null
   status?: $Enums.PublishStatus
   sortOrder?: number
@@ -930,6 +975,7 @@ export type CategoryUpdateWithoutProductsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   highlights?: Prisma.CategoryUpdatehighlightsInput | string[]
   positionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  priceFrom?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: Prisma.EnumPublishStatusFieldUpdateOperationsInput | $Enums.PublishStatus
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   seoTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -949,6 +995,7 @@ export type CategoryUncheckedUpdateWithoutProductsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   highlights?: Prisma.CategoryUpdatehighlightsInput | string[]
   positionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  priceFrom?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   imageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumPublishStatusFieldUpdateOperationsInput | $Enums.PublishStatus
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
@@ -968,6 +1015,7 @@ export type CategoryCreateManyImageInput = {
   description: string
   highlights?: Prisma.CategoryCreatehighlightsInput | string[]
   positionCount?: number | null
+  priceFrom?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: $Enums.PublishStatus
   sortOrder?: number
   seoTitle?: string | null
@@ -985,6 +1033,7 @@ export type CategoryUpdateWithoutImageInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   highlights?: Prisma.CategoryUpdatehighlightsInput | string[]
   positionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  priceFrom?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: Prisma.EnumPublishStatusFieldUpdateOperationsInput | $Enums.PublishStatus
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   seoTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1004,6 +1053,7 @@ export type CategoryUncheckedUpdateWithoutImageInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   highlights?: Prisma.CategoryUpdatehighlightsInput | string[]
   positionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  priceFrom?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: Prisma.EnumPublishStatusFieldUpdateOperationsInput | $Enums.PublishStatus
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   seoTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1023,6 +1073,7 @@ export type CategoryUncheckedUpdateManyWithoutImageInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   highlights?: Prisma.CategoryUpdatehighlightsInput | string[]
   positionCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  priceFrom?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   status?: Prisma.EnumPublishStatusFieldUpdateOperationsInput | $Enums.PublishStatus
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   seoTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1080,6 +1131,7 @@ export type CategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   description?: boolean
   highlights?: boolean
   positionCount?: boolean
+  priceFrom?: boolean
   imageId?: boolean
   status?: boolean
   sortOrder?: boolean
@@ -1102,6 +1154,7 @@ export type CategorySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   description?: boolean
   highlights?: boolean
   positionCount?: boolean
+  priceFrom?: boolean
   imageId?: boolean
   status?: boolean
   sortOrder?: boolean
@@ -1121,6 +1174,7 @@ export type CategorySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   description?: boolean
   highlights?: boolean
   positionCount?: boolean
+  priceFrom?: boolean
   imageId?: boolean
   status?: boolean
   sortOrder?: boolean
@@ -1140,6 +1194,7 @@ export type CategorySelectScalar = {
   description?: boolean
   highlights?: boolean
   positionCount?: boolean
+  priceFrom?: boolean
   imageId?: boolean
   status?: boolean
   sortOrder?: boolean
@@ -1150,7 +1205,7 @@ export type CategorySelectScalar = {
   updatedAt?: boolean
 }
 
-export type CategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "title" | "short" | "description" | "highlights" | "positionCount" | "imageId" | "status" | "sortOrder" | "seoTitle" | "seoDescription" | "publishedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["category"]>
+export type CategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "title" | "short" | "description" | "highlights" | "positionCount" | "priceFrom" | "imageId" | "status" | "sortOrder" | "seoTitle" | "seoDescription" | "publishedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["category"]>
 export type CategoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   image?: boolean | Prisma.Category$imageArgs<ExtArgs>
   facetValues?: boolean | Prisma.Category$facetValuesArgs<ExtArgs>
@@ -1190,6 +1245,10 @@ export type $CategoryPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
      * а не вычисляемое значение: публично отдаём positionCount ?? _count.products.
      */
     positionCount: number | null
+    /**
+     * «Цена от» на карточке категории. Пусто — строки с ценой нет.
+     */
+    priceFrom: runtime.Decimal | null
     imageId: string | null
     status: $Enums.PublishStatus
     sortOrder: number
@@ -1631,6 +1690,7 @@ export interface CategoryFieldRefs {
   readonly description: Prisma.FieldRef<"Category", 'String'>
   readonly highlights: Prisma.FieldRef<"Category", 'String[]'>
   readonly positionCount: Prisma.FieldRef<"Category", 'Int'>
+  readonly priceFrom: Prisma.FieldRef<"Category", 'Decimal'>
   readonly imageId: Prisma.FieldRef<"Category", 'String'>
   readonly status: Prisma.FieldRef<"Category", 'PublishStatus'>
   readonly sortOrder: Prisma.FieldRef<"Category", 'Int'>

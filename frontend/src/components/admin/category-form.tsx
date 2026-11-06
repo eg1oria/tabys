@@ -122,6 +122,24 @@ export function CategoryForm({
               />
             </span>
           </Field>
+
+          <Field
+            label="Цена от, ₸"
+            htmlFor="priceFrom"
+            error={errors.priceFrom}
+            hint="Покажем на карточке категории: «от 1 538 000 ₸». Пусто — без цены."
+          >
+            <span className="block w-48">
+              <TextInput
+                id="priceFrom"
+                name="priceFrom"
+                inputMode="decimal"
+                defaultValue={was("priceFrom") ?? category?.priceFrom ?? ""}
+                error={errors.priceFrom}
+                placeholder="1 538 000"
+              />
+            </span>
+          </Field>
         </div>
 
         <div className="space-y-5">

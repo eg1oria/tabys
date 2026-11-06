@@ -114,6 +114,8 @@ export type PublicCategory = {
   description: string;
   /** Витринное число позиций: positionCount, иначе число опубликованных товаров. */
   count: number;
+  /** «Цена от» на карточке, Decimal строкой. null — цену не показываем. */
+  priceFrom: string | null;
   image: PublicImage | null;
   /** Пункты крупной карточки на главной. */
   highlights: string[];
@@ -179,6 +181,7 @@ export type AdminCategory = {
   description: string;
   highlights: string[];
   positionCount: number | null;
+  priceFrom: string | null;
   imageId: string | null;
   image: AdminImage | null;
   seoTitle: string | null;

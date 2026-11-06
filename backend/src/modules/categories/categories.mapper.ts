@@ -19,6 +19,8 @@ export type PublicCategoryRow = {
   description: string;
   highlights: string[];
   positionCount: number | null;
+  /** Prisma.Decimal; наружу отдаём строкой — число потеряло бы точность. */
+  priceFrom: { toString(): string } | null;
   seoTitle: string | null;
   seoDescription: string | null;
   image: ImageRow;
@@ -48,6 +50,7 @@ export function toPublicCategory(row: PublicCategoryRow, mediaBaseUrl: string) {
     short: row.short,
     description: row.description,
     count: row.positionCount ?? row._count.products,
+    priceFrom: row.priceFrom?.toString() ?? null,
     image: row.image
       ? {
           url: `${mediaBaseUrl}/uploads/${row.image.storageKey}`,
