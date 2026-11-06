@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { TextInput } from "@/components/ui/field";
 import { IconButton } from "@/components/ui/icon-button";
-import { ChevronDown, ChevronUp, Plus, Trash } from "@/components/ui/icons";
+import { ChevronDown, ChevronUp, Plus, Trash, Upload } from "@/components/ui/icons";
+import { importSpecsFile, SpecsImportError } from "@/lib/admin/specs-import";
 import type { ProductSpec } from "@/lib/api/types";
 
 type Row = ProductSpec & { id: number };
@@ -24,12 +25,41 @@ function emptyRow(): Row {
  * в product-form) и передаёт сюда отправленные строки — так ввод не
  * пропадает вместе с ошибкой. React 19 сбрасывает поля формы после любого
  * действия, поэтому восстанавливать нужно именно так, а не состоянием.
+ *
+ * «Импорт из Excel» заменяет строки содержимым таблицы (см. specs-import).
+ * Файловый input без name — в отправку формы он не попадает, на сервер
+ * уходят только получившиеся пары, как при ручном вводе.
  */
 export function SpecsEditor({ specs }: { specs: ProductSpec[] | null }) {
   const [rows, setRows] = useState<Row[]>(() => {
     const initial = (specs ?? []).map((spec) => ({ id: nextRowId++, ...spec }));
     return initial.length > 0 ? initial : [emptyRow()];
   });
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [notice, setNotice] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
+
+  async function importFile(file: File) {
+    let imported: ProductSpec[];
+    try {
+      imported = await importSpecsFile(file);
+    } catch (error) {
+      setNotice({
+        tone: "error",
+        text: error instanceof SpecsImportError ? error.message : "Не удалось прочитать файл",
+      });
+      return;
+    }
+
+    const filled = rows.filter((row) => row.key.trim() !== "" || row.value.trim() !== "").length;
+    if (filled > 0 && !window.confirm(`Заменить текущие характеристики (${filled}) данными из файла?`)) {
+      return;
+    }
+    setRows(imported.map((spec) => ({ id: nextRowId++, ...spec })));
+    setNotice({
+      tone: "ok",
+      text: `Загружено из «${file.name}»: ${imported.length}. Проверьте и сохраните товар.`,
+    });
+  }
 
   function update(id: number, patch: Partial<ProductSpec>) {
     setRows((cur) => cur.map((row) => (row.id === id ? { ...row, ...patch } : row)));
@@ -96,14 +126,47 @@ export function SpecsEditor({ specs }: { specs: ProductSpec[] | null }) {
         </div>
       ))}
 
-      <button
-        type="button"
-        onClick={() => setRows((cur) => [...cur, emptyRow()])}
-        className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-accent hover:underline"
-      >
-        <Plus className="size-4" />
-        Добавить характеристику
-      </button>
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+        <button
+          type="button"
+          onClick={() => setRows((cur) => [...cur, emptyRow()])}
+          className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-accent hover:underline"
+        >
+          <Plus className="size-4" />
+          Добавить характеристику
+        </button>
+        <button
+          type="button"
+          onClick={() => fileInput.current?.click()}
+          className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-accent hover:underline"
+        >
+          <Upload className="size-4" />
+          Импорт из Excel
+        </button>
+        <input
+          ref={fileInput}
+          type="file"
+          accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            // Сбрасываем, чтобы повторный выбор того же файла снова сработал.
+            e.target.value = "";
+            if (file) void importFile(file);
+          }}
+        />
+      </div>
+      <p className="text-[12px] text-text-2">
+        Файл .xlsx или .csv: в первой колонке название, во второй значение.
+      </p>
+      {notice && (
+        <p
+          role={notice.tone === "error" ? "alert" : "status"}
+          className={notice.tone === "error" ? "text-[12.5px] text-red-600" : "text-[12.5px] text-text-2"}
+        >
+          {notice.text}
+        </p>
+      )}
     </div>
   );
 }
